@@ -1,0 +1,164 @@
+Reusing configuration cache.
+> Task :app:preBuild UP-TO-DATE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preLicogDebugBuild UP-TO-DATE
+> Task :app:preStopandshopDebugBuild UP-TO-DATE
+> Task :app:preBarandgrillDebugBuild UP-TO-DATE
+> Task :app:generateBarandgrillDebugBuildConfig UP-TO-DATE
+> Task :app:createBarandgrillDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:mergeBarandgrillDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateBarandgrillDebugResValues UP-TO-DATE
+> Task :app:mergeBarandgrillDebugShaders UP-TO-DATE
+> Task :app:desugarBarandgrillDebugFileDependencies UP-TO-DATE
+> Task :app:javaPreCompileBarandgrillDebug UP-TO-DATE
+> Task :app:extractDeepLinksBarandgrillDebug UP-TO-DATE
+> Task :app:compileBarandgrillDebugShaders NO-SOURCE
+> Task :app:generateBarandgrillDebugAssets UP-TO-DATE
+> Task :app:generateBarandgrillDebugResources UP-TO-DATE
+> Task :app:mergeBarandgrillDebugJniLibFolders UP-TO-DATE
+> Task :app:packageBarandgrillDebugResources UP-TO-DATE
+> Task :app:checkBarandgrillDebugDuplicateClasses UP-TO-DATE
+> Task :app:mergeExtDexBarandgrillDebug UP-TO-DATE
+> Task :app:mergeLibDexBarandgrillDebug UP-TO-DATE
+> Task :app:validateSigningBarandgrillDebug UP-TO-DATE
+> Task :app:writeBarandgrillDebugAppMetadata UP-TO-DATE
+> Task :app:writeBarandgrillDebugSigningConfigVersions UP-TO-DATE
+> Task :app:mergeLicogDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateLicogDebugBuildConfig UP-TO-DATE
+> Task :app:mergeBarandgrillDebugAssets UP-TO-DATE
+> Task :app:mapBarandgrillDebugSourceSetPaths UP-TO-DATE
+> Task :app:checkLicogDebugAarMetadata UP-TO-DATE
+> Task :app:mergeBarandgrillDebugResources UP-TO-DATE
+> Task :app:processBarandgrillDebugMainManifest UP-TO-DATE
+> Task :app:checkBarandgrillDebugAarMetadata UP-TO-DATE
+> Task :app:javaPreCompileLicogDebug UP-TO-DATE
+> Task :app:compressBarandgrillDebugAssets UP-TO-DATE
+> Task :app:createLicogDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:processBarandgrillDebugManifest UP-TO-DATE
+> Task :app:generateLicogDebugResValues UP-TO-DATE
+> Task :app:mergeLicogDebugShaders UP-TO-DATE
+> Task :app:checkLicogDebugDuplicateClasses UP-TO-DATE
+> Task :app:processBarandgrillDebugManifestForPackage UP-TO-DATE
+> Task :app:extractDeepLinksLicogDebug UP-TO-DATE
+> Task :app:compileLicogDebugShaders NO-SOURCE
+> Task :app:generateLicogDebugAssets UP-TO-DATE
+> Task :app:mergeBarandgrillDebugNativeLibs UP-TO-DATE
+> Task :app:desugarLicogDebugFileDependencies UP-TO-DATE
+> Task :app:mergeLicogDebugAssets UP-TO-DATE
+> Task :app:compressLicogDebugAssets UP-TO-DATE
+> Task :app:generateLicogDebugResources UP-TO-DATE
+> Task :app:mergeExtDexLicogDebug UP-TO-DATE
+> Task :app:stripBarandgrillDebugDebugSymbols UP-TO-DATE
+> Task :app:mergeLicogDebugJniLibFolders UP-TO-DATE
+> Task :app:mapLicogDebugSourceSetPaths UP-TO-DATE
+> Task :app:validateSigningLicogDebug UP-TO-DATE
+> Task :app:writeLicogDebugAppMetadata UP-TO-DATE
+> Task :app:processLicogDebugMainManifest UP-TO-DATE
+> Task :app:writeLicogDebugSigningConfigVersions UP-TO-DATE
+> Task :app:mergeStopandshopDebugNativeDebugMetadata NO-SOURCE
+> Task :app:generateStopandshopDebugBuildConfig UP-TO-DATE
+> Task :app:processLicogDebugManifest UP-TO-DATE
+> Task :app:checkStopandshopDebugAarMetadata UP-TO-DATE
+> Task :app:processLicogDebugManifestForPackage UP-TO-DATE
+> Task :app:generateStopandshopDebugResValues UP-TO-DATE
+> Task :app:mergeLicogDebugNativeLibs UP-TO-DATE
+> Task :app:stripLicogDebugDebugSymbols UP-TO-DATE
+> Task :app:packageLicogDebugResources UP-TO-DATE
+> Task :app:mergeLibDexLicogDebug UP-TO-DATE
+> Task :app:extractDeepLinksStopandshopDebug UP-TO-DATE
+> Task :app:createStopandshopDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:processStopandshopDebugMainManifest UP-TO-DATE
+> Task :app:javaPreCompileStopandshopDebug UP-TO-DATE
+> Task :app:processStopandshopDebugManifest UP-TO-DATE
+> Task :app:generateStopandshopDebugResources UP-TO-DATE
+> Task :app:mapStopandshopDebugSourceSetPaths UP-TO-DATE
+> Task :app:processStopandshopDebugManifestForPackage UP-TO-DATE
+> Task :app:mergeStopandshopDebugShaders UP-TO-DATE
+> Task :app:compileStopandshopDebugShaders NO-SOURCE
+> Task :app:generateStopandshopDebugAssets UP-TO-DATE
+> Task :app:checkStopandshopDebugDuplicateClasses UP-TO-DATE
+> Task :app:mergeStopandshopDebugAssets UP-TO-DATE
+> Task :app:compressStopandshopDebugAssets UP-TO-DATE
+> Task :app:desugarStopandshopDebugFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexStopandshopDebug UP-TO-DATE
+> Task :app:mergeLibDexStopandshopDebug UP-TO-DATE
+> Task :app:mergeStopandshopDebugJniLibFolders UP-TO-DATE
+> Task :app:validateSigningStopandshopDebug UP-TO-DATE
+> Task :app:writeStopandshopDebugAppMetadata UP-TO-DATE
+> Task :app:writeStopandshopDebugSigningConfigVersions UP-TO-DATE
+> Task :app:mergeStopandshopDebugNativeLibs UP-TO-DATE
+> Task :app:stripStopandshopDebugDebugSymbols UP-TO-DATE
+> Task :app:mergeLicogDebugResources UP-TO-DATE
+> Task :app:mergeStopandshopDebugResources UP-TO-DATE
+> Task :app:packageStopandshopDebugResources UP-TO-DATE
+> Task :app:processLicogDebugNavigationResources UP-TO-DATE
+> Task :app:processStopandshopDebugNavigationResources UP-TO-DATE
+> Task :app:processBarandgrillDebugNavigationResources UP-TO-DATE
+> Task :app:parseStopandshopDebugLocalResources UP-TO-DATE
+> Task :app:compileStopandshopDebugNavigationResources UP-TO-DATE
+> Task :app:compileLicogDebugNavigationResources UP-TO-DATE
+> Task :app:parseBarandgrillDebugLocalResources UP-TO-DATE
+> Task :app:parseLicogDebugLocalResources UP-TO-DATE
+> Task :app:compileBarandgrillDebugNavigationResources UP-TO-DATE
+> Task :app:processLicogDebugResources UP-TO-DATE
+> Task :app:processBarandgrillDebugResources UP-TO-DATE
+> Task :app:processStopandshopDebugResources UP-TO-DATE
+
+> Task :app:kspBarandgrillDebugKotlin FAILED
+e: file:///home/kali/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/local/AppDatabase.kt:62:1 Expecting a top level declaration
+
+> Task :app:kspStopandshopDebugKotlin FAILED
+e: file:///home/kali/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/local/AppDatabase.kt:62:1 Expecting a top level declaration
+
+> Task :app:kspLicogDebugKotlin
+e: file:///home/kali/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/local/AppDatabase.kt:62:1 Expecting a top level declaration
+
+> Task :app:kspLicogDebugKotlin FAILED
+
+FAILURE: Build completed with 3 failures.
+
+1: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':app:kspBarandgrillDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+2: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':app:kspStopandshopDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+3: Task failed with an exception.
+-----------
+* What went wrong:
+Execution failed for task ':app:kspLicogDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+==============================================================================
+
+BUILD FAILED in 26s
+93 actionable tasks: 3 executed, 90 up-to-date
+Configuration cache entry reused.
