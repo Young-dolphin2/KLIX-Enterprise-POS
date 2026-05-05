@@ -336,88 +336,82 @@ fun DashboardScreen(
         }
 
         try {
-            // Fetch Branches
-            val fetchedBranches = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                .postgrest["branches"].select().decodeAs<List<BranchDto>>()
-
-            branches.clear()
-            branches.addAll(fetchedBranches)
-            appSettings = appSettings.copy(branches = fetchedBranches)
-
-            // Fetch Menu Items from Supabase
-            val fetchedMenu = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                .postgrest["menu_items"]
-                .select { filter { eq("is_active", true) } }
-                .decodeAs<List<com.example.barandgrillownerpanel.models.MenuItemDto>>()
-            menuItems.clear()
-            menuItems.addAll(fetchedMenu.mapIndexed { index, dto ->
-                DesktopMenuItem(
-                    id = dto.id ?: (index + 1).toString(),
-                    name = dto.name,
-                    price = dto.price,
-                    category = dto.category,
-                    subcategory = dto.subcategory,
-                    branchId = dto.branchId
-                )
-            })
-
-            // Fetch Inventory
-            val fetchedInventory = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                .postgrest["inventory"].select().decodeAs<List<InventoryItemDto>>()
+            // Use SyncEngine to pull latest data from Supabase
+            com.example.barandgrillownerpanel.data.sync.SyncEngine.fullSync()
             
-            val mappedInventory = fetchedInventory.map { dto ->
-                InventoryItem(
-                    id = dto.id ?: dto.name,
-                    name = dto.name,
-                    category = dto.category.uppercase(),
-                    subcategory = dto.subcategory,
-                    currentStock = dto.stock_quantity,
-                    capacity = (dto.min_threshold * 5).coerceAtLeast(10.0),
-                    lowStockThreshold = dto.min_threshold,
-                    unit = dto.unit,
-                    unitCost = dto.cost_price,
-                    retailPrice = dto.sellingPrice,
-                    isPortionTracked = dto.isPortionTracked,
-                    portionsPerUnit = dto.portionsPerUnit,
-                    linkedMenuItemName = dto.linkedMenuItemName,
-                    soldByShot = dto.soldByShot,
-                    bottleVolumeMl = dto.bottleVolumeMl,
-                    shotSizeMl = dto.shotSizeMl,
-                    status = dto.status,
-                    branchId = dto.branchId
-                )
+            // Reload all data from SQLite
+            val localDb = com.example.barandgrillownerpanel.data.local.LocalDatabase
+            val freshBranches = localDb.getBranches()
+            if (freshBranches.isNotEmpty()) {
+                branches.clear()
+                branches.addAll(freshBranches)
+                appSettings = appSettings.copy(branches = freshBranches)
             }
-            inventoryItems.clear(); inventoryItems.addAll(mappedInventory)
-
-            // Fetch Categories
-            val fetchedCats = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                .postgrest["categories"].select().decodeAs<List<com.example.barandgrillownerpanel.models.CategoryDto>>()
             
-            customCategories.clear()
-            customSubcategories.clear()
-            val topLevel = fetchedCats.filter { it.parentName == null }.map { it.name }
-            customCategories.addAll(topLevel)
-            for (cat in topLevel) {
-                val subs = fetchedCats.filter { it.parentName == cat }.map { it.name }
-                customSubcategories[cat] = androidx.compose.runtime.mutableStateListOf(*subs.toTypedArray())
+            val freshMenu = localDb.getMenuItems()
+            if (freshMenu.isNotEmpty()) {
+                menuItems.clear()
+                menuItems.addAll(freshMenu.mapIndexed { index, dto ->
+                    com.example.barandgrillownerpanel.ui.dashboard.DesktopMenuItem(
+                        id = dto.id ?: (index + 1).toString(),
+                        name = dto.name,
+                        price = dto.price,
+                        category = dto.category,
+                        subcategory = dto.subcategory,
+                        branchId = dto.branchId
+                    )
+                })
             }
-
-            // Fetch Credits
-            val fetchedCredits = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                .postgrest["credits"].select().decodeAs<List<CreditDto>>()
+            
+            val freshInventory = localDb.getInventory()
+            if (freshInventory.isNotEmpty()) {
+                val mapped = freshInventory.map { dto ->
+                    com.example.barandgrillownerpanel.ui.dashboard.InventoryItem(
+                        id = dto.id ?: dto.name,
+                        name = dto.name,
+                        category = dto.category.uppercase(),
+                        subcategory = dto.subcategory,
+                        currentStock = dto.stock_quantity,
+                        capacity = (dto.min_threshold * 5).coerceAtLeast(10.0),
+                        lowStockThreshold = dto.min_threshold,
+                        unit = dto.unit,
+                        unitCost = dto.cost_price,
+                        retailPrice = dto.sellingPrice,
+                        isPortionTracked = dto.isPortionTracked,
+                        portionsPerUnit = dto.portionsPerUnit,
+                        linkedMenuItemName = dto.linkedMenuItemName,
+                        soldByShot = dto.soldByShot,
+                        bottleVolumeMl = dto.bottleVolumeMl,
+                        shotSizeMl = dto.shotSizeMl,
+                        status = dto.status,
+                        branchId = dto.branchId
+                    )
+                }
+                inventoryItems.clear(); inventoryItems.addAll(mapped)
+            }
+            
+            val freshCategories = localDb.getCategories()
+            if (freshCategories.isNotEmpty()) {
+                customCategories.clear()
+                customSubcategories.clear()
+                val topLevel = freshCategories.filter { it.parentName == null }.map { it.name }
+                customCategories.addAll(topLevel)
+                for (cat in topLevel) {
+                    val subs = freshCategories.filter { it.parentName == cat }.map { it.name }
+                    customSubcategories[cat] = androidx.compose.runtime.mutableStateListOf(*subs.toTypedArray())
+                }
+            }
+            
+            val freshCredits = localDb.getRecentCredits(90)
             credits.clear()
-            credits.addAll(fetchedCredits.sortedByDescending { it.created_at })
-
-            // Fetch Sales
-            val fetchedSales = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                .postgrest["sales"].select().decodeAs<List<SaleDto>>()
+            credits.addAll(freshCredits.sortedByDescending { it.created_at })
             
-            // Map sales manually here to store in cache
-            val mappedSales = fetchedSales.map { dto ->
-                SaleRecord(
+            val freshSales = localDb.getRecentSales(90)
+            val mappedSales = freshSales.map { dto ->
+                com.example.barandgrillownerpanel.models.SaleRecord(
                     id = dto.orderId,
                     branchId = dto.branchId,
-                    items = emptyList(), // Items are complex to fetch live for cache
+                    items = emptyList(),
                     totalAmount = dto.totalAmount,
                     paymentMethod = dto.paymentMethod,
                     soldBy = dto.soldBy,
@@ -425,28 +419,17 @@ fun DashboardScreen(
                 )
             }
             saleHistory.clear()
-            // We still need the full refresh for the UI
+            saleHistory.addAll(mappedSales)
+            
+            // Refresh detailed data
             refreshSalesHistory()
             refreshExpenses()
-
-            // Update Cache
-            CacheManager.saveCache(
-                DashboardDataCache(
-                    branches = fetchedBranches,
-                    menuItems = fetchedMenu,
-                    inventoryItems = fetchedInventory,
-                    credits = fetchedCredits,
-                    sales = fetchedSales,
-                    categories = fetchedCats
-                )
-            )
             
             isOffline = false
             errorLoading = null
 
         } catch (e: Exception) {
-            e.printStackTrace()
-            // Only show big error screen if we have NO data (even from cache)
+            com.example.barandgrillownerpanel.utils.Logger.error("DASHBOARD", "Failed to refresh from SyncEngine", e)
             if (inventoryItems.isEmpty() && branches.isEmpty()) {
                 errorLoading = e.message ?: e.toString()
             } else {
