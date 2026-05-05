@@ -39,7 +39,25 @@ object LocalDatabase {
             migrateIfNeeded()
             Logger.info(TAG, "Database initialized at ${dbFile?.absolutePath}")
         } catch (e: Exception) {
-            Logger.error(TAG, "Failed to initialize database", e)
+            Logger.error(TAG, "Database init failed: ${e.message}")
+            Logger.warn(TAG, "Attempting recovery: deleting corrupted db and re-creating...")
+            try {
+                dbFile?.delete()
+                connection = DriverManager.getConnection("jdbc:sqlite:${dbFile?.absolutePath}")
+                connection?.apply {
+                    createStatement().execute("PRAGMA journal_mode=WAL")
+                    createStatement().execute("PRAGMA foreign_keys=ON")
+                }
+                createTables()
+                migrateIfNeeded()
+                setMeta("needs_full_sync", "true")
+                setMeta("last_sync", "1970-01-01T00:00:00Z")
+                Logger.warn(TAG, "Database recovered. Full re-sync required.")
+            } catch (recoveryError: Exception) {
+                Logger.fatal(TAG, "Database recovery failed: ${recoveryError.message}", recoveryError)
+                connection = null
+                dbFile = null
+            }
         }
     }
 
