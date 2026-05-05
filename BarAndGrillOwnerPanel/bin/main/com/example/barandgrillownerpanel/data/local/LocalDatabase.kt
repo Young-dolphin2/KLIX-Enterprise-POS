@@ -6,10 +6,11 @@ import java.io.File
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.Instant
+import java.time.LocalDateTime
+import java.util.UUID
 
 /**
  * Local SQLite database for offline-first operations.
- * Replaces the JSON cache file with a proper relational DB.
  * 
  * Architecture:
  * - All reads go here first (instant, no network)
@@ -19,25 +20,19 @@ import java.time.Instant
  */
 object LocalDatabase {
     private const val TAG = "LOCAL_DB"
-    private const val DB_VERSION = 1
+    private const val DB_VERSION = 2
     private const val DB_NAME = "klix_local.db"
     
     private var connection: Connection? = null
     private var dbFile: File? = null
 
-    /**
-     * Initialize the database. Creates tables if they don't exist.
-     * Call once on app startup.
-     */
     fun initialize(dbDirectory: String = ".") {
         try {
             Class.forName("org.sqlite.JDBC")
             dbFile = File(dbDirectory, DB_NAME)
             connection = DriverManager.getConnection("jdbc:sqlite:${dbFile?.absolutePath}")
             connection?.apply {
-                // Enable WAL mode for better concurrent read/write performance
                 createStatement().execute("PRAGMA journal_mode=WAL")
-                // Enable foreign keys
                 createStatement().execute("PRAGMA foreign_keys=ON")
             }
             createTables()
@@ -45,17 +40,37 @@ object LocalDatabase {
             Logger.info(TAG, "Database initialized at ${dbFile?.absolutePath}")
         } catch (e: Exception) {
             Logger.error(TAG, "Failed to initialize database", e)
-            // Fail gracefully — app will fetch from Supabase directly
         }
     }
-
-    // ================================================================
-    // TABLE CREATION
-    // ================================================================
 
     private fun createTables() {
         val conn = connection ?: return
         conn.createStatement().apply {
+            // Business Settings
+            execute("""
+                CREATE TABLE IF NOT EXISTS app_settings (
+                    id TEXT PRIMARY KEY,
+                    business_name TEXT NOT NULL,
+                    country TEXT,
+                    currency_symbol TEXT DEFAULT '$',
+                    currency_code TEXT DEFAULT 'USD',
+                    phone_number TEXT,
+                    payment_methods_json TEXT,
+                    primary_color_hex TEXT DEFAULT '#FF5722',
+                    is_onboarded INTEGER DEFAULT 0,
+                    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+                )
+            """)
+
+            // Sync Metadata
+            execute("""
+                CREATE TABLE IF NOT EXISTS sync_metadata (
+                    key TEXT PRIMARY KEY,
+                    value TEXT
+                )
+            """)
+
+            // Branches
             execute("""
                 CREATE TABLE IF NOT EXISTS branches (
                     id TEXT PRIMARY KEY,
@@ -69,6 +84,8 @@ object LocalDatabase {
                     synced_at TEXT
                 )
             """)
+
+            // Menu & Inventory
             execute("""
                 CREATE TABLE IF NOT EXISTS menu_items (
                     id TEXT PRIMARY KEY,
@@ -107,6 +124,8 @@ object LocalDatabase {
                     synced_at TEXT
                 )
             """)
+
+            // Sales & Items
             execute("""
                 CREATE TABLE IF NOT EXISTS sales (
                     id TEXT PRIMARY KEY,
@@ -135,6 +154,8 @@ object LocalDatabase {
                     FOREIGN KEY (sale_id) REFERENCES sales(id)
                 )
             """)
+
+            // Financials
             execute("""
                 CREATE TABLE IF NOT EXISTS expenses (
                     id TEXT PRIMARY KEY,
@@ -166,6 +187,8 @@ object LocalDatabase {
                     synced_at TEXT
                 )
             """)
+
+            // Metadata
             execute("""
                 CREATE TABLE IF NOT EXISTS categories (
                     id TEXT PRIMARY KEY,
@@ -178,48 +201,29 @@ object LocalDatabase {
                 )
             """)
             execute("""
-                CREATE TABLE IF NOT EXISTS subscriptions (
-                    id TEXT PRIMARY KEY,
-                    tenant_id TEXT NOT NULL,
-                    plan TEXT NOT NULL DEFAULT 'free',
-                    status TEXT NOT NULL DEFAULT 'pending',
-                    current_period_start TEXT NOT NULL,
-                    current_period_end TEXT NOT NULL,
-                    trial_end TEXT,
-                    cancelled_at TEXT,
-                    metadata TEXT DEFAULT '{}',
-                    created_at TEXT NOT NULL,
-                    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-                    synced_at TEXT
-                )
-            """)
-            execute("""
                 CREATE TABLE IF NOT EXISTS customers (
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
                     phone TEXT NOT NULL,
                     email TEXT,
                     address TEXT,
-                    id_type TEXT,
-                    id_number TEXT,
-                    profile_image_url TEXT,
                     membership_status TEXT DEFAULT 'ACTIVE',
-                    membership_expiry TEXT,
-                    notes TEXT,
                     branch_id TEXT,
                     tenant_id TEXT,
                     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
                     synced_at TEXT
                 )
             """)
-            // Sync tracking
+
+            // Sync Infrastructure
             execute("""
                 CREATE TABLE IF NOT EXISTS sync_queue (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     table_name TEXT NOT NULL,
                     record_id TEXT NOT NULL,
-                    action TEXT NOT NULL CHECK (action IN ('INSERT', 'UPDATE', 'DELETE')),
+                    operation TEXT NOT NULL DEFAULT 'UPDATE',
                     created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
                     pushed INTEGER DEFAULT 0,
                     pushed_at TEXT,
                     retry_count INTEGER DEFAULT 0
@@ -231,42 +235,25 @@ object LocalDatabase {
                     value TEXT NOT NULL
                 )
             """)
-            // Indexes for performance
-            execute("CREATE INDEX IF NOT EXISTS idx_sales_timestamp ON sales(timestamp)")
-            execute("CREATE INDEX IF NOT EXISTS idx_sales_branch ON sales(branch_id)")
-            execute("CREATE INDEX IF NOT EXISTS idx_expenses_created ON expenses(created_at)")
-            execute("CREATE INDEX IF NOT EXISTS idx_credits_created ON credits(created_at)")
-            execute("CREATE INDEX IF NOT EXISTS idx_sync_queue_pushed ON sync_queue(pushed)")
-            execute("CREATE INDEX IF NOT EXISTS idx_sync_queue_table ON sync_queue(table_name)")
         }
     }
 
     private fun migrateIfNeeded() {
-        // Future migrations will go here
-        // For now, just store the version
-        setMeta("db_version", DB_VERSION.toString())
+        val currentVersion = getMeta("db_version")?.toIntOrNull() ?: 1
+        if (currentVersion < DB_VERSION) {
+            // Future migration logic
+            setMeta("db_version", DB_VERSION.toString())
+        }
     }
 
     // ================================================================
     // SYNC METADATA
     // ================================================================
 
-    fun getMeta(key: String, default: String = ""): String {
-        val conn = connection ?: return default
-        try {
-            val stmt = conn.prepareStatement("SELECT value FROM sync_metadata WHERE key = ?")
-            stmt.setString(1, key)
-            val rs = stmt.executeQuery()
-            return if (rs.next()) rs.getString("value") ?: default else default
-        } catch (e: Exception) { return default }
-    }
-
     fun setMeta(key: String, value: String) {
         val conn = connection ?: return
         try {
-            val stmt = conn.prepareStatement(
-                "INSERT OR REPLACE INTO sync_metadata (key, value) VALUES (?, ?)"
-            )
+            val stmt = conn.prepareStatement("INSERT OR REPLACE INTO sync_metadata (key, value) VALUES (?, ?)")
             stmt.setString(1, key)
             stmt.setString(2, value)
             stmt.execute()
@@ -275,219 +262,116 @@ object LocalDatabase {
         }
     }
 
-    /**
-     * Get the timestamp of the last successful sync.
-     * Used to pull only new/changed records from Supabase.
-     */
-    fun getLastSyncTimestamp(): String = getMeta("last_sync", "1970-01-01T00:00:00Z")
-
-    fun setLastSyncTimestamp(timestamp: String) = setMeta("last_sync", timestamp)
-
-    // ================================================================
-    // SYNC QUEUE
-    // ================================================================
-
-    /**
-     * Queue a record change to be pushed to Supabase.
-     */
-    fun queueSync(tableName: String, recordId: String, action: String) {
-        val conn = connection ?: return
+    fun getMeta(key: String): String? {
+        val conn = connection ?: return null
         try {
-            val stmt = conn.prepareStatement(
-                "INSERT INTO sync_queue (table_name, record_id, action) VALUES (?, ?, ?)"
-            )
-            stmt.setString(1, tableName)
-            stmt.setString(2, recordId)
-            stmt.setString(3, action)
-            stmt.execute()
-        } catch (e: Exception) {
-            Logger.error(TAG, "Failed to queue sync", e)
-        }
-    }
-
-    /**
-     * Get all pending sync operations.
-     */
-    fun getPendingSyncs(): List<SyncQueueItem> {
-        val conn = connection ?: return emptyList()
-        val items = mutableListOf<SyncQueueItem>()
-        try {
-            val stmt = conn.prepareStatement(
-                "SELECT id, table_name, record_id, action, created_at, retry_count FROM sync_queue WHERE pushed = 0 ORDER BY id ASC LIMIT 100"
-            )
+            val stmt = conn.prepareStatement("SELECT value FROM sync_metadata WHERE key = ?")
+            stmt.setString(1, key)
             val rs = stmt.executeQuery()
-            while (rs.next()) {
-                items.add(SyncQueueItem(
-                    id = rs.getLong("id"),
-                    tableName = rs.getString("table_name") ?: "",
-                    recordId = rs.getString("record_id") ?: "",
-                    action = rs.getString("action") ?: "INSERT",
-                    created_at = rs.getString("created_at") ?: "",
-                    retryCount = rs.getInt("retry_count")
-                ))
-            }
+            if (rs.next()) return rs.getString("value")
         } catch (e: Exception) {
-            Logger.error(TAG, "Failed to get pending syncs", e)
+            Logger.error(TAG, "Failed to get meta $key", e)
         }
-        return items
-    }
-
-    /**
-     * Mark a sync queue item as pushed.
-     */
-    fun markSyncPushed(id: Long) {
-        val conn = connection ?: return
-        try {
-            val stmt = conn.prepareStatement(
-                "UPDATE sync_queue SET pushed = 1, pushed_at = datetime('now') WHERE id = ?"
-            )
-            stmt.setLong(1, id)
-            stmt.execute()
-        } catch (e: Exception) {
-            Logger.error(TAG, "Failed to mark sync pushed", e)
-        }
-    }
-
-    /**
-     * Increment retry count for a failed sync.
-     */
-    fun incrementSyncRetry(id: Long) {
-        val conn = connection ?: return
-        try {
-            val stmt = conn.prepareStatement(
-                "UPDATE sync_queue SET retry_count = retry_count + 1 WHERE id = ?"
-            )
-            stmt.setLong(1, id)
-            stmt.execute()
-        } catch (e: Exception) {
-            Logger.error(TAG, "Failed to increment sync retry", e)
-        }
+        return null
     }
 
     // ================================================================
-    private fun createTables() {
-        val sql = """
-            CREATE TABLE IF NOT EXISTS sync_queue (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                table_name TEXT NOT NULL,
-                record_id TEXT NOT NULL,
-                operation TEXT NOT NULL,
-                payload TEXT NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                is_pushed INTEGER DEFAULT 0
-            );
+    // APP SETTINGS
+    // ================================================================
 
-            CREATE TABLE IF NOT EXISTS app_settings (
-                id TEXT PRIMARY KEY,
-                business_name TEXT NOT NULL,
-                country TEXT NOT NULL,
-                currency_symbol TEXT NOT NULL,
-                currency_code TEXT NOT NULL,
-                primary_color_hex TEXT,
-                payment_options_json TEXT,
-                is_onboarded INTEGER DEFAULT 0,
-                updated_at TEXT
-            );
-
-            CREATE TABLE IF NOT EXISTS branches (
-                id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                type TEXT DEFAULT 'BAR',
-                address TEXT,
-                is_active INTEGER DEFAULT 1,
-                parent_id TEXT,
-                updated_at TEXT
-            );
-
-            CREATE TABLE IF NOT EXISTS menu_items (
-                id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                category TEXT,
-                subcategory TEXT,
-                price REAL NOT NULL,
-                is_active INTEGER DEFAULT 1,
-                branch_id TEXT,
-                updated_at TEXT
-            );
-
-            CREATE TABLE IF NOT EXISTS inventory (
-                id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                category TEXT,
-                subcategory TEXT,
-                stock_quantity REAL DEFAULT 0,
-                min_threshold REAL DEFAULT 0,
-                cost_price REAL DEFAULT 0,
-                selling_price REAL DEFAULT 0,
-                unit TEXT DEFAULT 'Units',
-                is_portion_tracked INTEGER DEFAULT 0,
-                portions_per_unit REAL,
-                linked_menu_item_name TEXT,
-                sold_by_shot INTEGER DEFAULT 0,
-                bottle_volume_ml REAL,
-                shot_size_ml REAL,
-                status TEXT DEFAULT 'AVAILABLE',
-                branch_id TEXT,
-                updated_at TEXT
-            );
-
-            CREATE TABLE IF NOT EXISTS sales (
-                id TEXT PRIMARY KEY,
-                total_amount REAL NOT NULL,
-                payment_method TEXT,
-                branch_id TEXT,
-                created_at TEXT,
-                is_synced INTEGER DEFAULT 0
-            );
-
-            CREATE TABLE IF NOT EXISTS expenses (
-                id TEXT PRIMARY KEY,
-                amount REAL NOT NULL,
-                category TEXT,
-                description TEXT,
-                branch_id TEXT,
-                expense_date TEXT,
-                created_at TEXT
-            );
-
-            CREATE TABLE IF NOT EXISTS credits (
-                id TEXT PRIMARY KEY,
-                contact_name TEXT,
-                description TEXT,
-                amount REAL,
-                credit_type TEXT,
-                is_settled INTEGER DEFAULT 0,
-                branch_id TEXT,
-                created_at TEXT,
-                updated_at TEXT
-            );
-        """.trimIndent()
-        
-        connection?.createStatement()?.use { it.executeUpdate(sql) }
+    fun saveAppSettings(
+        settings: com.example.barandgrillownerpanel.ui.dashboard.AppSettings,
+        phone: String,
+        country: String,
+        currencyCode: String,
+        isOnboarded: Boolean
+    ) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("""
+                INSERT OR REPLACE INTO app_settings (
+                    id, business_name, country, currency_symbol, currency_code, 
+                    phone_number, payment_methods_json, primary_color_hex, is_onboarded, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            """)
+            stmt.setString(1, "singleton")
+            stmt.setString(2, settings.businessName)
+            stmt.setString(3, country)
+            stmt.setString(4, settings.currencySymbol)
+            stmt.setString(5, currencyCode)
+            stmt.setString(6, phone)
+            stmt.setString(7, kotlinx.serialization.json.Json.encodeToString(settings.paymentMethods))
+            stmt.setString(8, settings.primaryColorHex)
+            stmt.setInt(9, if (isOnboarded) 1 else 0)
+            stmt.execute()
+            
+            queueSync("app_settings", "singleton", "UPDATE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to save app settings", e)
+        }
     }
 
-    // --- Branches ---
-    fun saveBranch(branch: BranchDto) {
-        val sql = "INSERT OR REPLACE INTO branches (id, name, type, address, is_active, parent_id, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    fun getAppSettings(): com.example.barandgrillownerpanel.ui.dashboard.AppSettings? {
+        val conn = connection ?: return null
         try {
-            connection?.prepareStatement(sql)?.use { pstmt ->
-                pstmt.setString(1, branch.id ?: UUID.randomUUID().toString())
-                pstmt.setString(2, branch.name)
-                pstmt.setString(3, branch.type)
-                pstmt.setString(4, branch.address)
-                pstmt.setInt(5, if (branch.is_active) 1 else 0)
-                pstmt.setString(6, branch.parentId)
-                pstmt.setString(7, LocalDateTime.now().toString())
-                pstmt.executeUpdate()
+            val rs = conn.createStatement().executeQuery("SELECT * FROM app_settings WHERE id = 'singleton'")
+            if (rs.next()) {
+                val methodsJson = rs.getString("payment_methods_json") ?: "[]"
+                val methods = try {
+                    kotlinx.serialization.json.Json.decodeFromString<List<com.example.barandgrillownerpanel.ui.dashboard.PaymentMethod>>(methodsJson)
+                } catch (e: Exception) { emptyList() }
+
+                return com.example.barandgrillownerpanel.ui.dashboard.AppSettings(
+                    businessName = rs.getString("business_name") ?: "",
+                    country = rs.getString("country") ?: "",
+                    currencySymbol = rs.getString("currency_symbol") ?: "$",
+                    currencyCode = rs.getString("currency_code") ?: "USD",
+                    phoneNumber = rs.getString("phone_number") ?: "",
+                    primaryColorHex = rs.getString("primary_color_hex") ?: "#FF5722",
+                    paymentMethods = methods
+                )
             }
-        } catch (e: Exception) { e.printStackTrace() }
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to get app settings", e)
+        }
+        return null
+    }
+
+    // ================================================================
+    // BRANCHES
+    // ================================================================
+
+    fun upsertBranch(branch: BranchDto, fromSync: Boolean = false) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("""
+                INSERT OR REPLACE INTO branches (id, name, type, address, is_active, parent_id, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+            """)
+            val id = branch.id ?: UUID.randomUUID().toString()
+            stmt.setString(1, id)
+            stmt.setString(2, branch.name)
+            stmt.setString(3, branch.type)
+            stmt.setString(4, branch.address)
+            stmt.setInt(5, if (branch.is_active) 1 else 0)
+            stmt.setString(6, branch.parentId)
+            stmt.execute()
+            if (!fromSync) queueSync("branches", id, "UPDATE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to upsert branch", e)
+        }
+    }
+
+    fun saveBranch(branch: BranchDto) {
+        upsertBranch(branch, fromSync = false)
     }
 
     fun getBranches(): List<BranchDto> {
+        val conn = connection ?: return emptyList()
         val branches = mutableListOf<BranchDto>()
         try {
-            val rs = connection?.createStatement()?.executeQuery("SELECT * FROM branches WHERE is_active = 1")
-            while (rs?.next() == true) {
+            val rs = conn.createStatement().executeQuery("SELECT * FROM branches WHERE is_active = 1")
+            while (rs.next()) {
                 branches.add(BranchDto(
                     id = rs.getString("id"),
                     name = rs.getString("name") ?: "",
@@ -497,26 +381,22 @@ object LocalDatabase {
                     parentId = rs.getString("parent_id")
                 ))
             }
-        } catch (e: Exception) { e.printStackTrace() }
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to get branches", e)
+        }
         return branches
     }
 
     // ================================================================
-    // DATA ACCESS — SALES (Limited to recent N days)
+    // SALES
     // ================================================================
 
-    /**
-     * Get sales from the last N days.
-     * This keeps memory usage fixed regardless of total history.
-     */
     fun getRecentSales(days: Int = 2): List<SaleDto> {
         val conn = connection ?: return emptyList()
         val sales = mutableListOf<SaleDto>()
         try {
             val cutoff = Instant.now().minusSeconds(days * 86400L).toString()
-            val stmt = conn.prepareStatement(
-                "SELECT * FROM sales WHERE timestamp >= ? ORDER BY timestamp DESC"
-            )
+            val stmt = conn.prepareStatement("SELECT * FROM sales WHERE timestamp >= ? ORDER BY timestamp DESC")
             stmt.setString(1, cutoff)
             val rs = stmt.executeQuery()
             while (rs.next()) {
@@ -536,17 +416,53 @@ object LocalDatabase {
         return sales
     }
 
-    /**
-     * Get ALL sales (for reports that need full history).
-     * This loads from SQLite only — no network needed.
-     */
     fun getAllSales(): List<SaleDto> {
-        val conn = connection ?: return emptyList()
-        val sales = mutableListOf<SaleDto>()
+        return getRecentSales(3650) // roughly 10 years
+    }
+
+    fun saveSale(sale: SaleDto, fromSync: Boolean = false) {
+        val conn = connection ?: return
         try {
-            val rs = conn.createStatement().executeQuery("SELECT * FROM sales ORDER BY timestamp DESC")
-            while (rs.next()) {
-                sales.add(SaleDto(
+            val stmt = conn.prepareStatement("""
+                INSERT OR REPLACE INTO sales (
+                    id, order_id, total_amount, payment_method, sold_by, timestamp, branch_id, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            """)
+            stmt.setString(1, sale.id)
+            stmt.setString(2, sale.orderId)
+            stmt.setDouble(3, sale.totalAmount)
+            stmt.setString(4, sale.paymentMethod)
+            stmt.setString(5, sale.soldBy)
+            stmt.setString(6, sale.timestamp)
+            stmt.setString(7, sale.branchId)
+            stmt.execute()
+
+            if (!fromSync) queueSync("sales", sale.id, "UPDATE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to save sale", e)
+        }
+    }
+
+    fun deleteSale(id: String) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("DELETE FROM sales WHERE id = ?")
+            stmt.setString(1, id)
+            stmt.execute()
+            queueSync("sales", id, "DELETE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to delete sale", e)
+        }
+    }
+
+    fun getSale(id: String): SaleDto? {
+        val conn = connection ?: return null
+        try {
+            val stmt = conn.prepareStatement("SELECT * FROM sales WHERE id = ?")
+            stmt.setString(1, id)
+            val rs = stmt.executeQuery()
+            if (rs.next()) {
+                return SaleDto(
                     id = rs.getString("id") ?: "",
                     orderId = rs.getString("order_id") ?: "",
                     totalAmount = rs.getDouble("total_amount"),
@@ -554,17 +470,103 @@ object LocalDatabase {
                     soldBy = rs.getString("sold_by") ?: "",
                     timestamp = rs.getString("timestamp") ?: "",
                     branchId = rs.getString("branch_id")
+                )
+            }
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to get sale", e)
+        }
+        return null
+    }
+
+    fun saveSaleItem(item: SaleItemDto) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("""
+                INSERT OR REPLACE INTO sale_items (
+                    sale_id, name, quantity, price, category, updated_at
+                ) VALUES (?, ?, ?, ?, ?, datetime('now'))
+            """)
+            stmt.setString(1, item.saleId)
+            stmt.setString(2, item.name)
+            stmt.setInt(3, item.quantity)
+            stmt.setDouble(4, item.price)
+            stmt.setString(5, item.category)
+            stmt.execute()
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to save sale item", e)
+        }
+    }
+
+    fun getSaleItems(saleId: String): List<SaleItemDto> {
+        val conn = connection ?: return emptyList()
+        val list = mutableListOf<SaleItemDto>()
+        try {
+            val stmt = conn.prepareStatement("SELECT * FROM sale_items WHERE sale_id = ?")
+            stmt.setString(1, saleId)
+            val rs = stmt.executeQuery()
+            while (rs.next()) {
+                list.add(SaleItemDto(
+                    saleId = rs.getString("sale_id") ?: "",
+                    name = rs.getString("name") ?: "",
+                    price = rs.getDouble("price"),
+                    quantity = rs.getInt("quantity"),
+                    category = rs.getString("category") ?: ""
                 ))
             }
         } catch (e: Exception) {
-            Logger.error(TAG, "Failed to get all sales", e)
+            Logger.error(TAG, "Failed to get sale items", e)
         }
-        return sales
+        return list
     }
 
-    // ================================================================
-    // DATA ACCESS — INVENTORY
-    // ================================================================
+    fun saveInventoryItem(item: InventoryItemDto, fromSync: Boolean = false) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("""
+                INSERT OR REPLACE INTO inventory (
+                    id, name, category, subcategory, stock_quantity, min_threshold, 
+                    cost_price, selling_price, unit, is_portion_tracked, portions_per_unit, 
+                    linked_menu_item_name, sold_by_shot, bottle_volume_ml, shot_size_ml, 
+                    status, branch_id, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            """)
+            val id = item.id ?: UUID.randomUUID().toString()
+            stmt.setString(1, id)
+            stmt.setString(2, item.name)
+            stmt.setString(3, item.category)
+            stmt.setString(4, item.subcategory)
+            stmt.setDouble(5, item.stock_quantity)
+            stmt.setDouble(6, item.min_threshold)
+            stmt.setDouble(7, item.cost_price)
+            stmt.setDouble(8, item.sellingPrice)
+            stmt.setString(9, item.unit)
+            stmt.setInt(10, if (item.isPortionTracked) 1 else 0)
+            stmt.setDouble(11, item.portionsPerUnit ?: 0.0)
+            stmt.setString(12, item.linkedMenuItemName)
+            stmt.setInt(13, if (item.soldByShot) 1 else 0)
+            stmt.setDouble(14, item.bottleVolumeMl ?: 0.0)
+            stmt.setDouble(15, item.shotSizeMl ?: 0.0)
+            stmt.setString(16, item.status)
+            stmt.setString(17, item.branchId)
+            stmt.execute()
+
+            if (!fromSync) queueSync("inventory", id, "UPDATE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to save inventory item", e)
+        }
+    }
+
+    fun deleteInventoryItem(id: String) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("DELETE FROM inventory WHERE id = ?")
+            stmt.setString(1, id)
+            stmt.execute()
+            queueSync("inventory", id, "DELETE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to delete inventory item", e)
+        }
+    }
 
     fun getInventory(): List<InventoryItemDto> {
         val conn = connection ?: return emptyList()
@@ -580,14 +582,14 @@ object LocalDatabase {
                     stock_quantity = rs.getDouble("stock_quantity"),
                     min_threshold = rs.getDouble("min_threshold"),
                     cost_price = rs.getDouble("cost_price"),
-                    selling_price = rs.getDouble("selling_price"),
+                    sellingPrice = rs.getDouble("selling_price"),
                     unit = rs.getString("unit") ?: "Units",
-                    is_portion_tracked = rs.getInt("is_portion_tracked") == 1,
-                    portionsPerUnit = rs.getDouble("portions_per_unit").takeIf { !rs.wasNull() },
+                    isPortionTracked = rs.getInt("is_portion_tracked") == 1,
+                    portionsPerUnit = rs.getDouble("portions_per_unit"),
                     linkedMenuItemName = rs.getString("linked_menu_item_name"),
-                    sold_by_shot = rs.getInt("sold_by_shot") == 1,
-                    bottleVolumeMl = rs.getDouble("bottle_volume_ml").takeIf { !rs.wasNull() },
-                    shotSizeMl = rs.getDouble("shot_size_ml").takeIf { !rs.wasNull() },
+                    soldByShot = rs.getInt("sold_by_shot") == 1,
+                    bottleVolumeMl = rs.getDouble("bottle_volume_ml"),
+                    shotSizeMl = rs.getDouble("shot_size_ml"),
                     status = rs.getString("status") ?: "AVAILABLE",
                     branchId = rs.getString("branch_id")
                 ))
@@ -598,129 +600,223 @@ object LocalDatabase {
         return items
     }
 
-    // ================================================================
-    // DATA ACCESS — EXPENSES
-    // ================================================================
+    fun getInventoryItem(id: String): InventoryItemDto? {
+        val conn = connection ?: return null
+        try {
+            val stmt = conn.prepareStatement("SELECT * FROM inventory WHERE id = ?")
+            stmt.setString(1, id)
+            val rs = stmt.executeQuery()
+            if (rs.next()) {
+                return InventoryItemDto(
+                    id = rs.getString("id"),
+                    name = rs.getString("name") ?: "",
+                    category = rs.getString("category") ?: "",
+                    subcategory = rs.getString("subcategory") ?: "",
+                    stock_quantity = rs.getDouble("stock_quantity"),
+                    min_threshold = rs.getDouble("min_threshold"),
+                    cost_price = rs.getDouble("cost_price"),
+                    sellingPrice = rs.getDouble("selling_price"),
+                    unit = rs.getString("unit") ?: "Units",
+                    isPortionTracked = rs.getInt("is_portion_tracked") == 1,
+                    portionsPerUnit = rs.getDouble("portions_per_unit"),
+                    linkedMenuItemName = rs.getString("linked_menu_item_name"),
+                    soldByShot = rs.getInt("sold_by_shot") == 1,
+                    bottleVolumeMl = rs.getDouble("bottle_volume_ml"),
+                    shotSizeMl = rs.getDouble("shot_size_ml"),
+                    status = rs.getString("status") ?: "AVAILABLE",
+                    branchId = rs.getString("branch_id")
+                )
+            }
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to get inventory item", e)
+        }
+        return null
+    }
+
+    fun saveExpense(expense: ExpenseDto, fromSync: Boolean = false) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("""
+                INSERT OR REPLACE INTO expenses (
+                    id, branch_id, category, description, amount, expense_date, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+            """)
+            val id = expense.id ?: UUID.randomUUID().toString()
+            stmt.setString(1, id)
+            stmt.setString(2, expense.branchId)
+            stmt.setString(3, expense.category)
+            stmt.setString(4, expense.description)
+            stmt.setDouble(5, expense.amount)
+            stmt.setString(6, expense.expenseDate)
+            stmt.execute()
+
+            if (!fromSync) queueSync("expenses", id, "UPDATE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to save expense", e)
+        }
+    }
+
+    fun deleteExpense(id: String) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("DELETE FROM expenses WHERE id = ?")
+            stmt.setString(1, id)
+            stmt.execute()
+            queueSync("expenses", id, "DELETE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to delete expense", e)
+        }
+    }
 
     fun getRecentExpenses(days: Int = 2): List<ExpenseDto> {
         val conn = connection ?: return emptyList()
-        val items = mutableListOf<ExpenseDto>()
+        val expenses = mutableListOf<ExpenseDto>()
         try {
             val cutoff = Instant.now().minusSeconds(days * 86400L).toString()
-            val stmt = conn.prepareStatement(
-                "SELECT * FROM expenses WHERE created_at >= ? OR created_at IS NULL ORDER BY created_at DESC"
-            )
+            val stmt = conn.prepareStatement("SELECT * FROM expenses WHERE expense_date >= ? OR updated_at >= ?")
             stmt.setString(1, cutoff)
+            stmt.setString(2, cutoff)
             val rs = stmt.executeQuery()
             while (rs.next()) {
-                items.add(ExpenseDto(
+                expenses.add(ExpenseDto(
                     id = rs.getString("id"),
                     branchId = rs.getString("branch_id"),
                     category = rs.getString("category") ?: "",
                     description = rs.getString("description") ?: "",
                     amount = rs.getDouble("amount"),
-                    expenseDate = rs.getString("expense_date"),
-                    created_at = rs.getString("created_at")
+                    expenseDate = rs.getString("expense_date")
                 ))
             }
         } catch (e: Exception) {
-            Logger.error(TAG, "Failed to get expenses", e)
+            Logger.error(TAG, "Failed to get recent expenses", e)
         }
-        return items
+        return expenses
     }
 
-    fun getAllExpenses(): List<ExpenseDto> {
-        val conn = connection ?: return emptyList()
-        val items = mutableListOf<ExpenseDto>()
+    fun getAllExpenses(): List<ExpenseDto> = getRecentExpenses(3650)
+
+    fun getExpense(id: String): ExpenseDto? {
+        val conn = connection ?: return null
         try {
-            val rs = conn.createStatement().executeQuery("SELECT * FROM expenses ORDER BY created_at DESC")
-            while (rs.next()) {
-                items.add(ExpenseDto(
+            val stmt = conn.prepareStatement("SELECT * FROM expenses WHERE id = ?")
+            stmt.setString(1, id)
+            val rs = stmt.executeQuery()
+            if (rs.next()) {
+                return ExpenseDto(
                     id = rs.getString("id"),
                     branchId = rs.getString("branch_id"),
                     category = rs.getString("category") ?: "",
                     description = rs.getString("description") ?: "",
                     amount = rs.getDouble("amount"),
-                    expenseDate = rs.getString("expense_date"),
-                    created_at = rs.getString("created_at")
-                ))
+                    expenseDate = rs.getString("expense_date")
+                )
             }
         } catch (e: Exception) {
-            Logger.error(TAG, "Failed to get all expenses", e)
+            Logger.error(TAG, "Failed to get expense", e)
         }
-        return items
+        return null
     }
 
-    // ================================================================
-    // DATA ACCESS — CREDITS
-    // ================================================================
+    fun saveCredit(credit: CreditDto, fromSync: Boolean = false) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("""
+                INSERT OR REPLACE INTO credits (
+                    id, branch_id, contact_name, description, amount, credit_type, 
+                    is_settled, settled_at, notes, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            """)
+            val id = credit.id ?: UUID.randomUUID().toString()
+            stmt.setString(1, id)
+            stmt.setString(2, credit.branchId)
+            stmt.setString(3, credit.contactName)
+            stmt.setString(4, credit.description)
+            stmt.setDouble(5, credit.amount)
+            stmt.setString(6, credit.creditType)
+            stmt.setInt(7, if (credit.isSettled) 1 else 0)
+            stmt.setString(8, credit.settledAt)
+            stmt.setString(9, credit.notes)
+            stmt.execute()
+
+            if (!fromSync) queueSync("credits", id, "UPDATE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to save credit", e)
+        }
+    }
+
+    fun deleteCredit(id: String) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("DELETE FROM credits WHERE id = ?")
+            stmt.setString(1, id)
+            stmt.execute()
+            queueSync("credits", id, "DELETE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to delete credit", e)
+        }
+    }
 
     fun getRecentCredits(days: Int = 2): List<CreditDto> {
         val conn = connection ?: return emptyList()
-        val items = mutableListOf<CreditDto>()
+        val credits = mutableListOf<CreditDto>()
         try {
             val cutoff = Instant.now().minusSeconds(days * 86400L).toString()
-            val stmt = conn.prepareStatement(
-                "SELECT * FROM credits WHERE created_at >= ? OR created_at IS NULL ORDER BY created_at DESC"
-            )
+            val stmt = conn.prepareStatement("SELECT * FROM credits WHERE updated_at >= ?")
             stmt.setString(1, cutoff)
             val rs = stmt.executeQuery()
             while (rs.next()) {
-                items.add(CreditDto(
+                credits.add(CreditDto(
                     id = rs.getString("id"),
                     branchId = rs.getString("branch_id"),
                     contactName = rs.getString("contact_name") ?: "",
                     description = rs.getString("description") ?: "",
                     amount = rs.getDouble("amount"),
                     creditType = rs.getString("credit_type") ?: "GIVEN",
-                    is_settled = rs.getInt("is_settled") == 1,
+                    isSettled = rs.getInt("is_settled") == 1,
                     settledAt = rs.getString("settled_at"),
-                    notes = rs.getString("notes"),
-                    created_at = rs.getString("created_at")
+                    notes = rs.getString("notes")
                 ))
             }
         } catch (e: Exception) {
             Logger.error(TAG, "Failed to get credits", e)
         }
-        return items
+        return credits
     }
 
-    fun getAllCredits(): List<CreditDto> {
-        val conn = connection ?: return emptyList()
-        val items = mutableListOf<CreditDto>()
+    fun getAllCredits(): List<CreditDto> = getRecentCredits(3650)
+
+    fun getCredit(id: String): CreditDto? {
+        val conn = connection ?: return null
         try {
-            val rs = conn.createStatement().executeQuery("SELECT * FROM credits ORDER BY created_at DESC")
-            while (rs.next()) {
-                items.add(CreditDto(
+            val stmt = conn.prepareStatement("SELECT * FROM credits WHERE id = ?")
+            stmt.setString(1, id)
+            val rs = stmt.executeQuery()
+            if (rs.next()) {
+                return CreditDto(
                     id = rs.getString("id"),
                     branchId = rs.getString("branch_id"),
                     contactName = rs.getString("contact_name") ?: "",
                     description = rs.getString("description") ?: "",
                     amount = rs.getDouble("amount"),
                     creditType = rs.getString("credit_type") ?: "GIVEN",
-                    is_settled = rs.getInt("is_settled") == 1,
+                    isSettled = rs.getInt("is_settled") == 1,
                     settledAt = rs.getString("settled_at"),
-                    notes = rs.getString("notes"),
-                    created_at = rs.getString("created_at")
-                ))
+                    notes = rs.getString("notes")
+                )
             }
         } catch (e: Exception) {
-            Logger.error(TAG, "Failed to get all credits", e)
+            Logger.error(TAG, "Failed to get credit", e)
         }
-        return items
+        return null
     }
-
-    // ================================================================
-    // DATA ACCESS — CATEGORIES
-    // ================================================================
 
     fun getCategories(): List<CategoryDto> {
         val conn = connection ?: return emptyList()
-        val items = mutableListOf<CategoryDto>()
+        val list = mutableListOf<CategoryDto>()
         try {
             val rs = conn.createStatement().executeQuery("SELECT * FROM categories")
             while (rs.next()) {
-                items.add(CategoryDto(
+                list.add(CategoryDto(
                     id = rs.getString("id"),
                     name = rs.getString("name") ?: "",
                     parentName = rs.getString("parent_name"),
@@ -730,86 +826,297 @@ object LocalDatabase {
         } catch (e: Exception) {
             Logger.error(TAG, "Failed to get categories", e)
         }
-        return items
+        return list
     }
 
-    // ================================================================
-    // DATA ACCESS — MENU ITEMS
-    // ================================================================
+    fun getCategory(id: String): CategoryDto? {
+        val conn = connection ?: return null
+        try {
+            val stmt = conn.prepareStatement("SELECT * FROM categories WHERE id = ?")
+            stmt.setString(1, id)
+            val rs = stmt.executeQuery()
+            if (rs.next()) {
+                return CategoryDto(
+                    id = rs.getString("id"),
+                    name = rs.getString("name") ?: "",
+                    parentName = rs.getString("parent_name"),
+                    created_at = rs.getString("created_at")
+                )
+            }
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to get category", e)
+        }
+        return null
+    }
+
+    fun saveCategory(category: CategoryDto, fromSync: Boolean = false) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("""
+                INSERT OR REPLACE INTO categories (id, name, parent_name, created_at, updated_at)
+                VALUES (?, ?, ?, ?, datetime('now'))
+            """)
+            val id = category.id ?: UUID.randomUUID().toString()
+            stmt.setString(1, id)
+            stmt.setString(2, category.name)
+            stmt.setString(3, category.parentName)
+            stmt.setString(4, category.created_at ?: Instant.now().toString())
+            stmt.execute()
+            if (!fromSync) queueSync("categories", id, "UPDATE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to save category", e)
+        }
+    }
+
+    fun deleteCategory(id: String) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("DELETE FROM categories WHERE id = ?")
+            stmt.setString(1, id)
+            stmt.execute()
+            queueSync("categories", id, "DELETE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to delete category", e)
+        }
+    }
+
+    fun saveMenuItem(item: MenuItemDto, fromSync: Boolean = false) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("""
+                INSERT OR REPLACE INTO menu_items (
+                    id, name, price, category, subcategory, branch_id, is_active, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            """)
+            val id = item.id ?: UUID.randomUUID().toString()
+            stmt.setString(1, id)
+            stmt.setString(2, item.name)
+            stmt.setDouble(3, item.price)
+            stmt.setString(4, item.category)
+            stmt.setString(5, item.subcategory)
+            stmt.setString(6, item.branchId)
+            stmt.setInt(7, if (item.isActive) 1 else 0)
+            stmt.execute()
+
+            if (!fromSync) queueSync("menu_items", id, "UPDATE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to save menu item", e)
+        }
+    }
+
+    fun deleteMenuItem(id: String) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("DELETE FROM menu_items WHERE id = ?")
+            stmt.setString(1, id)
+            stmt.execute()
+            queueSync("menu_items", id, "DELETE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to delete menu item", e)
+        }
+    }
 
     fun getMenuItems(): List<MenuItemDto> {
         val conn = connection ?: return emptyList()
-        val items = mutableListOf<MenuItemDto>()
+        val list = mutableListOf<MenuItemDto>()
         try {
-            val rs = conn.createStatement().executeQuery("SELECT * FROM menu_items WHERE is_active = 1")
+            val rs = conn.createStatement().executeQuery("SELECT * FROM menu_items")
             while (rs.next()) {
-                items.add(MenuItemDto(
+                list.add(MenuItemDto(
                     id = rs.getString("id"),
                     name = rs.getString("name") ?: "",
                     price = rs.getDouble("price"),
                     category = rs.getString("category") ?: "",
                     subcategory = rs.getString("subcategory") ?: "",
                     branchId = rs.getString("branch_id"),
-                    is_active = rs.getInt("is_active") == 1
+                    isActive = rs.getInt("is_active") == 1
                 ))
             }
         } catch (e: Exception) {
             Logger.error(TAG, "Failed to get menu items", e)
         }
-        return items
+        return list
     }
 
-    // ================================================================
-    // DATA ACCESS — CUSTOMERS
-    // ================================================================
+    fun getMenuItem(id: String): MenuItemDto? {
+        val conn = connection ?: return null
+        try {
+            val stmt = conn.prepareStatement("SELECT * FROM menu_items WHERE id = ?")
+            stmt.setString(1, id)
+            val rs = stmt.executeQuery()
+            if (rs.next()) {
+                return MenuItemDto(
+                    id = rs.getString("id"),
+                    name = rs.getString("name") ?: "",
+                    price = rs.getDouble("price"),
+                    category = rs.getString("category") ?: "",
+                    subcategory = rs.getString("subcategory") ?: "",
+                    branchId = rs.getString("branch_id"),
+                    isActive = rs.getInt("is_active") == 1
+                )
+            }
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to get menu item", e)
+        }
+        return null
+    }
+
+    fun saveCustomer(customer: CustomerDto, fromSync: Boolean = false) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("""
+                INSERT OR REPLACE INTO customers (id, name, phone, email, updated_at)
+                VALUES (?, ?, ?, ?, datetime('now'))
+            """)
+            val id = customer.id ?: UUID.randomUUID().toString()
+            stmt.setString(1, id)
+            stmt.setString(2, customer.name)
+            stmt.setString(3, customer.phone)
+            stmt.setString(4, customer.email)
+            stmt.execute()
+
+            if (!fromSync) queueSync("customers", id, "UPDATE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to save customer", e)
+        }
+    }
+
+    fun deleteCustomer(id: String) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("DELETE FROM customers WHERE id = ?")
+            stmt.setString(1, id)
+            stmt.execute()
+            queueSync("customers", id, "DELETE")
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to delete customer", e)
+        }
+    }
 
     fun getCustomers(): List<CustomerDto> {
         val conn = connection ?: return emptyList()
-        val items = mutableListOf<CustomerDto>()
+        val list = mutableListOf<CustomerDto>()
         try {
             val rs = conn.createStatement().executeQuery("SELECT * FROM customers")
             while (rs.next()) {
-                items.add(CustomerDto(
+                list.add(CustomerDto(
                     id = rs.getString("id"),
                     name = rs.getString("name") ?: "",
                     phone = rs.getString("phone") ?: "",
                     email = rs.getString("email"),
                     address = rs.getString("address"),
-                    idType = rs.getString("id_type"),
-                    idNumber = rs.getString("id_number"),
-                    profileImageUrl = rs.getString("profile_image_url"),
                     membershipStatus = rs.getString("membership_status") ?: "ACTIVE",
-                    membershipExpiry = rs.getString("membership_expiry"),
-                    notes = rs.getString("notes"),
                     branchId = rs.getString("branch_id")
                 ))
             }
         } catch (e: Exception) {
             Logger.error(TAG, "Failed to get customers", e)
         }
-        return items
+        return list
     }
 
-    // ================================================================
-    // UPSERT (Insert or Update) — Used by sync engine
-    // ================================================================
+    fun getCustomer(id: String): CustomerDto? {
+        val conn = connection ?: return null
+        try {
+            val stmt = conn.prepareStatement("SELECT * FROM customers WHERE id = ?")
+            stmt.setString(1, id)
+            val rs = stmt.executeQuery()
+            if (rs.next()) {
+                return CustomerDto(
+                    id = rs.getString("id"),
+                    name = rs.getString("name") ?: "",
+                    phone = rs.getString("phone") ?: "",
+                    email = rs.getString("email"),
+                    address = rs.getString("address"),
+                    membershipStatus = rs.getString("membership_status") ?: "ACTIVE",
+                    branchId = rs.getString("branch_id")
+                )
+            }
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to get customer", e)
+        }
+        return null
+    }
 
-    fun upsertBranch(branch: BranchDto) {
+    fun incrementSyncRetry(id: Long) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("UPDATE sync_queue SET retry_count = retry_count + 1 WHERE id = ?")
+            stmt.setLong(1, id)
+            stmt.execute()
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to increment sync retry", e)
+        }
+    }
+
+    fun getLastSyncTimestamp(): String {
+        val conn = connection ?: return "1970-01-01T00:00:00Z"
+        try {
+            val rs = conn.createStatement().executeQuery("SELECT value FROM sync_metadata WHERE key = 'last_sync'")
+            if (rs.next()) return rs.getString("value") ?: "1970-01-01T00:00:00Z"
+        } catch (e: Exception) { }
+        return "1970-01-01T00:00:00Z"
+    }
+
+    fun setLastSyncTimestamp(timestamp: String) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("INSERT OR REPLACE INTO sync_metadata (key, value) VALUES ('last_sync', ?)")
+            stmt.setString(1, timestamp)
+            stmt.execute()
+        } catch (e: Exception) { }
+    }
+
+    fun markSyncPushed(id: Long) {
+        val conn = connection ?: return
+        try {
+            val stmt = conn.prepareStatement("UPDATE sync_queue SET pushed = 1, updated_at = datetime('now') WHERE id = ?")
+            stmt.setLong(1, id)
+            stmt.execute()
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to mark sync pushed", e)
+        }
+    }
+
+    fun getPendingSyncs(): List<SyncQueueItem> {
+        val conn = connection ?: return emptyList()
+        val list = mutableListOf<SyncQueueItem>()
+        try {
+            val rs = conn.createStatement().executeQuery("""
+                SELECT * FROM sync_queue 
+                WHERE pushed = 0 AND retry_count < 5 
+                ORDER BY created_at ASC
+            """)
+            while (rs.next()) {
+                list.add(SyncQueueItem(
+                    id = rs.getLong("id"),
+                    tableName = rs.getString("table_name") ?: "",
+                    recordId = rs.getString("record_id") ?: "",
+                    operation = rs.getString("operation") ?: "UPDATE",
+                    pushed = rs.getInt("pushed") == 1,
+                    retryCount = rs.getInt("retry_count"),
+                    createdAt = rs.getString("created_at")
+                ))
+            }
+        } catch (e: Exception) {
+            Logger.error(TAG, "Failed to get pending syncs", e)
+        }
+        return list
+    }
+
+    fun queueSync(tableName: String, recordId: String, operation: String) {
         val conn = connection ?: return
         try {
             val stmt = conn.prepareStatement("""
-                INSERT OR REPLACE INTO branches (id, name, type, address, is_active, parent_id, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+                INSERT INTO sync_queue (table_name, record_id, operation, pushed, retry_count, created_at, updated_at)
+                VALUES (?, ?, ?, 0, 0, datetime('now'), datetime('now'))
             """)
-            stmt.setString(1, branch.id ?: "")
-            stmt.setString(2, branch.name)
-            stmt.setString(3, branch.type)
-            stmt.setString(4, branch.address)
-            stmt.setInt(5, if (branch.isActive) 1 else 0)
-            stmt.setString(6, branch.parentId)
+            stmt.setString(1, tableName)
+            stmt.setString(2, recordId)
+            stmt.setString(3, operation)
             stmt.execute()
         } catch (e: Exception) {
-            Logger.error(TAG, "Failed to upsert branch", e)
+            Logger.error(TAG, "Failed to queue sync", e)
         }
     }
 
@@ -821,21 +1128,16 @@ object LocalDatabase {
         try {
             connection?.close()
             connection = null
-            Logger.info(TAG, "Database closed")
-        } catch (e: Exception) {
-            Logger.error(TAG, "Failed to close database", e)
-        }
+        } catch (e: Exception) { }
     }
 }
 
-/**
- * Represents a pending sync operation.
- */
 data class SyncQueueItem(
     val id: Long,
     val tableName: String,
     val recordId: String,
-    val action: String,
-    val createdAt: String,
-    val retryCount: Int
+    val operation: String,
+    val pushed: Boolean,
+    val retryCount: Int,
+    val createdAt: String
 )

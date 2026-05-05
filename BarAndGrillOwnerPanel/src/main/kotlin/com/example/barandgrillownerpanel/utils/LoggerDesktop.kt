@@ -4,8 +4,6 @@ import com.example.barandgrillownerpanel.data.remote.SupabaseManager
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.*
 import kotlinx.serialization.Serializable
-import java.net.InetAddress
-import java.time.OffsetDateTime
 
 enum class LogLevel { INFO, WARN, ERROR, FATAL }
 
@@ -14,10 +12,7 @@ data class SystemLogDto(
     val level: String,
     val tag: String,
     val message: String,
-    val stack_trace: String? = null,
-    val machine_name: String = InetAddress.getLocalHost().hostName,
-    val timestamp: String = OffsetDateTime.now().toString(),
-    val app_version: String = "1.0.0" // Consider fetching from BuildConfig if available
+    val stack_trace: String? = null
 )
 
 object Logger {

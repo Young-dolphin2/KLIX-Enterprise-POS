@@ -25,6 +25,16 @@ object SyncEngine {
     private var syncJob: Job? = null
     private var isSyncing = false
 
+    private val _syncStatus = kotlinx.coroutines.flow.MutableStateFlow<SyncStatus>(SyncStatus.Idle)
+    val syncStatus: kotlinx.coroutines.flow.StateFlow<SyncStatus> = _syncStatus
+
+    sealed class SyncStatus {
+        object Idle : SyncStatus()
+        object Syncing : SyncStatus()
+        object Error : SyncStatus()
+        object Success : SyncStatus()
+    }
+
     /**
      * Start the background sync cycle.
      * 1. Push local changes to Supabase
@@ -38,12 +48,15 @@ object SyncEngine {
                 try {
                     if (!isSyncing) {
                         isSyncing = true
+                        _syncStatus.value = SyncStatus.Syncing
                         pushLocalChanges()
                         pullRemoteChanges()
+                        _syncStatus.value = SyncStatus.Success
                         isSyncing = false
                     }
                 } catch (e: Exception) {
                     isSyncing = false
+                    _syncStatus.value = SyncStatus.Error
                     Logger.warn(TAG, "Sync cycle failed: ${e.message}")
                 }
                 // Sync every 30 seconds while app is open
@@ -70,15 +83,26 @@ object SyncEngine {
         Logger.info(TAG, "Pushing ${pendingSyncs.size} local changes to Supabase")
 
         for (sync in pendingSyncs.take(PUSH_BATCH_SIZE)) {
+            // Exponential backoff check: retry_count * 5 minutes
+            val waitTime = sync.retryCount * 300_000L 
+            val createdAt = Instant.parse(sync.createdAt).toEpochMilli()
+            if (System.currentTimeMillis() - createdAt < waitTime) continue
+
             try {
-                when (sync.tableName) {
-                    "sales" -> pushSale(sync)
-                    "expenses" -> pushExpense(sync)
-                    "credits" -> pushCredit(sync)
-                    "inventory" -> pushInventory(sync)
-                    "menu_items" -> pushMenuItem(sync)
-                    "branches" -> pushBranch(sync)
-                    "customers" -> pushCustomer(sync)
+                if (sync.operation == "DELETE") {
+                    SupabaseManager.client.postgrest[sync.tableName].delete {
+                        filter { eq("id", sync.recordId) }
+                    }
+                } else {
+                    when (sync.tableName) {
+                        "sales" -> pushSale(sync)
+                        "expenses" -> pushExpense(sync)
+                        "credits" -> pushCredit(sync)
+                        "inventory" -> pushInventory(sync)
+                        "menu_items" -> pushMenuItem(sync)
+                        "branches" -> pushBranch(sync)
+                        "customers" -> pushCustomer(sync)
+                    }
                 }
                 LocalDatabase.markSyncPushed(sync.id)
             } catch (e: Exception) {
@@ -89,33 +113,46 @@ object SyncEngine {
     }
 
     private suspend fun pushSale(sync: SyncQueueItem) {
-        // For sales, we need the sale + sale_items
-        // Since we use insert-only, just push the record
-        // The record should already exist in SQLite
+        val sale = LocalDatabase.getSale(sync.recordId) ?: return
+        val items = LocalDatabase.getSaleItems(sync.recordId)
+        
+        // Push sale first
+        SupabaseManager.client.postgrest["sales"].upsert(sale)
+        
+        // Push items
+        if (items.isNotEmpty()) {
+            SupabaseManager.client.postgrest["sale_items"].upsert(items)
+        }
     }
 
     private suspend fun pushExpense(sync: SyncQueueItem) {
-        val conn = LocalDatabase::class.java // Placeholder — will implement full CRUD
+        val expense = LocalDatabase.getExpense(sync.recordId) ?: return
+        SupabaseManager.client.postgrest["expenses"].upsert(expense)
     }
 
     private suspend fun pushCredit(sync: SyncQueueItem) {
-        // Will implement with full CRUD methods on LocalDatabase
+        val credit = LocalDatabase.getCredit(sync.recordId) ?: return
+        SupabaseManager.client.postgrest["credits"].upsert(credit)
     }
 
     private suspend fun pushInventory(sync: SyncQueueItem) {
-        // Will implement with full CRUD methods on LocalDatabase
+        val item = LocalDatabase.getInventoryItem(sync.recordId) ?: return
+        SupabaseManager.client.postgrest["inventory"].upsert(item)
     }
 
     private suspend fun pushMenuItem(sync: SyncQueueItem) {
-        // Will implement with full CRUD methods on LocalDatabase
+        val item = LocalDatabase.getMenuItem(sync.recordId) ?: return
+        SupabaseManager.client.postgrest["menu_items"].upsert(item)
     }
 
     private suspend fun pushBranch(sync: SyncQueueItem) {
-        // Will implement with full CRUD methods on LocalDatabase
+        // Branches are usually read-only from the POS, but if we need to push:
+        // SupabaseManager.client.postgrest["branches"].upsert(...)
     }
 
     private suspend fun pushCustomer(sync: SyncQueueItem) {
-        // Will implement with full CRUD methods on LocalDatabase
+        val customer = LocalDatabase.getCustomer(sync.recordId) ?: return
+        SupabaseManager.client.postgrest["customers"].upsert(customer)
     }
 
     // ================================================================
@@ -162,7 +199,7 @@ object SyncEngine {
                 }
                 .decodeAs<List<BranchDto>>()
             
-            branches.forEach { LocalDatabase.upsertBranch(it) }
+            branches.forEach { LocalDatabase.upsertBranch(it, fromSync = true) }
             if (branches.isNotEmpty()) Logger.info(TAG, "Pulled ${branches.size} branches")
         } catch (e: Exception) {
             Logger.warn(TAG, "Failed to pull branches: ${e.message}")
@@ -177,7 +214,8 @@ object SyncEngine {
                     limit(PULL_LIMIT)
                 }
                 .decodeAs<List<MenuItemDto>>()
-            // Will implement upsert for menu items
+            
+            items.forEach { LocalDatabase.saveMenuItem(it, fromSync = true) }
             if (items.isNotEmpty()) Logger.info(TAG, "Pulled ${items.size} menu items")
         } catch (e: Exception) {
             Logger.warn(TAG, "Failed to pull menu items: ${e.message}")
@@ -192,6 +230,8 @@ object SyncEngine {
                     limit(PULL_LIMIT)
                 }
                 .decodeAs<List<InventoryItemDto>>()
+            
+            items.forEach { LocalDatabase.saveInventoryItem(it, fromSync = true) }
             if (items.isNotEmpty()) Logger.info(TAG, "Pulled ${items.size} inventory items")
         } catch (e: Exception) {
             Logger.warn(TAG, "Failed to pull inventory: ${e.message}")
@@ -206,6 +246,8 @@ object SyncEngine {
                     limit(PULL_LIMIT)
                 }
                 .decodeAs<List<SaleDto>>()
+            
+            sales.forEach { LocalDatabase.saveSale(it, fromSync = true) }
             if (sales.isNotEmpty()) Logger.info(TAG, "Pulled ${sales.size} sales")
         } catch (e: Exception) {
             Logger.warn(TAG, "Failed to pull sales: ${e.message}")
@@ -220,6 +262,8 @@ object SyncEngine {
                     limit(PULL_LIMIT)
                 }
                 .decodeAs<List<ExpenseDto>>()
+            
+            expenses.forEach { LocalDatabase.saveExpense(it, fromSync = true) }
             if (expenses.isNotEmpty()) Logger.info(TAG, "Pulled ${expenses.size} expenses")
         } catch (e: Exception) {
             Logger.warn(TAG, "Failed to pull expenses: ${e.message}")
@@ -234,6 +278,8 @@ object SyncEngine {
                     limit(PULL_LIMIT)
                 }
                 .decodeAs<List<CreditDto>>()
+            
+            credits.forEach { LocalDatabase.saveCredit(it, fromSync = true) }
             if (credits.isNotEmpty()) Logger.info(TAG, "Pulled ${credits.size} credits")
         } catch (e: Exception) {
             Logger.warn(TAG, "Failed to pull credits: ${e.message}")
@@ -248,6 +294,8 @@ object SyncEngine {
                     limit(PULL_LIMIT)
                 }
                 .decodeAs<List<CategoryDto>>()
+            
+            categories.forEach { LocalDatabase.saveCategory(it, fromSync = true) }
             if (categories.isNotEmpty()) Logger.info(TAG, "Pulled ${categories.size} categories")
         } catch (e: Exception) {
             Logger.warn(TAG, "Failed to pull categories: ${e.message}")
@@ -262,6 +310,8 @@ object SyncEngine {
                     limit(PULL_LIMIT)
                 }
                 .decodeAs<List<CustomerDto>>()
+            
+            customers.forEach { LocalDatabase.saveCustomer(it, fromSync = true) }
             if (customers.isNotEmpty()) Logger.info(TAG, "Pulled ${customers.size} customers")
         } catch (e: Exception) {
             Logger.warn(TAG, "Failed to pull customers: ${e.message}")
@@ -283,6 +333,20 @@ object SyncEngine {
             Logger.info(TAG, "Full sync complete")
         } catch (e: Exception) {
             Logger.error(TAG, "Full sync failed", e)
+        }
+    }
+
+    // Helper to fetch full objects before pushing
+    private fun fetchLocal(tableName: String, recordId: String): Any? {
+        return when (tableName) {
+            "sales" -> LocalDatabase.getSale(recordId)
+            "expenses" -> LocalDatabase.getExpense(recordId)
+            "credits" -> LocalDatabase.getCredit(recordId)
+            "inventory" -> LocalDatabase.getInventoryItem(recordId)
+            "menu_items" -> LocalDatabase.getMenuItem(recordId)
+            "customers" -> LocalDatabase.getCustomer(recordId)
+            "categories" -> LocalDatabase.getCategory(recordId)
+            else -> null
         }
     }
 }

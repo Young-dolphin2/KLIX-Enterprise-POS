@@ -27,6 +27,7 @@ import io.github.jan.supabase.postgrest.*
 import io.github.jan.supabase.realtime.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import androidx.compose.runtime.collectAsState
 
 // Dashboard Models and Tabs
 import com.example.barandgrillownerpanel.ui.dashboard.OverviewTab
@@ -98,6 +99,7 @@ fun DashboardScreen(
     var errorLoading by remember { mutableStateOf<String?>(null) }
     var retryCount by remember { mutableStateOf(0) }
     var isOffline by remember { mutableStateOf(false) }
+    val syncStatus by com.example.barandgrillownerpanel.data.sync.SyncEngine.syncStatus.collectAsState()
 
     // ── Subscription State ────────────────────────────────────────
     var subscriptionInfo by remember { mutableStateOf<SubscriptionInfo?>(null) }
@@ -591,6 +593,7 @@ fun DashboardScreen(
             onTabSelected = { selectedTab = it },
             settings = appSettings,
             isOffline = isOffline,
+            syncStatus = syncStatus,
             subscriptionInfo = subscriptionInfo,
             onUpgrade = { showUpgradeDialog = true },
             onLock = { } /* will be wired from Main.kt */,
@@ -1002,6 +1005,7 @@ fun Sidebar(
     onTabSelected: (DashboardTab) -> Unit,
     settings: AppSettings,
     isOffline: Boolean,
+    syncStatus: com.example.barandgrillownerpanel.data.sync.SyncEngine.SyncStatus,
     subscriptionInfo: SubscriptionInfo?,
     onUpgrade: () -> Unit,
     onLock: () -> Unit,
@@ -1034,16 +1038,31 @@ fun Sidebar(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("DASHBOARD", fontWeight = FontWeight.Bold, color = PrimaryOrange, fontSize = 12.sp)
                     Spacer(modifier = Modifier.width(8.dp))
+                    
+                    val statusText = when {
+                        isOffline -> "OFFLINE"
+                        syncStatus is com.example.barandgrillownerpanel.data.sync.SyncEngine.SyncStatus.Error -> "SYNC ERROR"
+                        syncStatus is com.example.barandgrillownerpanel.data.sync.SyncEngine.SyncStatus.Syncing -> "SYNCING..."
+                        syncStatus is com.example.barandgrillownerpanel.data.sync.SyncEngine.SyncStatus.Success -> "SYNCED"
+                        else -> "IDLE"
+                    }
+                    val statusColor = when {
+                        isOffline || syncStatus is com.example.barandgrillownerpanel.data.sync.SyncEngine.SyncStatus.Error -> ErrorRed
+                        syncStatus is com.example.barandgrillownerpanel.data.sync.SyncEngine.SyncStatus.Syncing -> PrimaryOrange
+                        syncStatus is com.example.barandgrillownerpanel.data.sync.SyncEngine.SyncStatus.Success -> SuccessGreen
+                        else -> TextSecondary
+                    }
+
                     // Sync Status Indicator
                     Box(
                         modifier = Modifier
                             .size(8.dp)
-                            .background(if (isOffline) ErrorRed else Color.Green, CircleShape)
+                            .background(statusColor, CircleShape)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        if (isOffline) "OFFLINE" else "SYNCED",
-                        color = if (isOffline) ErrorRed else Color.Green,
+                        statusText,
+                        color = statusColor,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold
                     )
