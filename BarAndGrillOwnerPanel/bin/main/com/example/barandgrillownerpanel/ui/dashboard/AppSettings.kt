@@ -25,6 +25,7 @@ data class AppSettings(
     val managerPin: String = "1234",
     val primaryColorHex: String = "#FF9800",
     val companyLogoUrl: String? = null,
+    val lockTimeoutMinutes: Int = 0,
     val branches: List<BranchDto> = emptyList()
 )
 

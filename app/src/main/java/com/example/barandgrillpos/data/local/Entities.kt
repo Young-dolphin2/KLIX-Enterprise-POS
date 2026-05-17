@@ -43,6 +43,7 @@ data class MenuItemEntity(
     val subcategory: String,
     val branchId: String? = null,
     val isActive: Boolean = true,
+    val barcode: String? = null,
     val ingredientsJson: String? = null,
     val updatedAt: Long = System.currentTimeMillis()
 )

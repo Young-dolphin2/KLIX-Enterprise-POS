@@ -19,6 +19,7 @@ data class MenuItem(
     val category: String,
     val subcategory: String,
     @kotlinx.serialization.SerialName("branch_id") val branchId: String? = null,
+    val barcode: String? = null,
     val ingredients: List<Ingredient>? = null
 )
 

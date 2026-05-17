@@ -19,5 +19,6 @@ data class SaleItemDto(
     @SerialName("name") val name: String,
     @SerialName("price") val price: Double,
     @SerialName("quantity") val quantity: Int,
-    @SerialName("category") val category: String
+    @SerialName("category") val category: String,
+    @SerialName("barcode") val barcode: String? = null
 )

@@ -1,4 +1,5 @@
 @file:Suppress("SpellCheckingInspection")
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.example.barandgrillpos
 
@@ -36,6 +37,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,11 +60,15 @@ import com.example.barandgrillpos.data.local.*
 import com.example.barandgrillpos.data.sync.*
 import com.example.barandgrillpos.data.remote.SupabaseManager
 import com.example.barandgrillpos.data.remote.dto.SaleDto
+import com.example.barandgrillpos.data.sync.SubscriptionManager
+import com.example.barandgrillpos.data.sync.SubscriptionStatus
+import com.example.barandgrillpos.data.sync.SubscriptionInfo
 import com.example.barandgrillpos.data.local.EmployeeEntity
 import com.example.barandgrillpos.ui.*
+import com.example.barandgrillpos.ui.theme.entranceAnimation
 import com.example.barandgrillpos.utils.SecurityUtils
-import io.github.jan.supabase.gotrue.auth
-import io.github.jan.supabase.gotrue.SessionStatus
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
@@ -240,6 +246,7 @@ class MainActivity : ComponentActivity() {
                 var appBranchId by remember { mutableStateOf<String?>(null) }
                 var appBranchType by remember { mutableStateOf("RETAIL") }
                 var childBranchIds by remember { mutableStateOf<List<String>>(emptyList()) }
+                var subscriptionInfo by remember { mutableStateOf<SubscriptionInfo?>(null) }
 
                 LaunchedEffect(Unit) {
                     try {
@@ -254,6 +261,14 @@ class MainActivity : ComponentActivity() {
                         childBranchIds = fetched.filter { it.parentId == resolvedId }.map { it.id }
                         appBranchId = resolvedId
                     } catch (e: Exception) { e.printStackTrace() }
+                }
+
+                LaunchedEffect(sessionStatus) {
+                    if (sessionStatus is SessionStatus.Authenticated) {
+                        val user = SupabaseManager.client.auth.retrieveUserForCurrentSession()
+                        val tenantId = user.id
+                        subscriptionInfo = SubscriptionManager.checkStatus(tenantId)
+                    }
                 }
 
                 val flowSales = remember { saleDao.getAllSales() }
@@ -361,53 +376,63 @@ class MainActivity : ComponentActivity() {
                             onSignUpSuccess = { currentScreen = Screen.POS },
                             onNavigateToLogin = { currentScreen = Screen.LOGIN }
                         )
-                        Screen.POS -> POSScreen(
-                            printerStatus = _printerStatus.value,
-                            onNavigateToStats = { currentScreen = Screen.STATS },
-                            onNavigateToProfile = { currentScreen = Screen.EMPLOYEE_PROFILE },
-                            employeeName = currentEmployeeName,
-                            isEmployeeRegistered = isEmployeeRegistered,
-                            appBranchId = saleBranchId,
-                            appBranchType = appBranchType,
-                            parentBranchId = if (appBranchType == "RETAIL") appBranchId else null, // Logic based on type
-                            childBranchIds = childBranchIds,
-                            paymentMethods = dynamicPaymentMethods,
-                            currencySymbol = dynamicCurrencySymbol,
-                            onSaleComplete = { sale ->
-                                lifecycleScope.launch(Dispatchers.IO) {
-                                    try {
-                                        val entity = SaleEntity(
-                                            id = sale.id,
-                                            itemsJson = Json.encodeToString(sale.items),
-                                            totalAmount = sale.totalAmount,
-                                            paymentMethod = sale.paymentMethod,
-                                            soldBy = sale.soldBy,
-                                            timestamp = sale.timestamp,
-                                            branchId = saleBranchId
-                                        )
-                                        saleDao.insertSale(entity)
-                                        val syncedNow = trySyncSaleNow(entity)
-                                        if (syncedNow) {
-                                            saleDao.markAsSynced(entity.id)
-                                        } else {
-                                            saleDao.addToSyncQueue(
-                                                SyncQueueEntry(
-                                                    action = "INSERT_SALE",
-                                                    payloadJson = Json.encodeToString(entity)
+                        Screen.POS -> {
+                            if (subscriptionInfo != null && subscriptionInfo!!.status != SubscriptionStatus.ACTIVE) {
+                                SubscriptionPaywall(info = subscriptionInfo!!, onRefresh = {
+                                    lifecycleScope.launch {
+                                        val user = SupabaseManager.client.auth.retrieveUserForCurrentSession()
+                                        subscriptionInfo = SubscriptionManager.checkStatus(user.id)
+                                    }
+                                })
+                            } else {
+                                POSScreen(
+                                    printerStatus = _printerStatus.value,
+                                    onNavigateToStats = { currentScreen = Screen.STATS },
+                                    onNavigateToProfile = { currentScreen = Screen.EMPLOYEE_PROFILE },
+                                    employeeName = currentEmployeeName,
+                                    isEmployeeRegistered = isEmployeeRegistered,
+                                    appBranchId = saleBranchId,
+                                    appBranchType = appBranchType,
+                                    parentBranchId = if (appBranchType == "RETAIL") appBranchId else null, // Logic based on type
+                                    childBranchIds = childBranchIds,
+                                    paymentMethods = dynamicPaymentMethods,
+                                    currencySymbol = dynamicCurrencySymbol,
+                                    onSaleComplete = { sale ->
+                                        lifecycleScope.launch(Dispatchers.IO) {
+                                            try {
+                                                val entity = SaleEntity(
+                                                    id = sale.id,
+                                                    itemsJson = Json.encodeToString(sale.items),
+                                                    totalAmount = sale.totalAmount,
+                                                    paymentMethod = sale.paymentMethod,
+                                                    soldBy = sale.soldBy,
+                                                    timestamp = sale.timestamp,
+                                                    branchId = saleBranchId
                                                 )
-                                            )
-                                            SyncManager.startImmediateSync(this@MainActivity)
+                                                saleDao.insertSale(entity)
+                                                
+                                                // Always add to sync queue to ensure items and inventory are synced correctly
+                                                saleDao.addToSyncQueue(
+                                                    SyncQueueEntry(
+                                                        action = "INSERT_SALE",
+                                                        payloadJson = Json.encodeToString(entity)
+                                                    )
+                                                )
+                                                SyncManager.startImmediateSync(this@MainActivity)
+                                            } catch (e: Exception) { e.printStackTrace() }
                                         }
-                                    } catch (e: Exception) { e.printStackTrace() }
-                                }
+                                    }
+                                )
                             }
-                        )
+                        }
                         Screen.STATS -> SalesStatsScreen(
                             saleHistory = saleHistory,
                             onBackToPOS = { currentScreen = Screen.POS },
                             context = this@MainActivity,
                             onReprint = { sale ->
-                                printThermalReceipt(this@MainActivity, sale.items, sale.totalAmount)
+                                lifecycleScope.launch {
+                                    printThermalReceipt(this@MainActivity, sale.items, sale.totalAmount)
+                                }
                             }
                         )
                         Screen.EMPLOYEE_PROFILE -> EmployeeProfileScreen(
@@ -457,30 +482,15 @@ class MainActivity : ComponentActivity() {
     private fun checkBluetoothState() = updatePrinterStatus()
 
     private fun updatePrinterStatus() {
+        val adapter = bluetoothAdapter
         _printerStatus.value = when {
-            bluetoothAdapter == null -> PrinterStatus.DISCONNECTED
-            !bluetoothAdapter.isEnabled -> PrinterStatus.BLUETOOTH_OFF
+            adapter == null -> PrinterStatus.DISCONNECTED
+            !adapter.isEnabled -> PrinterStatus.BLUETOOTH_OFF
             BluetoothPrintersConnections.selectFirstPaired() != null -> PrinterStatus.READY
             else -> PrinterStatus.DISCONNECTED
         }
     }
 
-    private suspend fun trySyncSaleNow(entity: SaleEntity): Boolean {
-        return try {
-            val json = buildJsonObject {
-                put("order_id", entity.id)
-                put("total_amount", entity.totalAmount)
-                put("payment_method", entity.paymentMethod)
-                put("sold_by", entity.soldBy)
-                put("timestamp", SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US).format(Date(entity.timestamp)))
-                put("branch_id", entity.branchId)
-            }
-            SupabaseManager.client.postgrest["sales"].insert(json)
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
 }
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -528,6 +538,7 @@ fun POSScreen(
                     category = preferred.category,
                     subcategory = preferred.subcategory,
                     branchId = preferred.branchId,
+                    barcode = preferred.barcode,
                     ingredients = preferred.ingredientsJson?.let {
                         try { Json.decodeFromString<List<Ingredient>>(it) } catch (_: Exception) { null }
                     }
@@ -543,11 +554,12 @@ fun POSScreen(
         }.distinctBy { it.name }
     }
 
+    var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf("ALL") }
     var selectedSubcategory by remember { mutableStateOf("ALL") }
 
-    val filteredItems = remember(menuItems, selectedCategory, selectedSubcategory) {
-        when {
+    val filteredItems = remember(menuItems, selectedCategory, selectedSubcategory, searchQuery) {
+        val base = when {
             selectedCategory == "ALL" -> menuItems
             selectedSubcategory == "ALL" -> menuItems.filter { it.category.uppercase() == selectedCategory.uppercase() }
             else -> menuItems.filter {
@@ -555,6 +567,8 @@ fun POSScreen(
                 it.subcategory.uppercase() == selectedSubcategory.uppercase()
             }
         }
+        if (searchQuery.isBlank()) base
+        else base.filter { it.name.contains(searchQuery, ignoreCase = true) || it.barcode == searchQuery }
     }
 
     var orderItems by remember { mutableStateOf(listOf<OrderItem>()) }
@@ -621,12 +635,50 @@ fun POSScreen(
                 CustomersTab(branchId = appBranchId, currencySymbol = currencySymbol)
             }
         } else {
-            Row(modifier = Modifier.fillMaxSize().padding(padding)) {
+            Row(modifier = Modifier.fillMaxSize().padding(padding).entranceAnimation()) {
                 // LEFT: Menu Items
                 Column(modifier = Modifier.weight(2f).fillMaxHeight().padding(12.dp)) {
+                    // Search / Barcode Bar
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { query ->
+                            searchQuery = query
+                            // Auto-add if exact barcode match
+                            val match = menuItems.find { it.barcode == query && !it.barcode.isNullOrBlank() }
+                            if (match != null) {
+                                val existing = orderItems.indexOfFirst { it.item.id == match.id }
+                                if (existing >= 0) {
+                                    val list = orderItems.toMutableList()
+                                    list[existing] = list[existing].copy(quantity = list[existing].quantity + 1)
+                                    orderItems = list
+                                } else {
+                                    orderItems = orderItems + OrderItem(item = match, quantity = 1)
+                                }
+                                searchQuery = "" // Clear after auto-add
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        placeholder = { Text("Search or Scan Barcode...", color = TextSecondary) },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary) },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = null, tint = TextSecondary)
+                                }
+                            } else {
+                                Icon(Icons.Default.QrCodeScanner, contentDescription = null, tint = PrimaryOrange)
+                            }
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
                     // Category Filter Row
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                            .horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         FilterChip(
@@ -768,6 +820,8 @@ fun POSScreen(
         }
     }
 
+    val scope = rememberCoroutineScope()
+
     if (paymentDialog) {
         PaymentMethodDialog(
             total = total,
@@ -784,7 +838,9 @@ fun POSScreen(
                     timestamp = System.currentTimeMillis()
                 )
                 onSaleComplete(sale)
-                printThermalReceipt(context, orderItems, total)
+                scope.launch {
+                    printThermalReceipt(context, orderItems, total)
+                }
                 orderItems = emptyList()
                 paymentDialog = false
             }
@@ -804,7 +860,6 @@ fun POSScreen(
             }
         )
     }
-}
 }
 
 // ═════════════════════════════════════════════════════════════════════════
@@ -1091,7 +1146,7 @@ fun CustomersTab(
     val context = LocalContext.current
     val database = remember { AppDatabase.getDatabase(context) }
     val cacheDao = remember { database.cacheDao() }
-    val customers by cacheDao.observeCustomers(branchId ?: "").collectAsState(initial = emptyList())
+    val customers by cacheDao.observeCustomers().collectAsState(initial = emptyList())
     
     var searchQuery by remember { mutableStateOf("") }
     val filteredCustomers = remember(customers, searchQuery) {
@@ -1139,7 +1194,12 @@ fun CustomersTab(
 
 @Composable
 fun CustomerMembershipCard(customer: CustomerEntity) {
-    val isExpired = customer.membershipExpiry?.let { it < System.currentTimeMillis() } ?: true
+    val isExpired = customer.membershipExpiry?.let { 
+        val expiryLong = it.toLongOrNull() ?: try {
+            java.time.OffsetDateTime.parse(it).toInstant().toEpochMilli()
+        } catch (_: Exception) { 0L }
+        expiryLong < System.currentTimeMillis() 
+    } ?: true
     val status = customer.membershipStatus?.uppercase() ?: "INACTIVE"
     
     Card(

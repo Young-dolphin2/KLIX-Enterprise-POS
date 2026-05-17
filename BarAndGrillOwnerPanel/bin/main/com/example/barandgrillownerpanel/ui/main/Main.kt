@@ -10,95 +10,154 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.barandgrillownerpanel.ui.auth.LoginScreen
+import com.example.barandgrillownerpanel.ui.auth.MasterAuthLayout
+import com.example.barandgrillownerpanel.ui.auth.LockScreen
 import com.example.barandgrillownerpanel.ui.onboarding.OnboardingScreen
 import com.example.barandgrillownerpanel.ui.dashboard.DashboardScreen
 import com.example.barandgrillownerpanel.ui.dashboard.AppSettings
-import com.example.barandgrillownerpanel.data.remote.SupabaseManager
 import com.example.barandgrillownerpanel.data.local.LocalDatabase
 import com.example.barandgrillownerpanel.ui.theme.PrimaryOrange
-import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.delay
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.decodeFromString
 import java.util.prefs.Preferences
+import kotlinx.serialization.json.Json
 
 enum class AppState {
-    SPLASH, LOGIN, WELCOME_LOAD, ONBOARDING, DASHBOARD
+    SPLASH, WELCOME, LOGIN, SIGNUP, ONBOARDING, DASHBOARD, LOCKED
 }
 
 @Composable
 fun MainApp() {
     var currentState by remember { mutableStateOf(AppState.SPLASH) }
     var appSettings by remember { mutableStateOf<AppSettings?>(null) }
-    
+
     LaunchedEffect(Unit) {
         LocalDatabase.initialize()
-        delay(1500) // Aesthetic delay for splash
-        
-        val user = SupabaseManager.client.auth.currentSessionOrNull()?.user
-        if (user == null) {
-            currentState = AppState.LOGIN
-        } else {
-            // Try loading from Local Database first (Source of Truth)
+        delay(4000) // 4-second splash with animations
+
+        val prefs = Preferences.userRoot().node("com.example.barandgrillownerpanel")
+        val onboarded = prefs.getBoolean("is_onboarded", false)
+
+        if (onboarded) {
             val localSettings = LocalDatabase.getAppSettings()
             if (localSettings != null) {
                 appSettings = localSettings
                 currentState = AppState.DASHBOARD
             } else {
-                // Fallback to Preferences (Legacy)
-                val prefs = Preferences.userRoot().node("com.example.barandgrillownerpanel")
-                val onboarded = prefs.getBoolean("is_onboarded", false)
-                if (onboarded) {
-                    val settingsJson = prefs.get("app_settings", null)
-                    if (settingsJson != null) {
-                        try {
-                            appSettings = Json.decodeFromString(settingsJson)
-                            currentState = AppState.DASHBOARD
-                        } catch (e: Exception) {
-                            currentState = AppState.ONBOARDING
-                        }
-                    } else {
-                        currentState = AppState.ONBOARDING
+                val settingsJson = prefs.get("app_settings", null)
+                if (settingsJson != null) {
+                    try {
+                        appSettings = Json.decodeFromString(settingsJson)
+                        currentState = AppState.DASHBOARD
+                    } catch (e: Exception) {
+                        currentState = AppState.WELCOME
                     }
                 } else {
-                    currentState = AppState.ONBOARDING
+                    currentState = AppState.WELCOME
+                }
+            }
+        } else {
+            currentState = AppState.WELCOME
+        }
+    }
+
+    // Inactivity Lock Screen Logic
+    var lastInteractionTime by remember { mutableStateOf(System.currentTimeMillis()) }
+
+    DisposableEffect(Unit) {
+        val listener = java.awt.event.AWTEventListener {
+            lastInteractionTime = System.currentTimeMillis()
+        }
+        val mask = java.awt.AWTEvent.MOUSE_EVENT_MASK or
+                java.awt.AWTEvent.KEY_EVENT_MASK or
+                java.awt.AWTEvent.MOUSE_MOTION_EVENT_MASK
+        java.awt.Toolkit.getDefaultToolkit().addAWTEventListener(listener, mask)
+        onDispose {
+            java.awt.Toolkit.getDefaultToolkit().removeAWTEventListener(listener)
+        }
+    }
+
+    LaunchedEffect(currentState, appSettings?.lockTimeoutMinutes) {
+        while (true) {
+            delay(10000) // Check every 10 seconds
+            val timeoutMinutes = appSettings?.lockTimeoutMinutes ?: 0
+            if (timeoutMinutes > 0 && currentState == AppState.DASHBOARD) {
+                val idleMillis = System.currentTimeMillis() - lastInteractionTime
+                if (idleMillis > timeoutMinutes * 60 * 1000L) {
+                    currentState = AppState.LOCKED
                 }
             }
         }
     }
 
-    Crossfade(targetState = currentState, animationSpec = tween(500)) { state ->
-        when (state) {
-            AppState.SPLASH -> SplashScreen("Initializing Klix POS...")
-            AppState.LOGIN -> LoginScreen(
-                funOnLoginSuccess = { 
-                    currentState = AppState.WELCOME_LOAD 
-                },
-                onNavigateToSignUp = { /* TODO */ }
-            )
-            AppState.WELCOME_LOAD -> {
-                LaunchedEffect(Unit) {
-                    delay(2000)
-                    currentState = AppState.ONBOARDING
-                }
-                SplashScreen("Welcome to Klix! Preparing your workspace...")
-            }
-            AppState.ONBOARDING -> OnboardingScreen(onComplete = { 
-                // Reload settings from Local Database
-                appSettings = LocalDatabase.getAppSettings()
-                currentState = AppState.DASHBOARD 
-            })
-            AppState.DASHBOARD -> {
-                if (appSettings != null) {
-                    DashboardScreen(appSettings!!)
-                } else {
-                    // Emergency fallback if settings are missing
-                    SplashScreen("Recovering settings...")
-                    LaunchedEffect(Unit) {
-                        delay(1000)
-                        currentState = AppState.ONBOARDING
+    val authGroup = listOf(AppState.WELCOME, AppState.LOGIN, AppState.SIGNUP, AppState.ONBOARDING)
+    val targetSection = if (currentState in authGroup) "AUTH" else currentState.name
+
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        Crossfade(
+            targetState = targetSection,
+            animationSpec = tween(durationMillis = 2000)
+        ) { section ->
+            when (section) {
+                "SPLASH_BOOT" -> SplashScreen("Starting KLIX POS...")
+                "AUTH" -> {
+                    MasterAuthLayout(currentState = currentState) { animatingState ->
+                        when (animatingState) {
+                            AppState.WELCOME -> com.example.barandgrillownerpanel.ui.auth.AuthSelectionScreen(
+                                onNavigateToLogin = { currentState = AppState.LOGIN }
+                            )
+                            AppState.LOGIN -> LoginScreen(
+                                funOnLoginSuccess = {
+                                    val prefs = Preferences.userRoot().node("com.example.barandgrillownerpanel")
+                                    if (prefs.getBoolean("is_onboarded", false)) {
+                                        appSettings = LocalDatabase.getAppSettings()
+                                        currentState = AppState.DASHBOARD
+                                    } else {
+                                        currentState = AppState.ONBOARDING
+                                    }
+                                },
+                                onNavigateToSignUp = { currentState = AppState.SIGNUP },
+                                onDevBypass = {
+                                    appSettings = LocalDatabase.getAppSettings()
+                                        ?: AppSettings()
+                                    currentState = AppState.DASHBOARD
+                                }
+                            )
+                            AppState.SIGNUP -> com.example.barandgrillownerpanel.ui.auth.SignUpScreen(
+                                onSignUpSuccess = { currentState = AppState.ONBOARDING },
+                                onNavigateToLogin = { currentState = AppState.LOGIN }
+                            )
+                            AppState.ONBOARDING -> OnboardingScreen(
+                                onComplete = {
+                                    appSettings = LocalDatabase.getAppSettings()
+                                    currentState = AppState.DASHBOARD
+                                }
+                            )
+                            else -> {}
+                        }
                     }
+                }
+                AppState.DASHBOARD.name -> {
+                    if (appSettings != null) {
+                        DashboardScreen(
+                            initialSettings = appSettings!!,
+                            onSettingsChange = { appSettings = it },
+                            onLogout = { currentState = AppState.WELCOME },
+                            onLock = { currentState = AppState.LOCKED }
+                        )
+                    } else {
+                        SplashScreen("Recovering settings...")
+                        LaunchedEffect(Unit) {
+                            delay(1000)
+                            currentState = AppState.WELCOME
+                        }
+                    }
+                }
+                AppState.LOCKED.name -> {
+                    LockScreen(
+                        onUnlock = { currentState = AppState.DASHBOARD }
+                    )
                 }
             }
         }
@@ -106,15 +165,46 @@ fun MainApp() {
 }
 
 @Composable
-fun SplashScreen(message: String) {
+fun SplashScreen(message: String = "Starting KLIX POS...") {
     Box(
-        modifier = Modifier.fillMaxSize().background(Color(0xFF0A0A0A)),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(com.example.barandgrillownerpanel.ui.theme.DarkBackground),
         contentAlignment = Alignment.Center
     ) {
+        androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+            val gradient = androidx.compose.ui.graphics.Brush.radialGradient(
+                colors = listOf(Color(0xFF1E2433), com.example.barandgrillownerpanel.ui.theme.DarkBackground),
+                center = androidx.compose.ui.geometry.Offset(size.width / 2, size.height / 2),
+                radius = size.width * 0.8f
+            )
+            drawRect(gradient)
+        }
+
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator(color = PrimaryOrange, strokeWidth = 4.dp)
-            Spacer(Modifier.height(24.dp))
-            Text(message, color = Color.White, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                "KLIX",
+                color = Color.White,
+                style = MaterialTheme.typography.displayLarge,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Black
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "ENTERPRISE POS",
+                color = PrimaryOrange,
+                style = MaterialTheme.typography.labelLarge,
+                letterSpacing = 6.sp
+            )
+            Spacer(Modifier.height(48.dp))
+            CircularProgressIndicator(
+                color = PrimaryOrange,
+                strokeWidth = 3.dp,
+                modifier = Modifier.size(32.dp)
+            )
+            if (message.isNotBlank()) {
+                Spacer(Modifier.height(16.dp))
+                Text(message, color = Color.White.copy(0.5f), style = MaterialTheme.typography.bodySmall)
+            }
         }
     }
 }

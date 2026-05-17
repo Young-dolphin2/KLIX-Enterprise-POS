@@ -17,6 +17,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import kotlinx.coroutines.flow.firstOrNull
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -52,24 +53,6 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
 
         val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.US)
 
-        // 1) Sync Expenses
-        val expenseDao = database.expenseDao()
-        val unsyncedExpenses = expenseDao.getUnsyncedExpenses()
-        for (expense in unsyncedExpenses) {
-            try {
-                val expenseDto = buildJsonObject {
-                    put("amount", expense.amount)
-                    put("category", expense.category)
-                    put("description", expense.description)
-                    put("branch_id", expense.branchId ?: resolvedBranchId)
-                    put("timestamp", sdf.format(Date(expense.timestamp)))
-                }
-                SupabaseManager.client.postgrest["expenses"].insert(expenseDto)
-                expenseDao.markAsSynced(expense.id)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
 
         // 2) Sync Sales
         for (entry in queue) {
@@ -114,7 +97,8 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
                         name = item.item.name,
                         price = item.item.price,
                         quantity = item.quantity,
-                        category = item.item.category
+                        category = item.item.category,
+                        barcode = item.item.barcode
                     )
                 }
 
@@ -174,13 +158,14 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
                 
                 val menuEntities = remoteMenu.map { dto ->
                     com.example.barandgrillpos.data.local.MenuItemEntity(
-                        id = dto.id,
-                        name = dto.name,
+                        id = dto.id ?: "",
+                        name = dto.name ?: "",
                         price = dto.price,
                         category = dto.category,
                         subcategory = dto.subcategory,
                         branchId = dto.branchId,
                         isActive = dto.isActive,
+                        barcode = dto.barcode,
                         ingredientsJson = dto.ingredients?.let { Json.encodeToString(it) }
                     )
                 }
@@ -194,7 +179,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
                 val invEntities = remoteInv.map { dto ->
                     com.example.barandgrillpos.data.local.InventoryItemEntity(
                         id = dto.id ?: UUID.randomUUID().toString(),
-                        name = dto.name,
+                        name = dto.name ?: "",
                         stock_quantity = dto.stock_quantity,
                         min_threshold = dto.min_threshold,
                         status = dto.status,
@@ -210,7 +195,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
                 
                 val catEntities = remoteCats.map { dto ->
                     com.example.barandgrillpos.data.local.CategoryEntity(
-                        name = dto.name,
+                        name = dto.name ?: "",
                         parentName = dto.parentName
                     )
                 }
@@ -223,9 +208,9 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
                 
                 val customerEntities = remoteCustomers.map { dto ->
                     com.example.barandgrillpos.data.local.CustomerEntity(
-                        id = dto.id,
-                        name = dto.name,
-                        phone = dto.phone,
+                        id = dto.id ?: "",
+                        name = dto.name ?: "",
+                        phone = dto.phone ?: "",
                         email = dto.email,
                         address = dto.address,
                         idType = dto.idType,
@@ -235,7 +220,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
                         membershipExpiry = dto.membershipExpiry,
                         notes = dto.notes,
                         branchId = dto.branchId,
-                        createdAt = dto.createdAt,
+                        createdAt = dto.created_at,
                         updatedAt = System.currentTimeMillis()
                     )
                 }
@@ -254,12 +239,19 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
 
     private suspend fun checkLowStock(context: Context) {
         val db = AppDatabase.getDatabase(context)
-        val inventory = db.cacheDao().observeInventory().first()
+        val inventoryList = db.cacheDao().observeInventory()
+        var inventory: List<com.example.barandgrillpos.data.local.InventoryItemEntity> = emptyList()
+        try {
+            inventory = inventoryList.firstOrNull() ?: emptyList()
+        } catch (e: Exception) {
+            return
+        }
         val lowStockItems = inventory.filter { it.stock_quantity <= it.min_threshold && it.stock_quantity > 0 }
         
         if (lowStockItems.isNotEmpty()) {
             val title = "Low Stock Alert!"
-            val message = lowStockItems.take(3).joinToString(", ") { it.name } + 
+            val names = lowStockItems.take(3).map { it.name }
+            val message = names.joinToString(", ") + 
                           if (lowStockItems.size > 3) " and ${lowStockItems.size - 3} more" else ""
             showNotification(context, title, message)
         }
@@ -285,3 +277,4 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
         notificationManager.notify(1001, notification)
     }
 }
+

@@ -39,7 +39,8 @@ import com.example.barandgrillownerpanel.ui.theme.entranceAnimation
 @Composable
 fun LoginScreen(
     funOnLoginSuccess: () -> Unit,
-    onNavigateToSignUp: () -> Unit
+    onNavigateToSignUp: () -> Unit,
+    onDevBypass: () -> Unit = funOnLoginSuccess
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -51,103 +52,16 @@ fun LoginScreen(
 
     val scope = rememberCoroutineScope()
 
-    Row(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF0A0C10)) // Charcoal darkest base
-            .entranceAnimation()
-    ) {
-        // Left Side: Brand & Visuals
-        Box(
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val horizontalPadding = if (maxWidth < 600.dp) 32.dp else 100.dp
+        
+        Column(
             modifier = Modifier
-                .weight(1.2f)
-                .fillMaxHeight()
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(Color(0xFF1E2433), Color(0xFF0A0C10)),
-                        center = Offset(0f, 1000f),
-                        radius = 2500f
-                    )
-                ),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .padding(horizontal = horizontalPadding),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.Start
         ) {
-            // Abstract 3D-like Infinity Shape using Canvas (Silver/Chrome/Blue)
-            Canvas(modifier = Modifier.size(550.dp)) {
-                val gradient = Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFFE2E8F0), // Bright silver
-                        Color(0xFF64748B), // Dark silver
-                        Color(0xFF3B82F6), // Accent blue
-                        Color(0xFF0F172A)  // Deep shadow
-                    ),
-                    start = Offset(0f, 0f),
-                    end = Offset(size.width, size.height)
-                )
-                
-                for (i in 0..7) {
-                    drawArc(
-                        brush = gradient,
-                        startAngle = 45f + (i * 25f),
-                        sweepAngle = 280f,
-                        useCenter = false,
-                        topLeft = Offset(50f + i * 25f, 50f + i * 25f),
-                        size = Size(size.width - 100f - i * 50f, size.height - 100f - i * 50f),
-                        style = Stroke(width = 35f - i * 3f, cap = StrokeCap.Round)
-                    )
-                }
-            }
-
-            // Branding Text overlay
-            Column(
-                modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .padding(start = 80.dp)
-            ) {
-                Text(
-                    text = "KLIX",
-                    fontSize = 84.sp,
-                    fontWeight = FontWeight.Black,
-                    color = Color.White,
-                    letterSpacing = 2.sp
-                )
-                Text(
-                    text = "ENTERPRISE POS",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF94A3B8),
-                    letterSpacing = 8.sp
-                )
-            }
-        }
-
-        // Right Side: Form Panel (Glassmorphic Charcoal)
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            Color(0xFF111827).copy(alpha = 0.95f),
-                            Color(0xFF0F172A).copy(alpha = 0.98f)
-                        )
-                    )
-                )
-                .border(
-                    width = 1.dp,
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color.White.copy(alpha = 0.15f), Color.Transparent)
-                    ),
-                    shape = androidx.compose.ui.graphics.RectangleShape
-                )
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 100.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start
-            ) {
                 Image(
                     painter = androidx.compose.ui.res.painterResource("icon_klix.png"),
                     contentDescription = "KLIX Logo",
@@ -284,7 +198,7 @@ fun LoginScreen(
                 
                 // Dev Bypass Button (Explicit)
                 OutlinedButton(
-                    onClick = funOnLoginSuccess,
+                    onClick = onDevBypass,
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     shape = RoundedCornerShape(24.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF94A3B8)),
@@ -346,7 +260,6 @@ fun LoginScreen(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
-        }
     }
 }
 

@@ -1,0 +1,109 @@
+BarAndGrillOwnerPanel - Desktop Security & Reliability Report
+Generated: 2026-05-17
+
+Scope
+- Module: `BarAndGrillOwnerPanel` (desktop). Purpose: owner dashboard, local cache, and sync with Supabase.
+
+Executive summary
+- The desktop module uses a sensible architecture (SQLite primary cache, Supabase Realtime/PostgREST, Compose Desktop UI) but includes several security and reliability weaknesses that matter under threat or heavy load: weak local encryption and key management, embedded fallback credentials, verbose remote logging, synchronous disk I/O on UI paths, and retry logic that can amplify failures.
+
+Priority findings and immediate risks
+
+1) Weak local encryption and key derivation
+	 - File: `src/main/kotlin/com/example/barandgrillownerpanel/data/CacheManager.kt`
+	 - Problem: Key material is derived from predictable machine identifiers and the code uses `Cipher.getInstance("AES")` without authenticated encryption or IV management.
+	 - Risk: An attacker with file or backup access can decrypt or tamper with the legacy cache.
+	 - Best remediation methods:
+		 - Use authenticated encryption (AES-256-GCM) with a random 12-byte IV per ciphertext and store IV+ciphertext together.
+		 - Persist encryption keys in the OS keystore (DPAPI on Windows, Keychain on macOS, Secret Service on Linux) rather than deriving from machine data.
+		 - For cross-platform DB protection, migrate to SQLCipher and keep the DB key in OS-keystore.
+
+2) Embedded Supabase fallback keys in source
+	 - File: `src/main/kotlin/com/example/barandgrillownerpanel/data/remote/SupabaseManager.kt`
+	 - Problem: Fallback `supabaseUrl` and `supabaseKey` are hard-coded in source as dev defaults.
+	 - Risk: Keys in source history are a leakage risk and make rotation and separation of environments error-prone.
+	 - Best remediation methods:
+		 - Remove embedded fallbacks. Require runtime-provided configuration via env vars or JVM system properties; fail fast when missing.
+		 - Use CI/CD secret managers (GitHub Actions secrets, Azure Key Vault, etc.) and document local dev setup with a safe test-only workflow.
+
+3) Unsafe/verbose remote logging
+	 - File: `src/main/kotlin/com/example/barandgrillownerpanel/utils/LoggerDesktop.kt`
+	 - Problem: Console prints, full stack traces, and raw `message/stack_trace` inserts into `system_logs` can include PII and secrets.
+	 - Risk: PII leakage and unbounded log growth; remote logs can be an exfiltration vector.
+	 - Best remediation methods:
+		 - Adopt structured logging and implement a redaction layer (mask emails, tokens, card numbers).
+		 - Do not transmit full stack traces by default; instead send short error codes and a truncated stack fingerprint.
+		 - Add sampling and rate-limiting; make remote logging opt-in and behind a config flag.
+		 - Use a write-only ingestion key for logs and enforce RLS on the `system_logs` table.
+
+4) Retry/backoff without jitter and no error classification
+	 - File: `src/main/kotlin/com/example/barandgrillownerpanel/utils/NetworkUtils.kt`
+	 - Problem: Retries all exceptions with exponential backoff but no jitter, and no handling of `Retry-After`.
+	 - Risk: Retry storms during outages and wasted resources on non-transient errors.
+	 - Best remediation methods:
+		 - Retry only on transient errors (network timeouts, connection issues, HTTP 5xx). Treat most 4xx as non-retriable except 429 which must respect `Retry-After`.
+		 - Use exponential backoff with randomized jitter (full jitter algorithm) and cap the maximum delay.
+		 - Add a circuit-breaker to avoid repeated retries after persistent failures.
+
+5) Blocking I/O and synchronous startup
+	 - Files: `CacheManager.kt`, `SettingsTab.kt`, and other UI code performing `readText()`/`writeText()`.
+	 - Problem: Disk I/O performed synchronously in UI flows can freeze the UI on large caches or slow disks.
+	 - Best remediation methods:
+		 - Move disk and DB operations to `Dispatchers.IO` using `withContext(Dispatchers.IO) { ... }`.
+		 - Initialize caches asynchronously and show a loading state; use batched reads/writes for bulk operations.
+
+6) Database confidentiality and query performance
+	 - Files: local sqlite DB via `sqlite-jdbc` and DB access code.
+	 - Problems:
+		 - DB is unencrypted and contains PII.
+		 - Potential slow queries when datasets grow.
+	 - Best remediation methods:
+		 - Use SQLCipher to encrypt the DB or encrypt sensitive columns before writing.
+		 - Restrict file permissions for DB files and avoid shared directories.
+		 - Audit queries with `EXPLAIN`, add missing indexes, and use pagination for large datasets.
+
+Implementation best practices and recommended technologies
+
+- Key management
+	- Use platform keystore (Windows DPAPI, macOS Keychain, libsecret/Secret Service) to persist encryption keys. For Java, use a small native helper or JNI bridge when necessary.
+
+- Encryption & hashing
+	- AES-256-GCM for data-at-rest with random IVs and associated data as needed.
+	- Use Argon2id for PIN/password hashing; if unavailable, use PBKDF2-HMAC-SHA256 with high iteration count and unique salt.
+
+- Logging
+	- Structured JSON logs with a redaction middleware and sampling. Store minimal fields remotely and retain logs for a bounded period.
+
+- Networking
+	- Reuse a single Ktor client configured with connection pooling, compressed responses, reasonable timeouts, and HTTP/2 when available.
+	- Implement retry with jitter, per-endpoint throttling, and a circuit-breaker strategy (Resilience4j or custom).
+
+- Sync & DB
+	- Use incremental sync (last_updated) and batch/bulk upserts to reduce load.
+	- Design sync operations to be idempotent and avoid full table pulls under heavy loads.
+
+- UI/Compose
+	- Hoist state and minimize re-compositions; use `LazyColumn` and pagination for large lists and debounce user actions that trigger network operations.
+
+Prioritized remediation plan (ready to implement)
+1) Remove hard-coded Supabase fallback keys and require runtime env/config. (Critical)
+2) Migrate to AES-GCM + OS keystore for cache encryption or migrate DB to SQLCipher. (Critical)
+3) Harden `Logger`: redaction, sampling, opt-in remote logging, and remove full-stack default upload. (High)
+4) Implement jittered, classified retry logic and a circuit-breaker. (High)
+5) Move blocking I/O to `Dispatchers.IO` and add async startup/loading states. (Medium)
+6) Encrypt PII in DB and tune queries/indexes. (Medium)
+7) Tune Ktor client and add monitoring/alerts for queue growth. (Medium)
+
+Quick validation checklist
+- Confirm no supabase keys remain in source: `git grep -i SUPABASE`.
+- Run app with missing config to confirm fail-fast behavior.
+- Test cache migration using a test key and verify AES-GCM ciphertext format and IV storage.
+- Run synthetic sync load and measure sync throughput, queue length, and CPU/memory.
+
+Next steps I can take now
+- Option A: Implement high-priority code changes now (remove fallback keys, add jittered retry, sanitize `Logger`) — small focused PRs.
+- Option B: Implement encryption migration (AES-GCM + OS keystore or SQLCipher integration) — larger PR with migration path.
+- Option C: Create incremental PRs + tests for each prioritized item and add monitoring + runbooks.
+
+Tell me which option you want me to implement first and I will start applying the changes.
+

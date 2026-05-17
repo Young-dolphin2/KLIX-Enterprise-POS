@@ -175,7 +175,8 @@ fun InventoryTab(
                                 }
                             },
                             singleLine = true,
-                            modifier = Modifier.weight(1.8f).height(48.dp),
+                            textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
+                            modifier = Modifier.weight(1.8f).height(52.dp),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = TextPrimary, 
                                 unfocusedTextColor = TextPrimary, 
@@ -193,7 +194,8 @@ fun InventoryTab(
                                 readOnly = true,
                                 placeholder = { Text("Category", color = TextSecondary.copy(alpha = 0.9f), fontSize = 12.sp) },
                                 trailingIcon = { IconButton(onClick = { catFilterExpanded = true }) { Icon(Icons.Default.ArrowDropDown, null, tint = TextSecondary) } },
-                                modifier = Modifier.fillMaxWidth().height(48.dp),
+                                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
                                 colors = OutlinedTextFieldDefaults.colors(focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, focusedBorderColor = PrimaryOrange, unfocusedBorderColor = Color.White.copy(0.1f)),
                                 shape = RoundedCornerShape(8.dp)
                             )
@@ -213,7 +215,8 @@ fun InventoryTab(
                                 readOnly = true,
                                 placeholder = { Text("Subcategory", color = TextSecondary.copy(alpha = 0.9f), fontSize = 12.sp) },
                                 trailingIcon = { IconButton(onClick = { subFilterExpanded = true }) { Icon(Icons.Default.ArrowDropDown, null, tint = TextSecondary) } },
-                                modifier = Modifier.fillMaxWidth().height(48.dp),
+                                textStyle = androidx.compose.ui.text.TextStyle(fontSize = 14.sp),
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
                                 colors = OutlinedTextFieldDefaults.colors(focusedTextColor = TextPrimary, unfocusedTextColor = TextPrimary, focusedBorderColor = PrimaryOrange, unfocusedBorderColor = Color.White.copy(0.1f)),
                                 shape = RoundedCornerShape(8.dp)
                             )

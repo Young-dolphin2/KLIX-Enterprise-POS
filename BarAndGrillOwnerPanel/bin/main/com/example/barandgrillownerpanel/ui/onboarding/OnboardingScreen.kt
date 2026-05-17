@@ -6,9 +6,12 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -21,11 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.barandgrillownerpanel.data.local.LocalDatabase
-import com.example.barandgrillownerpanel.data.remote.SupabaseManager
 import com.example.barandgrillownerpanel.models.BranchDto
 import com.example.barandgrillownerpanel.ui.theme.PrimaryOrange
-import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
@@ -71,44 +71,55 @@ fun OnboardingScreen(onComplete: () -> Unit) {
     val scope = rememberCoroutineScope()
 
     Box(
-        modifier = Modifier.fillMaxSize().background(Color(0xFF0A0A0A)),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier.width(500.dp).padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Header
-            Text(
-                text = when (currentStep) {
-                    OnboardingStep.BUSINESS_INFO -> "Tell us about your business"
-                    OnboardingStep.LOCATION -> "Where are you located?"
-                    OnboardingStep.CURRENCY -> "Set your currency"
-                    OnboardingStep.PAYMENTS -> "Payment Methods"
-                    OnboardingStep.BRANCH -> "Create your first branch"
-                    OnboardingStep.FINALIZING -> "Finalizing..."
-                },
-                color = Color.White,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
-            )
-            
-            Spacer(Modifier.height(8.dp))
-            
-            if (currentStep != OnboardingStep.FINALIZING) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 100.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start
+            ) {
+                // Header
                 Text(
-                    text = "Step ${currentStep.ordinal + 1} of 5",
-                    color = Color.Gray,
-                    fontSize = 14.sp
+                    text = when (currentStep) {
+                        OnboardingStep.BUSINESS_INFO -> "Tell us about your business"
+                        OnboardingStep.LOCATION -> "Where are you located?"
+                        OnboardingStep.CURRENCY -> "Set your currency"
+                        OnboardingStep.PAYMENTS -> "Payment Methods"
+                        OnboardingStep.BRANCH -> "Create your first branch"
+                        OnboardingStep.FINALIZING -> "Finalizing..."
+                    },
+                    color = Color.White,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Start
                 )
-            }
+                
+                Spacer(Modifier.height(16.dp))
+                
+                if (currentStep != OnboardingStep.FINALIZING) {
+                    val progress = (currentStep.ordinal + 1) / 5f
+                    LinearProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
+                        color = com.example.barandgrillownerpanel.ui.theme.PrimaryOrange,
+                        trackColor = Color(0xFF334155)
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = "Step ${currentStep.ordinal + 1} of 5",
+                        color = Color(0xFF94A3B8),
+                        fontSize = 14.sp
+                    )
+                }
 
-            Spacer(Modifier.height(32.dp))
+                Spacer(Modifier.height(48.dp))
 
-            AnimatedContent(
-                targetState = currentStep,
-                transitionSpec = { fadeIn(tween(300)) with fadeOut(tween(300)) }
-            ) { step ->
+                AnimatedContent(
+                    targetState = currentStep,
+                    transitionSpec = { fadeIn(tween(400)) togetherWith fadeOut(tween(400)) }
+                ) { step ->
                 when (step) {
                     OnboardingStep.BUSINESS_INFO -> BusinessInfoStep(businessName, phoneNumber, { businessName = it }, { phoneNumber = it }) {
                         if (businessName.isNotBlank()) currentStep = OnboardingStep.LOCATION
@@ -155,29 +166,6 @@ fun OnboardingScreen(onComplete: () -> Unit) {
                                     val prefs = Preferences.userRoot().node("com.example.barandgrillownerpanel")
                                     prefs.putBoolean("is_onboarded", true)
                                     prefs.put("app_settings", kotlinx.serialization.json.Json.encodeToString(finalSettings))
-
-                                    // 4. Push to Supabase (Non-blocking)
-                                    scope.launch {
-                                        try {
-                                            SupabaseManager.client.auth.updateUser {
-                                                data {
-                                                    put("business_name", kotlinx.serialization.json.JsonPrimitive(businessName))
-                                                    put("country", kotlinx.serialization.json.JsonPrimitive(country))
-                                                    put("currency_code", kotlinx.serialization.json.JsonPrimitive(currencyCode))
-                                                    put("currency_symbol", kotlinx.serialization.json.JsonPrimitive(currencySymbol))
-                                                }
-                                            }
-                                            SupabaseManager.client.postgrest["app_settings"].upsert(
-                                                mapOf(
-                                                    "business_name" to businessName,
-                                                    "country" to country,
-                                                    "currency_symbol" to currencySymbol
-                                                )
-                                            )
-                                        } catch (e: Exception) {
-                                            println("Supabase sync failed: ${e.message}")
-                                        }
-                                    }
                                     
                                     onComplete()
                                 } catch (e: Exception) {
@@ -203,201 +191,202 @@ fun OnboardingScreen(onComplete: () -> Unit) {
                         }
                     }
                 }
+                }
             }
         }
-    }
 }
 
 @Composable
 fun BusinessInfoStep(name: String, phone: String, onNameChange: (String) -> Unit, onPhoneChange: (String) -> Unit, onNext: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
         OutlinedTextField(
             value = name,
             onValueChange = onNameChange,
-            label = { Text("Business Name") },
+            label = { Text("Business Name", color = Color(0xFF94A3B8)) },
+            placeholder = { Text("e.g., Mike's Bar & Grill", color = Color(0xFF475569)) },
+            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = PrimaryOrange,
-                unfocusedBorderColor = Color.Gray,
-                focusedLabelColor = PrimaryOrange,
-                cursorColor = PrimaryOrange,
+                unfocusedBorderColor = Color(0xFF334155),
                 focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
-            )
+                unfocusedTextColor = Color.White,
+                cursorColor = PrimaryOrange
+            ),
+            shape = RoundedCornerShape(12.dp)
         )
-        Spacer(Modifier.height(16.dp))
         OutlinedTextField(
             value = phone,
             onValueChange = onPhoneChange,
-            label = { Text("Phone Number") },
+            label = { Text("Phone Number", color = Color(0xFF94A3B8)) },
+            placeholder = { Text("e.g., +265 991 234 567", color = Color(0xFF475569)) },
+            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = PrimaryOrange,
-                unfocusedBorderColor = Color.Gray,
-                focusedLabelColor = PrimaryOrange,
-                cursorColor = PrimaryOrange,
+                unfocusedBorderColor = Color(0xFF334155),
                 focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
-            )
+                unfocusedTextColor = Color.White,
+                cursorColor = PrimaryOrange
+            ),
+            shape = RoundedCornerShape(12.dp)
         )
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(16.dp))
         Button(
             onClick = onNext,
             modifier = Modifier.fillMaxWidth().height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange)
+            colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
+            shape = RoundedCornerShape(16.dp),
+            enabled = name.isNotBlank()
         ) {
-            Text("Continue", color = Color.White, fontSize = 18.sp)
+            Text("Continue", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
 }
 
 @Composable
 fun LocationStep(country: String, onCountryChange: (String) -> Unit, onNext: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Text("Which country is your business registered in?", color = Color(0xFF94A3B8), fontSize = 16.sp)
         OutlinedTextField(
             value = country,
             onValueChange = onCountryChange,
-            label = { Text("Country") },
+            label = { Text("Country", color = Color(0xFF94A3B8)) },
+            placeholder = { Text("e.g., Malawi", color = Color(0xFF475569)) },
+            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = PrimaryOrange,
-                unfocusedBorderColor = Color.Gray,
-                focusedLabelColor = PrimaryOrange,
-                cursorColor = PrimaryOrange,
+                unfocusedBorderColor = Color(0xFF334155),
                 focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
-            )
+                unfocusedTextColor = Color.White,
+                cursorColor = PrimaryOrange
+            ),
+            shape = RoundedCornerShape(12.dp)
         )
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(16.dp))
         Button(
             onClick = onNext,
             modifier = Modifier.fillMaxWidth().height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange)
+            colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
+            shape = RoundedCornerShape(16.dp),
+            enabled = country.isNotBlank()
         ) {
-            Text("Continue", color = Color.White, fontSize = 18.sp)
+            Text("Continue", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
 }
 
 @Composable
 fun CurrencyStep(symbol: String, code: String, onSymbolChange: (String) -> Unit, onCodeChange: (String) -> Unit, onNext: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Text("Set your local currency", color = Color(0xFF94A3B8), fontSize = 16.sp)
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             OutlinedTextField(
                 value = symbol,
                 onValueChange = onSymbolChange,
-                label = { Text("Symbol") },
+                label = { Text("Symbol", color = Color(0xFF94A3B8)) },
+                placeholder = { Text("MK", color = Color(0xFF475569)) },
+                singleLine = true,
                 modifier = Modifier.weight(1f),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = PrimaryOrange,
-                    unfocusedBorderColor = Color.Gray,
-                    focusedLabelColor = PrimaryOrange,
-                    cursorColor = PrimaryOrange,
+                    unfocusedBorderColor = Color(0xFF334155),
                     focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
-                )
+                    unfocusedTextColor = Color.White,
+                    cursorColor = PrimaryOrange
+                ),
+                shape = RoundedCornerShape(12.dp)
             )
-            Spacer(Modifier.width(16.dp))
             OutlinedTextField(
                 value = code,
                 onValueChange = onCodeChange,
-                label = { Text("Code (e.g. USD)") },
-                modifier = Modifier.weight(2f),
+                label = { Text("Currency Code", color = Color(0xFF94A3B8)) },
+                placeholder = { Text("MWK", color = Color(0xFF475569)) },
+                singleLine = true,
+                modifier = Modifier.weight(1f),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = PrimaryOrange,
-                    unfocusedBorderColor = Color.Gray,
-                    focusedLabelColor = PrimaryOrange,
-                    cursorColor = PrimaryOrange,
+                    unfocusedBorderColor = Color(0xFF334155),
                     focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
-                )
+                    unfocusedTextColor = Color.White,
+                    cursorColor = PrimaryOrange
+                ),
+                shape = RoundedCornerShape(12.dp)
             )
         }
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(16.dp))
         Button(
             onClick = onNext,
             modifier = Modifier.fillMaxWidth().height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange)
+            colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
+            shape = RoundedCornerShape(16.dp)
         ) {
-            Text("Continue", color = Color.White, fontSize = 18.sp)
+            Text("Continue", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
 }
 
 @Composable
 fun PaymentsStep(methods: List<String>, onNext: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("The following payment methods will be enabled by default:", color = Color.Gray, fontSize = 14.sp)
+    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Text("Choose your default payment methods", color = Color(0xFF94A3B8), fontSize = 16.sp)
+        Text("You can change these later in Settings", color = Color(0xFF475569), fontSize = 14.sp)
         Spacer(Modifier.height(16.dp))
-        methods.forEach { method ->
-            Card(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A))
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.Check, contentDescription = null, tint = PrimaryOrange)
-                    Spacer(Modifier.width(16.dp))
-                    Text(method, color = Color.White)
-                }
-            }
-        }
-        Spacer(Modifier.height(32.dp))
         Button(
             onClick = onNext,
             modifier = Modifier.fillMaxWidth().height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange)
+            colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
+            shape = RoundedCornerShape(16.dp)
         ) {
-            Text("Looks Good", color = Color.White, fontSize = 18.sp)
+            Text("Continue", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
 }
 
 @Composable
 fun BranchStep(name: String, type: String, onNameChange: (String) -> Unit, onTypeChange: (String) -> Unit, onNext: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
+        Text("Create your first branch", color = Color(0xFF94A3B8), fontSize = 16.sp)
         OutlinedTextField(
             value = name,
             onValueChange = onNameChange,
-            label = { Text("Branch Name") },
+            label = { Text("Branch Name", color = Color(0xFF94A3B8)) },
+            placeholder = { Text("e.g., Downtown Branch", color = Color(0xFF475569)) },
+            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = PrimaryOrange,
-                unfocusedBorderColor = Color.Gray,
-                focusedLabelColor = PrimaryOrange,
-                cursorColor = PrimaryOrange,
+                unfocusedBorderColor = Color(0xFF334155),
                 focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White
-            )
+                unfocusedTextColor = Color.White,
+                cursorColor = PrimaryOrange
+            ),
+            shape = RoundedCornerShape(12.dp)
         )
-        Spacer(Modifier.height(16.dp))
-        
-        Text("Branch Type", color = Color.Gray, fontSize = 14.sp, modifier = Modifier.align(Alignment.Start))
-        Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-            listOf("BAR", "KITCHEN", "RETAIL").forEach { t ->
+        Text("Business Type", color = Color(0xFF94A3B8), fontSize = 14.sp)
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            listOf("BAR" to "🍺 Bar / Restaurant", "SHOP" to "🏪 Retail Shop", "RENTAL" to "🚗 Car Rental", "GYM" to "💪 Gym").forEach { (value, label) ->
                 FilterChip(
-                    selected = type == t,
-                    onClick = { onTypeChange(t) },
-                    label = { Text(t) },
-                    modifier = Modifier.padding(end = 8.dp),
+                    selected = type == value,
+                    onClick = { onTypeChange(value) },
+                    label = { Text(label, fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = PrimaryOrange,
-                        selectedLabelColor = Color.White,
-                        labelColor = Color.Gray
+                        selectedContainerColor = PrimaryOrange.copy(alpha = 0.2f),
+                        selectedLabelColor = PrimaryOrange
                     )
                 )
             }
         }
-        
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(16.dp))
         Button(
             onClick = onNext,
             modifier = Modifier.fillMaxWidth().height(56.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange)
+            colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
+            shape = RoundedCornerShape(16.dp),
+            enabled = name.isNotBlank()
         ) {
-            Text("Finish Setup", color = Color.White, fontSize = 18.sp)
+            Text("Create & Finish", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
     }
 }

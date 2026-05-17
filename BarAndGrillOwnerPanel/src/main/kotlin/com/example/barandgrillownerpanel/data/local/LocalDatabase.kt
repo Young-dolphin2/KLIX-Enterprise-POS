@@ -21,13 +21,16 @@ import java.util.UUID
 object LocalDatabase {
     private const val TAG = "LOCAL_DB"
     private const val DB_VERSION = 2
-    private const val DB_NAME = "klix_local.db"
+    private const val DB_NAME = "klix_local_v2.db"
     
     private var connection: Connection? = null
     private var dbFile: File? = null
 
     fun initialize(dbDirectory: String = ".") {
         try {
+            if (connection != null && !connection!!.isClosed) {
+                return
+            }
             Class.forName("org.sqlite.JDBC")
             dbFile = File(dbDirectory, DB_NAME)
             connection = DriverManager.getConnection("jdbc:sqlite:${dbFile?.absolutePath}")
@@ -42,6 +45,8 @@ object LocalDatabase {
             Logger.error(TAG, "Database init failed: ${e.message}")
             Logger.warn(TAG, "Attempting recovery: deleting corrupted db and re-creating...")
             try {
+                connection?.close()
+                connection = null
                 dbFile?.delete()
                 connection = DriverManager.getConnection("jdbc:sqlite:${dbFile?.absolutePath}")
                 connection?.apply {

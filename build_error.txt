@@ -1,0 +1,240 @@
+﻿> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :app:kspDebugKotlin UP-TO-DATE
+
+> Task :app:compileDebugKotlin FAILED
+.\gradlew.bat : e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpo
+s/MainActivity.kt:64:31 Unresolved reference 'gotrue'.
+At line:1 char:1
++ .\gradlew.bat :app:compileDebugKotlin 2>&1 | Out-File -FilePath build ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (e: file:///C:/U...rence 'gotrue'.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:65:31 Unresolved reference 'gotrue'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:147:34 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:147:34 Property delegate must have a 'getValue(Nothing?, KProperty0<ERROR CLASS: Cannot infer argument for type 
+parameter T>)' method. None of the following functions is applicable:
+fun <T> State<T>.getValue(thisObj: Any?, property: KProperty<*>): T
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:147:57 Unresolved reference 'auth'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:147:76 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:150:38 Unresolved reference 'SessionStatus'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:168:63 Unresolved reference 'auth'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:169:29 Argument type mismatch: actual type is 'R?', but 'K' was expected.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:169:48 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:169:54 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:196:54 Unresolved reference 'SessionStatus'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:201:49 Unresolved reference 'SessionStatus'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:203:50 Unresolved reference 'SessionStatus'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:327:60 Unresolved reference 'auth'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:345:59 Unresolved reference 'SessionStatus'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:419:60 Unresolved reference 'auth'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:462:14 Smart cast to 'android.bluetooth.BluetoothAdapter' is impossible, because 'bluetoothAdapter' is a delegated 
+property.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:569:13 This material API is experimental and is likely to change or to be removed in the future.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:614:26 This material API is experimental and is likely to change or to be removed in the future.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:614:44 This material API is experimental and is likely to change or to be removed in the future.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:787:17 Suspend function 'suspend fun printThermalReceipt(context: Context, orderItems: List<OrderItem>, total: 
+Double): Boolean' should be called only from a coroutine or another suspend function.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:1093:48 Too many arguments for 'fun observeCustomers(): Flow<List<CustomerEntity>>'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/MainActivity.k
+t:1141:59 Argument type mismatch: actual type is 'kotlin.Long', but 'kotlin.String' was expected.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/remote/Su
+pabaseManager.kt:7:31 Unresolved reference 'gotrue'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/remote/Su
+pabaseManager.kt:44:13 Cannot infer type for this parameter. Please specify it explicitly.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/remote/Su
+pabaseManager.kt:44:21 Unresolved reference 'Auth'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:56:35 Unresolved reference 'expenseDao'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:58:25 Method 'iterator()' is ambiguous for this expression. Applicable candidates:
+fun <T> Enumeration<T>.iterator(): Iterator<T>
+fun <T> Iterator<T>.iterator(): Iterator<T>
+fun <K, V> Map<out K, V>.iterator(): Iterator<Map.Entry<K, V>>
+fun <K, V> MutableMap<K, V>.iterator(): MutableIterator<MutableMap.MutableEntry<K, V>>
+fun CharSequence.iterator(): CharIterator
+fun BufferedInputStream.iterator(): ByteIterator
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:62:37 Argument type mismatch: actual type is 'kotlin.text.CharCategory', but 
+'kotlinx.serialization.json.JsonElement' was expected.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:226:30 Argument type mismatch: actual type is 'kotlin.String?', but 'kotlin.String' was expected.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:238:41 Unresolved reference 'createdAt'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:257:58 Unresolved reference 'first'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:258:48 Unresolved reference 'it'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:258:69 Unresolved reference 'it'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:258:89 Unresolved reference 'it'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:260:27 Overload resolution ambiguity between candidates:
+fun <T> Array<out T>.isNotEmpty(): Boolean
+fun ByteArray.isNotEmpty(): Boolean
+fun ShortArray.isNotEmpty(): Boolean
+fun IntArray.isNotEmpty(): Boolean
+fun LongArray.isNotEmpty(): Boolean
+fun FloatArray.isNotEmpty(): Boolean
+fun DoubleArray.isNotEmpty(): Boolean
+fun BooleanArray.isNotEmpty(): Boolean
+fun CharArray.isNotEmpty(): Boolean
+fun <T> Collection<T>.isNotEmpty(): Boolean
+fun <K, V> Map<out K, V>.isNotEmpty(): Boolean
+fun CharSequence.isNotEmpty(): Boolean
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:262:41 Overload resolution ambiguity between candidates:
+fun <T> Array<out T>.take(n: Int): List<T>
+fun ByteArray.take(n: Int): List<Byte>
+fun ShortArray.take(n: Int): List<Short>
+fun IntArray.take(n: Int): List<Int>
+fun LongArray.take(n: Int): List<Long>
+fun FloatArray.take(n: Int): List<Float>
+fun DoubleArray.take(n: Int): List<Double>
+fun BooleanArray.take(n: Int): List<Boolean>
+fun CharArray.take(n: Int): List<Char>
+fun <T> Iterable<T>.take(n: Int): List<T>
+fun UIntArray.take(n: Int): List<UInt>
+fun ULongArray.take(n: Int): List<ULong>
+fun UByteArray.take(n: Int): List<UByte>
+fun UShortArray.take(n: Int): List<UShort>
+fun <T> Sequence<T>.take(n: Int): Sequence<T>
+fun CharSequence.take(n: Int): CharSequence
+fun String.take(n: Int): String
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:262:49 Overload resolution ambiguity between candidates:
+fun <T> Array<out T>.joinToString(separator: CharSequence = ..., prefix: CharSequence = ..., postfix: CharSequence = 
+..., limit: Int = ..., truncated: CharSequence = ..., transform: ((T) -> CharSequence)? = ...): String
+fun ByteArray.joinToString(separator: CharSequence = ..., prefix: CharSequence = ..., postfix: CharSequence = ..., 
+limit: Int = ..., truncated: CharSequence = ..., transform: ((Byte) -> CharSequence)? = ...): String
+fun ShortArray.joinToString(separator: CharSequence = ..., prefix: CharSequence = ..., postfix: CharSequence = ..., 
+limit: Int = ..., truncated: CharSequence = ..., transform: ((Short) -> CharSequence)? = ...): String
+fun IntArray.joinToString(separator: CharSequence = ..., prefix: CharSequence = ..., postfix: CharSequence = ..., 
+limit: Int = ..., truncated: CharSequence = ..., transform: ((Int) -> CharSequence)? = ...): String
+fun LongArray.joinToString(separator: CharSequence = ..., prefix: CharSequence = ..., postfix: CharSequence = ..., 
+limit: Int = ..., truncated: CharSequence = ..., transform: ((Long) -> CharSequence)? = ...): String
+fun FloatArray.joinToString(separator: CharSequence = ..., prefix: CharSequence = ..., postfix: CharSequence = ..., 
+limit: Int = ..., truncated: CharSequence = ..., transform: ((Float) -> CharSequence)? = ...): String
+fun DoubleArray.joinToString(separator: CharSequence = ..., prefix: CharSequence = ..., postfix: CharSequence = ..., 
+limit: Int = ..., truncated: CharSequence = ..., transform: ((Double) -> CharSequence)? = ...): String
+fun BooleanArray.joinToString(separator: CharSequence = ..., prefix: CharSequence = ..., postfix: CharSequence = ..., 
+limit: Int = ..., truncated: CharSequence = ..., transform: ((Boolean) -> CharSequence)? = ...): String
+fun CharArray.joinToString(separator: CharSequence = ..., prefix: CharSequence = ..., postfix: CharSequence = ..., 
+limit: Int = ..., truncated: CharSequence = ..., transform: ((Char) -> CharSequence)? = ...): String
+fun <T> Iterable<T>.joinToString(separator: CharSequence = ..., prefix: CharSequence = ..., postfix: CharSequence = 
+..., limit: Int = ..., truncated: CharSequence = ..., transform: ((T) -> CharSequence)? = ...): String
+fun <T> Sequence<T>.joinToString(separator: CharSequence = ..., prefix: CharSequence = ..., postfix: CharSequence = 
+..., limit: Int = ..., truncated: CharSequence = ..., transform: ((T) -> CharSequence)? = ...): String
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:262:68 Unresolved reference 'name'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:262:70 Unresolved reference 'it'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:262:80 Overload resolution ambiguity between candidates:
+fun String?.plus(other: Any?): String
+fun <T> Array<T>.plus(element: T): Array<T>
+fun <T> Iterable<T>.plus(element: T): List<T>
+fun <T> Collection<T>.plus(element: T): List<T>
+fun <T> Set<T>.plus(element: T): Set<T>
+fun <T> Sequence<T>.plus(element: T): Sequence<T>
+fun Char.plus(other: String): String
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:263:45 Unresolved reference 'size'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/data/sync/Sync
+Worker.kt:263:77 Unresolved reference 'size'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/ui/auth/LoginS
+creen.kt:27:31 Unresolved reference 'gotrue'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/ui/auth/LoginS
+creen.kt:28:31 Unresolved reference 'gotrue'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/ui/auth/LoginS
+creen.kt:135:52 Unresolved reference 'auth'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/ui/auth/LoginS
+creen.kt:135:68 Unresolved reference. None of the following candidates is applicable because of a receiver type 
+mismatch:
+val Icons.Filled.Email: ImageVector
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/ui/auth/LoginS
+creen.kt:136:38 Unresolved reference 'email'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/ui/auth/LoginS
+creen.kt:137:38 Unresolved reference 'password'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/ui/auth/SignUp
+Screen.kt:21:31 Unresolved reference 'gotrue'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/ui/auth/SignUp
+Screen.kt:22:31 Unresolved reference 'gotrue'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/ui/auth/SignUp
+Screen.kt:128:52 Unresolved reference 'auth'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/ui/auth/SignUp
+Screen.kt:128:68 Unresolved reference. None of the following candidates is applicable because of a receiver type 
+mismatch:
+val Icons.Filled.Email: ImageVector
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/ui/auth/SignUp
+Screen.kt:129:38 Unresolved reference 'email'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/ui/auth/SignUp
+Screen.kt:130:38 Unresolved reference 'password'.
+e: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/app/src/main/java/com/example/barandgrillpos/ui/auth/SignUp
+Screen.kt:132:33 Unresolved reference 'data'.
+
+[Incubating] Problems report is available at: file:///C:/Users/HP/AndroidStudioProjects/BarAndGrillPOS/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing 
+org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.13/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 5s
+18 actionable tasks: 1 executed, 17 up-to-date

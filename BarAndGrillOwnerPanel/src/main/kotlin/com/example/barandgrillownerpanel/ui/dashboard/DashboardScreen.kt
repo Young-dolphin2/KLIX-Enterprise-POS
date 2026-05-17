@@ -5,6 +5,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.animation.core.*
+import androidx.compose.ui.text.*
+import androidx.compose.ui.graphics.drawscope.rotate
+import kotlin.random.Random
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.automirrored.filled.*
@@ -430,8 +438,16 @@ fun DashboardScreen(
 
         } catch (e: Exception) {
             com.example.barandgrillownerpanel.utils.Logger.error("DASHBOARD", "Failed to refresh from SyncEngine", e)
+            
+            val errorMessage = e.message ?: e.toString()
+            val friendlyMessage = if (errorMessage.contains("supabase.co") && !errorMessage.contains(" ")) {
+                "Unable to reach database ($errorMessage). Your Supabase project might be paused. Please check your Supabase dashboard to restore it."
+            } else {
+                errorMessage
+            }
+
             if (inventoryItems.isEmpty() && branches.isEmpty()) {
-                errorLoading = e.message ?: e.toString()
+                errorLoading = friendlyMessage
             } else {
                 isOffline = true
             }
@@ -579,8 +595,8 @@ fun DashboardScreen(
             syncStatus = syncStatus,
             subscriptionInfo = subscriptionInfo,
             onUpgrade = { showUpgradeDialog = true },
-            onLock = { } /* will be wired from Main.kt */,
-            onLogout = { } /* will be wired from Main.kt */,
+            onLock = onLock,
+            onLogout = onLogout,
             modifier = Modifier.width(250.dp).fillMaxHeight()
         )
 
@@ -995,15 +1011,178 @@ fun Sidebar(
     onLogout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    val infiniteTransition = rememberInfiniteTransition()
+    val starAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.2f,
+        targetValue = 1.0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+
+    val shootingStarProgress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 6000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        )
+    )
+    
+    val textMeasurer = rememberTextMeasurer()
+    
+    // Static random elements for the background texture
+    val stars = remember { List(40) { Offset(Random.nextFloat(), Random.nextFloat()) } }
+    val watermarks = remember { 
+        List(10) { 
+            val rot = Random.nextFloat() * 360f
+            val pos = Offset(Random.nextFloat(), Random.nextFloat())
+            val size = 10 + Random.nextInt(30)
+            val alpha = 0.02f + Random.nextFloat() * 0.04f
+            Triple(pos, rot, Pair(size, alpha))
+        } 
+    }
+    val boldWatermarks = remember {
+        List(5) {
+            val rot = Random.nextFloat() * 360f
+            val pos = Offset(Random.nextFloat(), Random.nextFloat())
+            val size = 16 + Random.nextInt(10)
+            val alpha = 0.05f + Random.nextFloat() * 0.05f
+            Triple(pos, rot, Pair(size, alpha))
+        }
+    }
+    val shootingStarData = remember { 
+        List(3) { 
+            val start = Offset(Random.nextFloat() * 0.8f, Random.nextFloat() * 0.5f)
+            val angle = Random.nextFloat() * 45f + 15f
+            Pair(start, angle)
+        } 
+    }
+
+    Box(
         modifier = modifier
-            .background(DarkBackground)
-            .padding(16.dp)
+            .background(Color(0xFF0A0C10)) // Deep charcoal base
+            .border(
+                width = 1.dp,
+                brush = Brush.horizontalGradient(
+                    colors = listOf(Color.White.copy(alpha = 0.08f), Color.Transparent)
+                ),
+                shape = androidx.compose.ui.graphics.RectangleShape
+            )
     ) {
+        // Textured Smears
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val silverSmear = Color(0xFFC0C0C0).copy(alpha = 0.03f)
+            val darkSilver = Color(0xFF4A4E69).copy(alpha = 0.05f)
+            
+            // Large Top-Left Smear
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(silverSmear, Color.Transparent),
+                    center = Offset(0f, 200f),
+                    radius = size.width * 1.5f
+                ),
+                center = Offset(0f, 200f),
+                radius = size.width * 1.5f
+            )
+
+            // Dynamic Bottom-Right Smear
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(darkSilver, Color.Transparent),
+                    center = Offset(size.width, size.height * 0.8f),
+                    radius = size.height * 0.5f
+                ),
+                center = Offset(size.width, size.height * 0.8f),
+                radius = size.height * 0.5f
+            )
+            
+            // Subtle middle accent
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(Color.Transparent, Color.White.copy(alpha = 0.01f), Color.Transparent),
+                    startY = 0f,
+                    endY = size.height
+                )
+            )
+
+            // Random KLIX watermarks
+            watermarks.forEach { (pos, rot, style) ->
+                rotate(rot, pivot = Offset(pos.x * size.width, pos.y * size.height)) {
+                    drawText(
+                        textMeasurer = textMeasurer,
+                        text = "KLIX",
+                        topLeft = Offset(pos.x * size.width, pos.y * size.height),
+                        style = TextStyle(
+                            color = Color(0xFFC0C0C0).copy(alpha = style.second),
+                            fontSize = style.first.sp,
+                            fontWeight = FontWeight.ExtraLight,
+                            letterSpacing = 5.sp
+                        )
+                    )
+                }
+            }
+
+            // Bold KLIX watermarks
+            boldWatermarks.forEach { (pos, rot, style) ->
+                rotate(rot, pivot = Offset(pos.x * size.width, pos.y * size.height)) {
+                    drawText(
+                        textMeasurer = textMeasurer,
+                        text = "KLIX",
+                        topLeft = Offset(pos.x * size.width, pos.y * size.height),
+                        style = TextStyle(
+                            color = Color(0xFFC0C0C0).copy(alpha = style.second),
+                            fontSize = style.first.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 2.sp
+                        )
+                    )
+                }
+            }
+
+            // Shooting stars
+            shootingStarData.forEachIndexed { index, (start, angle) ->
+                val delay = index * 0.3f
+                if (shootingStarProgress > delay && shootingStarProgress < delay + 0.2f) {
+                    val p = (shootingStarProgress - delay) / 0.2f
+                    val length = 150.dp.toPx()
+                    val startX = start.x * size.width + (p * length * 2)
+                    val startY = start.y * size.height + (p * length)
+                    
+                    drawLine(
+                        brush = Brush.linearGradient(
+                            colors = listOf(Color.Transparent, Color.White.copy(alpha = 0.12f), Color.Transparent),
+                            start = Offset(startX - length * 0.5f, startY - length * 0.25f),
+                            end = Offset(startX, startY)
+                        ),
+                        start = Offset(startX - length * 0.5f, startY - length * 0.25f),
+                        end = Offset(startX, startY),
+                        strokeWidth = 1.5.dp.toPx()
+                    )
+                }
+            }
+
+            // Twinkling stars
+            stars.forEachIndexed { i, pos ->
+                val alpha = if (i % 2 == 0) starAlpha else 1f - starAlpha
+                drawCircle(
+                    color = Color.White.copy(alpha = alpha * 0.6f),
+                    radius = if (i % 5 == 0) 1.5.dp.toPx() else 0.8.dp.toPx(),
+                    center = Offset(pos.x * size.width, pos.y * size.height)
+                )
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
         // Logo / Title area
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 32.dp, top = 16.dp)
+            modifier = Modifier.padding(bottom = 12.dp, top = 8.dp)
         ) {
             Image(
                 painter = painterResource("icon_klix.png"),
@@ -1053,16 +1232,23 @@ fun Sidebar(
             }
         }
 
-        HorizontalDivider(color = CharcoalGray, modifier = Modifier.padding(bottom = 24.dp))
+        HorizontalDivider(color = CharcoalGray, modifier = Modifier.padding(bottom = 16.dp))
 
         SidebarItem("Overview", Icons.Default.Dashboard, selectedTab == DashboardTab.OVERVIEW) { onTabSelected(DashboardTab.OVERVIEW) }
-        SidebarItem("Inventory", Icons.Default.Inventory, selectedTab == DashboardTab.INVENTORY) { onTabSelected(DashboardTab.INVENTORY) }
-        SidebarItem("Customers & Members", Icons.Default.People, selectedTab == DashboardTab.CUSTOMERS) { onTabSelected(DashboardTab.CUSTOMERS) }
-        SidebarItem("Menu & Pricing", Icons.AutoMirrored.Filled.MenuBook, selectedTab == DashboardTab.MENU_CONTROL) { onTabSelected(DashboardTab.MENU_CONTROL) }
+        Spacer(modifier = Modifier.height(2.dp))
         SidebarItem("Sales Stats", Icons.Default.BarChart, selectedTab == DashboardTab.SALES_STATS) { onTabSelected(DashboardTab.SALES_STATS) }
-        SidebarItem("Credits & Debts", Icons.Default.CreditCard, selectedTab == DashboardTab.CREDITS) { onTabSelected(DashboardTab.CREDITS) }
-        SidebarItem("Expenses", Icons.Default.AccountBalance, selectedTab == DashboardTab.EXPENSES) { onTabSelected(DashboardTab.EXPENSES) }
+        Spacer(modifier = Modifier.height(2.dp))
         SidebarItem("Reports", Icons.Default.Assessment, selectedTab == DashboardTab.REPORTS) { onTabSelected(DashboardTab.REPORTS) }
+        Spacer(modifier = Modifier.height(2.dp))
+        SidebarItem("Inventory", Icons.Default.Inventory, selectedTab == DashboardTab.INVENTORY) { onTabSelected(DashboardTab.INVENTORY) }
+        Spacer(modifier = Modifier.height(2.dp))
+        SidebarItem("Menu & Pricing", Icons.AutoMirrored.Filled.MenuBook, selectedTab == DashboardTab.MENU_CONTROL) { onTabSelected(DashboardTab.MENU_CONTROL) }
+        Spacer(modifier = Modifier.height(2.dp))
+        SidebarItem("Credits & Debts", Icons.Default.CreditCard, selectedTab == DashboardTab.CREDITS) { onTabSelected(DashboardTab.CREDITS) }
+        Spacer(modifier = Modifier.height(2.dp))
+        SidebarItem("Expenses", Icons.Default.AccountBalance, selectedTab == DashboardTab.EXPENSES) { onTabSelected(DashboardTab.EXPENSES) }
+        Spacer(modifier = Modifier.height(2.dp))
+        SidebarItem("Customers", Icons.Default.People, selectedTab == DashboardTab.CUSTOMERS) { onTabSelected(DashboardTab.CUSTOMERS) }
 
         // Subscription status
         subscriptionInfo?.let { info ->
@@ -1114,12 +1300,71 @@ fun Sidebar(
         
         Spacer(modifier = Modifier.weight(1f))
         
-        SidebarItem("Lock Screen", Icons.Default.Lock, false) { onLock() }
-        SidebarItem("Logout", Icons.Default.Logout, false) { onLogout() }
-        Spacer(modifier = Modifier.height(16.dp))
-
+        // Settings item
+        HorizontalDivider(color = CharcoalGray.copy(alpha = 0.5f), modifier = Modifier.padding(top = 4.dp, bottom = 4.dp))
         SidebarItem("Settings", Icons.Default.Settings, selectedTab == DashboardTab.SETTINGS) { onTabSelected(DashboardTab.SETTINGS) }
+        Spacer(modifier = Modifier.height(4.dp))
+        // Quick-action mini buttons under Settings
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            // Lock Screen shortcut
+            Surface(
+                onClick = { onLock() },
+                color = CharcoalGray,
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Column(
+                    modifier = Modifier.padding(vertical = 5.dp, horizontal = 2.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Default.Lock, contentDescription = "Lock Screen", tint = TextSecondary, modifier = Modifier.size(15.dp))
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Text("Lock", color = TextSecondary, fontSize = 9.sp, fontWeight = FontWeight.Medium)
+                }
+            }
+            // Employee Manager shortcut
+            Surface(
+                onClick = { onTabSelected(DashboardTab.SETTINGS) },
+                color = CharcoalGray,
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Column(
+                    modifier = Modifier.padding(vertical = 5.dp, horizontal = 2.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Default.Badge, contentDescription = "Employees", tint = TextSecondary, modifier = Modifier.size(15.dp))
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Text("Staff", color = TextSecondary, fontSize = 9.sp, fontWeight = FontWeight.Medium)
+                }
+            }
+            // Logout shortcut
+            Surface(
+                onClick = { onLogout() },
+                color = ErrorRed.copy(alpha = 0.12f),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                Column(
+                    modifier = Modifier.padding(vertical = 5.dp, horizontal = 2.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Icon(Icons.Default.Logout, contentDescription = "Logout", tint = ErrorRed.copy(alpha = 0.8f), modifier = Modifier.size(15.dp))
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Text("Logout", color = ErrorRed.copy(alpha = 0.8f), fontSize = 9.sp, fontWeight = FontWeight.Medium)
+                }
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
     }
+}
 }
 
 @Composable
@@ -1136,11 +1381,11 @@ fun SidebarItem(
         color = backgroundColor,
         shape = MaterialTheme.shapes.medium,
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
         ) {
             Icon(icon, contentDescription = text, tint = contentColor)
             Spacer(modifier = Modifier.width(16.dp))

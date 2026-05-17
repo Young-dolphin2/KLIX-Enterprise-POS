@@ -21,13 +21,16 @@ import java.util.UUID
 object LocalDatabase {
     private const val TAG = "LOCAL_DB"
     private const val DB_VERSION = 2
-    private const val DB_NAME = "klix_local.db"
+    private const val DB_NAME = "klix_local_v2.db"
     
     private var connection: Connection? = null
     private var dbFile: File? = null
 
     fun initialize(dbDirectory: String = ".") {
         try {
+            if (connection != null && !connection!!.isClosed) {
+                return
+            }
             Class.forName("org.sqlite.JDBC")
             dbFile = File(dbDirectory, DB_NAME)
             connection = DriverManager.getConnection("jdbc:sqlite:${dbFile?.absolutePath}")
@@ -39,7 +42,27 @@ object LocalDatabase {
             migrateIfNeeded()
             Logger.info(TAG, "Database initialized at ${dbFile?.absolutePath}")
         } catch (e: Exception) {
-            Logger.error(TAG, "Failed to initialize database", e)
+            Logger.error(TAG, "Database init failed: ${e.message}")
+            Logger.warn(TAG, "Attempting recovery: deleting corrupted db and re-creating...")
+            try {
+                connection?.close()
+                connection = null
+                dbFile?.delete()
+                connection = DriverManager.getConnection("jdbc:sqlite:${dbFile?.absolutePath}")
+                connection?.apply {
+                    createStatement().execute("PRAGMA journal_mode=WAL")
+                    createStatement().execute("PRAGMA foreign_keys=ON")
+                }
+                createTables()
+                migrateIfNeeded()
+                setMeta("needs_full_sync", "true")
+                setMeta("last_sync", "1970-01-01T00:00:00Z")
+                Logger.warn(TAG, "Database recovered. Full re-sync required.")
+            } catch (recoveryError: Exception) {
+                Logger.fatal(TAG, "Database recovery failed: ${recoveryError.message}", recoveryError)
+                connection = null
+                dbFile = null
+            }
         }
     }
 

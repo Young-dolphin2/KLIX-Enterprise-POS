@@ -18,6 +18,7 @@ data class MenuItemDto(
     val subcategory: String,
     @SerialName("branch_id") val branchId: String? = null,
     @SerialName("is_active") val isActive: Boolean = true,
+    @SerialName("barcode") val barcode: String? = null,
     @SerialName("ingredients") val ingredients: List<IngredientDto>? = null
 )
 

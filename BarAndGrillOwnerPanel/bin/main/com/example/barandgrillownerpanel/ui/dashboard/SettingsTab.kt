@@ -35,6 +35,7 @@ enum class SettingsSection {
     BUSINESS_PROFILE, REGIONAL, TARGETS, DATA, HARDWARE, EMPLOYEES, SECURITY, BRANDING, SYSTEM
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsTab(
     settings: AppSettings,
@@ -104,53 +105,6 @@ fun SettingsTab(
             shape = RoundedCornerShape(16.dp)
         ) {
             Box(modifier = Modifier.padding(32.dp).fillMaxSize()) {
-                var showGuide by remember { mutableStateOf(false) }
-                IconButton(onClick = { showGuide = true }, modifier = Modifier.align(Alignment.TopEnd)) {
-                    Icon(Icons.Default.HelpOutline, "Guide", tint = PrimaryOrange)
-                }
-                
-                com.example.barandgrillownerpanel.ui.components.GuideOverlay(
-                    steps = com.example.barandgrillownerpanel.ui.components.Guides.SETTINGS_GUIDE,
-                    isVisible = showGuide,
-                    onDismiss = { showGuide = false }
-                )
-
-                var isSyncing by remember { mutableStateOf(false) }
-                
-                Row(modifier = Modifier.align(Alignment.TopEnd).padding(end = 48.dp)) {
-                    Button(
-                        onClick = {
-                            isSyncing = true
-                            scope.launch {
-                                try {
-                                    SupabaseManager.client.auth.updateUser {
-                                        data {
-                                            put("business_name", settings.businessName)
-                                            put("country", settings.country)
-                                            put("currency_code", settings.currencyCode)
-                                            put("currency_symbol", settings.currencySymbol)
-                                            put("payment_methods", Json.encodeToString(settings.paymentMethods))
-                                            put("primary_color_hex", settings.primaryColorHex)
-                                        }
-                                    }
-                                } catch (e: Exception) { e.printStackTrace() } finally {
-                                    isSyncing = false
-                                }
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen),
-                        modifier = Modifier.height(36.dp)
-                    ) {
-                        if (isSyncing) {
-                            CircularProgressIndicator(modifier = Modifier.size(16.dp), color = DarkBackground)
-                        } else {
-                            Icon(Icons.Default.CloudUpload, null, modifier = Modifier.size(16.dp))
-                            Spacer(Modifier.width(8.dp))
-                            Text("Sync All to Cloud", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = DarkBackground)
-                        }
-                    }
-                }
-
                 AnimatedContent(
                     targetState = selectedSection,
                     transitionSpec = { fadeIn() togetherWith fadeOut() }
@@ -231,7 +185,7 @@ fun BusinessProfileSection(
             Spacer(modifier = Modifier.width(24.dp))
             Column {
                 Button(onClick = {
-                    scope.launch {
+                    scope.launch(kotlinx.coroutines.Dispatchers.IO) {
                         try {
                             val dialog = java.awt.FileDialog(null as java.awt.Frame?, "Select Company Logo", java.awt.FileDialog.LOAD)
                             dialog.isVisible = true
@@ -244,7 +198,9 @@ fun BusinessProfileSection(
                                 val bucket = SupabaseManager.client.storage.from("branding")
                                 bucket.upload(uploadPath, bytes) { upsert = true }
                                 val url = bucket.publicUrl(uploadPath)
-                                onSettingsChange(settings.copy(companyLogoUrl = url))
+                                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                    onSettingsChange(settings.copy(companyLogoUrl = url))
+                                }
                             }
                         } catch (e: Exception) { e.printStackTrace() }
                     }
@@ -443,6 +399,7 @@ fun BusinessProfileSection(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegionalSettingsSection(settings: AppSettings, onSettingsChange: (AppSettings) -> Unit) {
     var showAddPaymentDialog by remember { mutableStateOf(false) }
@@ -451,7 +408,60 @@ fun RegionalSettingsSection(settings: AppSettings, onSettingsChange: (AppSetting
         SectionTitle("Regional & Payments", "Configure local currency and accepted payment methods")
         Spacer(modifier = Modifier.height(32.dp))
 
-        SettingsTextField("Country", settings.country) { onSettingsChange(settings.copy(country = it)) }
+        var countryDropdownExpanded by remember { mutableStateOf(false) }
+        val countries = remember {
+            listOf(
+                Triple("Malawi", "MWK", "MK"),
+                Triple("South Africa", "ZAR", "R"),
+                Triple("Zambia", "ZMW", "K"),
+                Triple("Zimbabwe", "USD", "$"),
+                Triple("Kenya", "KES", "KSh"),
+                Triple("Tanzania", "TZS", "TSh"),
+                Triple("Botswana", "BWP", "P"),
+                Triple("Nigeria", "NGN", "₦"),
+                Triple("United States", "USD", "$"),
+                Triple("United Kingdom", "GBP", "£")
+            )
+        }
+
+        Text("Country", color = TextSecondary, fontSize = 12.sp, modifier = Modifier.padding(bottom = 8.dp))
+        ExposedDropdownMenuBox(
+            expanded = countryDropdownExpanded,
+            onExpandedChange = { countryDropdownExpanded = it },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            OutlinedTextField(
+                value = settings.country,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = countryDropdownExpanded) },
+                modifier = Modifier.menuAnchor(androidx.compose.material3.MenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = PrimaryOrange,
+                    unfocusedBorderColor = TextSecondary,
+                    focusedTextColor = TextPrimary,
+                    unfocusedTextColor = TextPrimary
+                )
+            )
+            ExposedDropdownMenu(
+                expanded = countryDropdownExpanded,
+                onDismissRequest = { countryDropdownExpanded = false },
+                containerColor = CharcoalGray
+            ) {
+                countries.forEach { (name, code, sym) ->
+                    DropdownMenuItem(
+                        text = { Text(name, color = TextPrimary) },
+                        onClick = {
+                            onSettingsChange(settings.copy(country = name, currencyCode = code, currencySymbol = sym))
+                            countryDropdownExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Box(modifier = Modifier.weight(1f)) {
                 SettingsTextField("Currency Code (e.g. MWK)", settings.currencyCode) { onSettingsChange(settings.copy(currencyCode = it)) }
@@ -783,7 +793,46 @@ fun EmployeesSection(branches: List<BranchDto> = emptyList()) {
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     SettingsTextField("Full Name", newName) { newName = it }
-                    SettingsTextField("Role", newRole) { newRole = it }
+                    
+                    var roleDropdownExpanded by remember { mutableStateOf(false) }
+                    val roles = listOf("Supervisor", "Employee")
+                    
+                    Text("Role", color = TextSecondary, fontSize = 13.sp)
+                    ExposedDropdownMenuBox(
+                        expanded = roleDropdownExpanded,
+                        onExpandedChange = { roleDropdownExpanded = it }
+                    ) {
+                        OutlinedTextField(
+                            value = newRole,
+                            onValueChange = {},
+                            readOnly = true,
+                            placeholder = { Text("Select Role...", color = TextSecondary) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = roleDropdownExpanded) },
+                            modifier = Modifier.menuAnchor(androidx.compose.material3.MenuAnchorType.PrimaryNotEditable).fillMaxWidth(),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = PrimaryOrange,
+                                unfocusedBorderColor = TextSecondary,
+                                focusedTextColor = TextPrimary,
+                                unfocusedTextColor = TextPrimary
+                            )
+                        )
+                        ExposedDropdownMenu(
+                            expanded = roleDropdownExpanded,
+                            onDismissRequest = { roleDropdownExpanded = false },
+                            containerColor = CharcoalGray
+                        ) {
+                            roles.forEach { role ->
+                                DropdownMenuItem(
+                                    text = { Text(role, color = TextPrimary) },
+                                    onClick = {
+                                        newRole = role
+                                        roleDropdownExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
                     SettingsTextField("PIN (Optional)", newPin) { newPin = it }
 
                     val flavor = System.getProperty("appFlavor", "barandgrill")
@@ -972,6 +1021,10 @@ fun SecuritySection(settings: AppSettings, onSettingsChange: (AppSettings) -> Un
         
         SettingsTextField("Admin Override PIN", settings.adminPin) { onSettingsChange(settings.copy(adminPin = it)) }
         SettingsTextField("Manager PIN", settings.managerPin) { onSettingsChange(settings.copy(managerPin = it)) }
+        SettingsTextField("Lock Screen Timeout (Minutes, 0 to disable)", settings.lockTimeoutMinutes.toString()) { 
+            val newTimeout = it.toIntOrNull() ?: settings.lockTimeoutMinutes
+            onSettingsChange(settings.copy(lockTimeoutMinutes = newTimeout))
+        }
         
         Spacer(modifier = Modifier.height(16.dp))
         var newOwnerPassword by remember { mutableStateOf("") }
@@ -1105,7 +1158,7 @@ fun DataExportSection(
 
                 Button(
                     onClick = {
-                        scope.launch {
+                        scope.launch(kotlinx.coroutines.Dispatchers.IO) {
                             try {
                                 val dialog = java.awt.FileDialog(null as java.awt.Frame?, "Save Excel Export", java.awt.FileDialog.SAVE)
                                 dialog.file = "KLIX_Export_${exportOptions.period.name}_${java.time.LocalDate.now()}.xlsx"
@@ -1182,7 +1235,7 @@ fun DataExportSection(
 
                 Button(
                     onClick = {
-                        scope.launch {
+                        scope.launch(kotlinx.coroutines.Dispatchers.IO) {
                             try {
                                 val dialog = java.awt.FileDialog(null as java.awt.Frame?, "Save PDF Report", java.awt.FileDialog.SAVE)
                                 dialog.file = "KLIX_${selectedReportType.name}_${exportOptions.period.name}_${java.time.LocalDate.now()}.pdf"
