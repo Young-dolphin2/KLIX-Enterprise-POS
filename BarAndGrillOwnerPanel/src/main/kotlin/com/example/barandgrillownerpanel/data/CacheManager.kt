@@ -8,10 +8,13 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.util.Base64
-import javax.crypto.Cipher
-import javax.crypto.spec.SecretKeySpec
 import java.security.MessageDigest
+import java.security.SecureRandom
+import java.util.Base64
+import java.util.prefs.Preferences
+import javax.crypto.Cipher
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.SecretKeySpec
 
 /**
  * CacheManager — Hybrid cache layer.
@@ -39,23 +42,54 @@ object CacheManager {
     private var sqliteInitialized = false
     private var legacyCacheMigrated = false
     
-    // Machine-locked key generation (kept for legacy fallback)
+    private const val AES_GCM_TAG_LEN = 128
+    private const val AES_TRANSFORMATION = "AES/GCM/NoPadding"
+    private const val KEY_NODE = "com.example.barandgrillownerpanel.cache"
+    private const val KEY_NAME = "cache_encryption_key"
+
+    // Secure OS Keystore-backed key generation
     private val secretKey: SecretKeySpec by lazy {
+        val prefs = Preferences.userRoot().node(KEY_NODE)
+        val storedKey = prefs.getByteArray(KEY_NAME, null)
+        if (storedKey != null && storedKey.size == 32) {
+            SecretKeySpec(storedKey, "AES")
+        } else {
+            val newKey = ByteArray(32).also { SecureRandom().nextBytes(it) }
+            prefs.putByteArray(KEY_NAME, newKey)
+            SecretKeySpec(newKey, "AES")
+        }
+    }
+
+    // Legacy machine-locked key for backward compatibility
+    private val legacySecretKey: SecretKeySpec by lazy {
         val machineId = System.getenv("COMPUTERNAME") ?: System.getProperty("user.name") ?: "KLIX_FALLBACK"
         val hash = MessageDigest.getInstance("SHA-256").digest(machineId.toByteArray())
         SecretKeySpec(hash.copyOf(16), "AES")
     }
 
     private fun encrypt(data: String): String {
-        val cipher = Cipher.getInstance("AES")
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey)
-        return Base64.getEncoder().encodeToString(cipher.doFinal(data.toByteArray()))
+        val cipher = Cipher.getInstance(AES_TRANSFORMATION)
+        val iv = ByteArray(12).also { SecureRandom().nextBytes(it) }
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, GCMParameterSpec(AES_GCM_TAG_LEN, iv))
+        val encrypted = cipher.doFinal(data.toByteArray(Charsets.UTF_8))
+        return Base64.getEncoder().encodeToString(iv + encrypted)
     }
 
     private fun decrypt(encrypted: String): String {
-        val cipher = Cipher.getInstance("AES")
-        cipher.init(Cipher.DECRYPT_MODE, secretKey)
-        return String(cipher.doFinal(Base64.getDecoder().decode(encrypted)))
+        return try {
+            val decoded = Base64.getDecoder().decode(encrypted)
+            if (decoded.size < 13) throw IllegalArgumentException("Ciphertext too short for GCM")
+            val iv = decoded.copyOfRange(0, 12)
+            val cipherText = decoded.copyOfRange(12, decoded.size)
+            val cipher = Cipher.getInstance(AES_TRANSFORMATION)
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(AES_GCM_TAG_LEN, iv))
+            String(cipher.doFinal(cipherText), Charsets.UTF_8)
+        } catch (e: Exception) {
+            // Fallback to legacy ECB decryption if GCM fails
+            val cipher = Cipher.getInstance("AES")
+            cipher.init(Cipher.DECRYPT_MODE, legacySecretKey)
+            String(cipher.doFinal(Base64.getDecoder().decode(encrypted)))
+        }
     }
 
     /**
