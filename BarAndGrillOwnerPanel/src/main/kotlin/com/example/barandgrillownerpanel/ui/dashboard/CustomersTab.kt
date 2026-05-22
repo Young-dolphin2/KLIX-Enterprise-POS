@@ -20,9 +20,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.barandgrillownerpanel.ui.theme.*
 import com.example.barandgrillownerpanel.models.CustomerDto
-import com.example.barandgrillownerpanel.data.remote.SupabaseManager
-import io.github.jan.supabase.postgrest.postgrest
+import com.example.barandgrillownerpanel.data.CacheManager
+import com.example.barandgrillownerpanel.data.local.LocalDatabase
+import com.example.barandgrillownerpanel.utils.Logger
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,17 +38,29 @@ fun CustomersTab(
     var showAddDialog by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(true) }
 
+    val pageSize = 50
+    var page by remember { mutableStateOf(0) }
+    var hasMore by remember { mutableStateOf(true) }
+
     val filteredCustomers = remember(customers, searchQuery) {
         customers.filter { it.name.contains(searchQuery, ignoreCase = true) || it.phone.contains(searchQuery) }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(branchId, page) {
+        isLoading = true
         try {
-            val fetched = SupabaseManager.client.postgrest["customers"]
-                .select()
-                .decodeAs<List<CustomerDto>>()
+            val fetched = withContext(Dispatchers.IO) {
+                CacheManager.getCustomers(page * pageSize, pageSize)
+            }
             customers = fetched
-        } catch (e: Exception) { e.printStackTrace() } finally { isLoading = false }
+            hasMore = fetched.size >= pageSize
+        } catch (e: Exception) {
+            Logger.error("CUSTOMERS", "Failed to load local customers", e)
+            customers = emptyList()
+            hasMore = false
+        } finally {
+            isLoading = false
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
@@ -94,6 +109,18 @@ fun CustomersTab(
                 items(filteredCustomers) { customer ->
                     CustomerCard(customer)
                 }
+                item {
+                    if (hasMore) {
+                        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                            Button(
+                                onClick = { page += 1 },
+                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange)
+                            ) {
+                                Text("Load more", fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -104,12 +131,16 @@ fun CustomersTab(
             onSave = { newCustomer ->
                 scope.launch {
                     try {
-                        val inserted = SupabaseManager.client.postgrest["customers"]
-                            .insert(newCustomer.copy(branchId = branchId)) { select() }
-                            .decodeSingle<CustomerDto>()
-                        customers = customers + inserted
+                        withContext(Dispatchers.IO) {
+                            LocalDatabase.saveCustomer(newCustomer.copy(branchId = branchId))
+                        }
+                        customers = withContext(Dispatchers.IO) {
+                            CacheManager.getCustomers(page * pageSize, pageSize)
+                        }
                         showAddDialog = false
-                    } catch (e: Exception) { e.printStackTrace() }
+                    } catch (e: Exception) {
+                        Logger.error("CUSTOMERS", "Failed to save new customer", e)
+                    }
                 }
             }
         )

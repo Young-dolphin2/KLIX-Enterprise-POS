@@ -118,7 +118,11 @@ fun DashboardScreen(
 
     // Initialize local cache system (SQLite primary, JSON fallback)
     LaunchedEffect(Unit) {
-        com.example.barandgrillownerpanel.data.CacheManager.initialize(".")
+        try {
+            com.example.barandgrillownerpanel.data.CacheManager.initialize(".")
+        } catch (e: Exception) {
+            Logger.error("DASHBOARD", "Cache initialization failed", e)
+        }
         com.example.barandgrillownerpanel.data.sync.SyncEngine.startSyncCycle(scope)
     }
 
@@ -238,7 +242,7 @@ fun DashboardScreen(
             credits.clear()
             credits.addAll(fetched.sortedByDescending { it.created_at })
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.error("DASHBOARD", "Failed to refresh credits", e)
         }
     }
 
@@ -249,7 +253,7 @@ fun DashboardScreen(
             expenses.clear()
             expenses.addAll(fetched.sortedByDescending { it.created_at })
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.error("DASHBOARD", "Failed to refresh expenses", e)
         }
     }
 
@@ -480,21 +484,33 @@ fun DashboardScreen(
             launch {
                 salesFlow.collect {
                     delay(800) // allow sale_items insert to complete before reloading combined records
-                    try { refreshSalesHistory() } catch (e: Exception) { e.printStackTrace() }
+                    try {
+                        refreshSalesHistory()
+                    } catch (e: Exception) {
+                        Logger.error("DASHBOARD", "Realtime sales refresh failed", e)
+                    }
                 }
             }
             launch {
                 saleItemsFlow.collect {
-                    try { refreshSalesHistory() } catch (e: Exception) { e.printStackTrace() }
+                    try {
+                        refreshSalesHistory()
+                    } catch (e: Exception) {
+                        Logger.error("DASHBOARD", "Realtime sale_items refresh failed", e)
+                    }
                 }
             }
             launch {
                 inventoryFlow.collect {
-                    try { refreshInventory() } catch (e: Exception) { e.printStackTrace() }
+                    try {
+                        refreshInventory()
+                    } catch (e: Exception) {
+                        Logger.error("DASHBOARD", "Realtime inventory refresh failed", e)
+                    }
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Logger.error("DASHBOARD", "Realtime subscription setup failed", e)
         }
     }
 

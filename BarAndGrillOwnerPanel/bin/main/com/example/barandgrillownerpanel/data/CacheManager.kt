@@ -3,6 +3,8 @@ package com.example.barandgrillownerpanel.data
 import com.example.barandgrillownerpanel.data.local.LocalDatabase
 import com.example.barandgrillownerpanel.models.*
 import com.example.barandgrillownerpanel.utils.Logger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -60,14 +62,17 @@ object CacheManager {
      * Initialize the cache system.
      * Must be called once on app startup before any data access.
      */
-    fun initialize(dbDirectory: String = ".") {
+    suspend fun initialize(dbDirectory: String = ".") {
         if (sqliteInitialized) return
         
-        LocalDatabase.initialize(dbDirectory)
-        sqliteInitialized = true
-        
-        // Migrate legacy JSON cache to SQLite (one-time)
-        migrateLegacyCache()
+        withContext(Dispatchers.IO) {
+            setOwnerOnlyPermissions(cacheFile)
+            LocalDatabase.initialize(dbDirectory)
+            sqliteInitialized = true
+            
+            // Migrate legacy JSON cache to SQLite (one-time)
+            migrateLegacyCache()
+        }
         
         Logger.info("CACHE", "Cache system initialized (SQLite primary, JSON fallback)")
     }
@@ -76,11 +81,11 @@ object CacheManager {
      * One-time migration from legacy JSON cache to SQLite.
      * The JSON file is preserved but no longer updated.
      */
-    private fun migrateLegacyCache() {
-        if (legacyCacheMigrated) return
+    private suspend fun migrateLegacyCache() = withContext(Dispatchers.IO) {
+        if (legacyCacheMigrated) return@withContext
         if (!cacheFile.exists()) {
             legacyCacheMigrated = true
-            return
+            return@withContext
         }
 
         try {
@@ -134,6 +139,19 @@ object CacheManager {
         return LocalDatabase.getRecentExpenses(days)
     }
 
+    private fun setOwnerOnlyPermissions(file: File) {
+        try {
+            file.parentFile?.mkdirs()
+            file.setReadable(false, false)
+            file.setWritable(false, false)
+            file.setExecutable(false, false)
+            file.setReadable(true, true)
+            file.setWritable(true, true)
+        } catch (ignored: Exception) {
+            // Best-effort hardening for local fallback cache file permissions.
+        }
+    }
+
     fun getAllExpenses(): List<ExpenseDto> {
         return LocalDatabase.getAllExpenses()
     }
@@ -154,8 +172,8 @@ object CacheManager {
         return LocalDatabase.getMenuItems()
     }
 
-    fun getCustomers(): List<CustomerDto> {
-        return LocalDatabase.getCustomers()
+    fun getCustomers(offset: Int = 0, limit: Int = 100): List<CustomerDto> {
+        return LocalDatabase.getCustomers(offset, limit)
     }
 
     // ================================================================
@@ -168,7 +186,7 @@ object CacheManager {
      * Save cache — now writes to SQLite instead of JSON.
      * Legacy JSON file is preserved but no longer updated.
      */
-    fun saveCache(data: DashboardDataCache) {
+    suspend fun saveCache(data: DashboardDataCache) = withContext(Dispatchers.IO) {
         try {
             // Save branches to SQLite
             data.branches.forEach { LocalDatabase.upsertBranch(it) }
@@ -191,7 +209,7 @@ object CacheManager {
     /**
      * Load cache — now reads from SQLite, falls back to JSON.
      */
-    fun loadCache(): DashboardDataCache? {
+    suspend fun loadCache(): DashboardDataCache? = withContext(Dispatchers.IO) {
         // Try SQLite first
         try {
             val branches = LocalDatabase.getBranches()
@@ -204,7 +222,7 @@ object CacheManager {
             val credits = LocalDatabase.getRecentCredits(2)
             
             if (branches.isNotEmpty() || sales.isNotEmpty()) {
-                return DashboardDataCache(
+                return@withContext DashboardDataCache(
                     branches = branches,
                     menuItems = menuItems,
                     inventoryItems = inventory,
@@ -218,14 +236,14 @@ object CacheManager {
         }
 
         // Fallback: legacy JSON
-        return loadLegacyCache()
+        return@withContext loadLegacyCache()
     }
 
     /**
      * Load from legacy JSON cache (fallback).
      */
-    private fun loadLegacyCache(): DashboardDataCache? {
-        return try {
+    private suspend fun loadLegacyCache(): DashboardDataCache? = withContext(Dispatchers.IO) {
+        return@withContext try {
             if (cacheFile.exists()) {
                 val encrypted = cacheFile.readText()
                 val decrypted = if (encrypted.trim().startsWith("{")) {

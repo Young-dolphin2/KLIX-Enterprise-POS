@@ -85,6 +85,19 @@ Implementation best practices and recommended technologies
 - UI/Compose
 	- Hoist state and minimize re-compositions; use `LazyColumn` and pagination for large lists and debounce user actions that trigger network operations.
 
+Small fixes completed in this pass
+- Replaced raw `e.printStackTrace()` calls in desktop UI flows with structured `Logger.error(...)` logging.
+- Added jitter to retry delays in `BarAndGrillOwnerPanel/src/main/kotlin/com/example/barandgrillownerpanel/utils/NetworkUtils.kt`.
+- Removed duplicate `sync_metadata` table creation in `LocalDatabase.kt`.
+- Added AES-GCM encryption for sensitive customer columns in `BarAndGrillOwnerPanel/src/main/kotlin/com/example/barandgrillownerpanel/data/local/LocalDatabase.kt`, plus paginated customer retrieval and indexes for `updated_at` and `name`.
+
+Remaining higher-value fixes
+- Remove embedded Supabase fallback keys and require configuration from environment or runtime parameters. (Completed)
+- Upgrade local encryption: move legacy cache to AES-GCM and/or migrate SQLite to SQLCipher with OS-keystore-managed key storage.
+- Harden remote logging: implement log redaction, sampling, and optional opt-in transmission.
+- Improve retry policy further: classify errors and retry only transient issues, honor `Retry-After`, and add a circuit-breaker.
+- Audit and encrypt PII in the local database; add query pagination and validate indexes with real workload tests.
+
 Prioritized remediation plan (ready to implement)
 1) Remove hard-coded Supabase fallback keys and require runtime env/config. (Critical)
 2) Migrate to AES-GCM + OS keystore for cache encryption or migrate DB to SQLCipher. (Critical)

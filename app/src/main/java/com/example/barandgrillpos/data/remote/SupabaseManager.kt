@@ -13,14 +13,14 @@ object SupabaseManager {
      * 2) System properties (useful for local/debug tooling): -Dsupabase.url / -Dsupabase.key
      * 3) Environment variables: SUPABASE_URL / SUPABASE_ANON_KEY (or SUPABASE_KEY)
      *
+     * No embedded defaults are allowed; the app will fail fast if values are missing.
      * IMPORTANT: Do not use the service-role key in client apps.
      */
     private val supabaseUrl: String by lazy {
         firstNonBlank(
             // If you later add BuildConfig fields, they can go first here.
             System.getProperty("supabase.url"),
-            System.getenv("SUPABASE_URL"),
-            "https://lwmbdrlogcordhubxbgy.supabase.co"
+            System.getenv("SUPABASE_URL")
         )
     }
 
@@ -28,9 +28,7 @@ object SupabaseManager {
         firstNonBlank(
             System.getProperty("supabase.key"),
             System.getenv("SUPABASE_ANON_KEY"),
-            System.getenv("SUPABASE_KEY"),
-            // Fallback default (dev)
-            "sb_publishable_OAKmRF3LaW8dZYI-QUMkHA_eTbtlSqH"
+            System.getenv("SUPABASE_KEY")
         )
     }
 

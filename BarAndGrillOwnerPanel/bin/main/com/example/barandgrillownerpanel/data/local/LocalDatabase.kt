@@ -3,11 +3,19 @@ package com.example.barandgrillownerpanel.data.local
 import com.example.barandgrillownerpanel.models.*
 import com.example.barandgrillownerpanel.utils.Logger
 import java.io.File
+import java.nio.file.Files
+import java.security.SecureRandom
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.Instant
 import java.time.LocalDateTime
+import java.util.Base64
 import java.util.UUID
+import javax.crypto.Cipher
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.SecretKeySpec
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Local SQLite database for offline-first operations.
@@ -22,24 +30,34 @@ object LocalDatabase {
     private const val TAG = "LOCAL_DB"
     private const val DB_VERSION = 2
     private const val DB_NAME = "klix_local_v2.db"
-    
+    private const val ENCRYPTION_KEY_FILE = "klix_local_key.bin"
+    private const val AES_GCM_TAG_LEN = 128
+    private const val AES_KEY_BYTES = 32
+    private const val AES_TRANSFORMATION = "AES/GCM/NoPadding"
+
     private var connection: Connection? = null
     private var dbFile: File? = null
+    private var encryptionKey: SecretKeySpec? = null
 
-    fun initialize(dbDirectory: String = ".") {
+    suspend fun initialize(dbDirectory: String = ".") = withContext(Dispatchers.IO) {
         try {
             if (connection != null && !connection!!.isClosed) {
-                return
+                if (encryptionKey == null) loadOrCreateEncryptionKey()
+                return@withContext
             }
             Class.forName("org.sqlite.JDBC")
             dbFile = File(dbDirectory, DB_NAME)
+            setOwnerOnlyPermissions(dbFile)
             connection = DriverManager.getConnection("jdbc:sqlite:${dbFile?.absolutePath}")
             connection?.apply {
                 createStatement().execute("PRAGMA journal_mode=WAL")
                 createStatement().execute("PRAGMA foreign_keys=ON")
+                createStatement().execute("PRAGMA secure_delete=ON")
+                createStatement().execute("PRAGMA temp_store=MEMORY")
             }
             createTables()
             migrateIfNeeded()
+            loadOrCreateEncryptionKey()
             Logger.info(TAG, "Database initialized at ${dbFile?.absolutePath}")
         } catch (e: Exception) {
             Logger.error(TAG, "Database init failed: ${e.message}")
@@ -48,13 +66,17 @@ object LocalDatabase {
                 connection?.close()
                 connection = null
                 dbFile?.delete()
+                setOwnerOnlyPermissions(dbFile)
                 connection = DriverManager.getConnection("jdbc:sqlite:${dbFile?.absolutePath}")
                 connection?.apply {
                     createStatement().execute("PRAGMA journal_mode=WAL")
                     createStatement().execute("PRAGMA foreign_keys=ON")
+                    createStatement().execute("PRAGMA secure_delete=ON")
+                    createStatement().execute("PRAGMA temp_store=MEMORY")
                 }
                 createTables()
                 migrateIfNeeded()
+                loadOrCreateEncryptionKey()
                 setMeta("needs_full_sync", "true")
                 setMeta("last_sync", "1970-01-01T00:00:00Z")
                 Logger.warn(TAG, "Database recovered. Full re-sync required.")
@@ -63,6 +85,82 @@ object LocalDatabase {
                 connection = null
                 dbFile = null
             }
+        }
+    }
+
+    private fun loadOrCreateEncryptionKey() {
+        try {
+            if (encryptionKey != null) return
+            val keyFile = dbFile?.parentFile?.let { File(it, ENCRYPTION_KEY_FILE) }
+            if (keyFile == null) {
+                Logger.warn(TAG, "Encryption key file location unavailable")
+                return
+            }
+            keyFile.parentFile?.mkdirs()
+            val keyBytes = if (keyFile.exists()) {
+                Files.readAllBytes(keyFile.toPath()).also { setOwnerOnlyPermissions(keyFile) }
+            } else {
+                val generated = ByteArray(AES_KEY_BYTES).also { SecureRandom().nextBytes(it) }
+                Files.write(keyFile.toPath(), generated)
+                setOwnerOnlyPermissions(keyFile)
+                generated
+            }
+            if (keyBytes.size == AES_KEY_BYTES) {
+                encryptionKey = SecretKeySpec(keyBytes, "AES")
+            } else {
+                Logger.warn(TAG, "Local encryption key had invalid length, regenerating")
+                val generated = ByteArray(AES_KEY_BYTES).also { SecureRandom().nextBytes(it) }
+                Files.write(keyFile.toPath(), generated)
+                setOwnerOnlyPermissions(keyFile)
+                encryptionKey = SecretKeySpec(generated, "AES")
+            }
+        } catch (e: Exception) {
+            Logger.warn(TAG, "Unable to initialize local encryption key: ${e.message}")
+            encryptionKey = null
+        }
+    }
+
+    private fun encryptColumn(value: String?): String? {
+        if (value.isNullOrBlank() || encryptionKey == null) return value
+        return try {
+            val cipher = Cipher.getInstance(AES_TRANSFORMATION)
+            val iv = ByteArray(12).also { SecureRandom().nextBytes(it) }
+            cipher.init(Cipher.ENCRYPT_MODE, encryptionKey, GCMParameterSpec(AES_GCM_TAG_LEN, iv))
+            val encrypted = cipher.doFinal(value.toByteArray(Charsets.UTF_8))
+            Base64.getEncoder().encodeToString(iv + encrypted)
+        } catch (e: Exception) {
+            Logger.warn(TAG, "Column encryption failed: ${e.message}")
+            value
+        }
+    }
+
+    private fun decryptColumn(value: String?): String? {
+        if (value.isNullOrBlank() || encryptionKey == null) return value
+        return try {
+            val decoded = Base64.getDecoder().decode(value)
+            if (decoded.size < 13) return value
+            val iv = decoded.copyOfRange(0, 12)
+            val cipherText = decoded.copyOfRange(12, decoded.size)
+            val cipher = Cipher.getInstance(AES_TRANSFORMATION)
+            cipher.init(Cipher.DECRYPT_MODE, encryptionKey, GCMParameterSpec(AES_GCM_TAG_LEN, iv))
+            String(cipher.doFinal(cipherText), Charsets.UTF_8)
+        } catch (e: Exception) {
+            Logger.warn(TAG, "Column decryption failed: ${e.message}")
+            value
+        }
+    }
+
+    private fun setOwnerOnlyPermissions(file: File?) {
+        try {
+            if (file == null) return
+            file.parentFile?.mkdirs()
+            file.setReadable(false, false)
+            file.setWritable(false, false)
+            file.setExecutable(false, false)
+            file.setReadable(true, true)
+            file.setWritable(true, true)
+        } catch (ignored: Exception) {
+            // Best-effort file permission hardening.
         }
     }
 
@@ -82,14 +180,6 @@ object LocalDatabase {
                     primary_color_hex TEXT DEFAULT '#FF5722',
                     is_onboarded INTEGER DEFAULT 0,
                     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-                )
-            """)
-
-            // Sync Metadata
-            execute("""
-                CREATE TABLE IF NOT EXISTS sync_metadata (
-                    key TEXT PRIMARY KEY,
-                    value TEXT
                 )
             """)
 
@@ -258,6 +348,20 @@ object LocalDatabase {
                     value TEXT NOT NULL
                 )
             """)
+
+            // Performance indexes for high-read queries
+            execute("CREATE INDEX IF NOT EXISTS idx_branches_is_active ON branches(is_active)")
+            execute("CREATE INDEX IF NOT EXISTS idx_menu_items_branch_id ON menu_items(branch_id)")
+            execute("CREATE INDEX IF NOT EXISTS idx_menu_items_is_active ON menu_items(is_active)")
+            execute("CREATE INDEX IF NOT EXISTS idx_inventory_branch_id ON inventory(branch_id)")
+            execute("CREATE INDEX IF NOT EXISTS idx_inventory_status ON inventory(status)")
+            execute("CREATE INDEX IF NOT EXISTS idx_sales_timestamp ON sales(timestamp)")
+            execute("CREATE INDEX IF NOT EXISTS idx_sales_branch_id ON sales(branch_id)")
+            execute("CREATE INDEX IF NOT EXISTS idx_expenses_expense_date ON expenses(expense_date)")
+            execute("CREATE INDEX IF NOT EXISTS idx_customers_branch_id ON customers(branch_id)")
+            execute("CREATE INDEX IF NOT EXISTS idx_customers_updated_at ON customers(updated_at)")
+            execute("CREATE INDEX IF NOT EXISTS idx_customers_name ON customers(name)")
+            execute("CREATE INDEX IF NOT EXISTS idx_sync_queue_pushed ON sync_queue(pushed)")
         }
     }
 
@@ -322,7 +426,7 @@ object LocalDatabase {
             stmt.setString(3, country)
             stmt.setString(4, settings.currencySymbol)
             stmt.setString(5, currencyCode)
-            stmt.setString(6, phone)
+            stmt.setString(6, encryptColumn(phone))
             stmt.setString(7, kotlinx.serialization.json.Json.encodeToString(settings.paymentMethods))
             stmt.setString(8, settings.primaryColorHex)
             stmt.setInt(9, if (isOnboarded) 1 else 0)
@@ -349,7 +453,7 @@ object LocalDatabase {
                     country = rs.getString("country") ?: "",
                     currencySymbol = rs.getString("currency_symbol") ?: "$",
                     currencyCode = rs.getString("currency_code") ?: "USD",
-                    phoneNumber = rs.getString("phone_number") ?: "",
+                    phoneNumber = decryptColumn(rs.getString("phone_number")) ?: "",
                     primaryColorHex = rs.getString("primary_color_hex") ?: "#FF5722",
                     paymentMethods = methods
                 )
@@ -988,14 +1092,19 @@ object LocalDatabase {
         val conn = connection ?: return
         try {
             val stmt = conn.prepareStatement("""
-                INSERT OR REPLACE INTO customers (id, name, phone, email, updated_at)
-                VALUES (?, ?, ?, ?, datetime('now'))
+                INSERT OR REPLACE INTO customers (
+                    id, name, phone, email, address, membership_status, branch_id, tenant_id, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
             """)
             val id = customer.id ?: UUID.randomUUID().toString()
             stmt.setString(1, id)
             stmt.setString(2, customer.name)
-            stmt.setString(3, customer.phone)
-            stmt.setString(4, customer.email)
+            stmt.setString(3, encryptColumn(customer.phone))
+            stmt.setString(4, encryptColumn(customer.email))
+            stmt.setString(5, encryptColumn(customer.address))
+            stmt.setString(6, customer.membershipStatus)
+            stmt.setString(7, customer.branchId)
+            stmt.setString(8, null)
             stmt.execute()
 
             if (!fromSync) queueSync("customers", id, "UPDATE")
@@ -1016,18 +1125,21 @@ object LocalDatabase {
         }
     }
 
-    fun getCustomers(): List<CustomerDto> {
+    fun getCustomers(offset: Int = 0, limit: Int = 100): List<CustomerDto> {
         val conn = connection ?: return emptyList()
         val list = mutableListOf<CustomerDto>()
         try {
-            val rs = conn.createStatement().executeQuery("SELECT * FROM customers")
+            val stmt = conn.prepareStatement("SELECT * FROM customers ORDER BY updated_at DESC LIMIT ? OFFSET ?")
+            stmt.setInt(1, if (limit > 0) limit else 100)
+            stmt.setInt(2, if (offset >= 0) offset else 0)
+            val rs = stmt.executeQuery()
             while (rs.next()) {
                 list.add(CustomerDto(
                     id = rs.getString("id"),
                     name = rs.getString("name") ?: "",
-                    phone = rs.getString("phone") ?: "",
-                    email = rs.getString("email"),
-                    address = rs.getString("address"),
+                    phone = decryptColumn(rs.getString("phone")) ?: "",
+                    email = decryptColumn(rs.getString("email")),
+                    address = decryptColumn(rs.getString("address")),
                     membershipStatus = rs.getString("membership_status") ?: "ACTIVE",
                     branchId = rs.getString("branch_id")
                 ))
@@ -1048,9 +1160,9 @@ object LocalDatabase {
                 return CustomerDto(
                     id = rs.getString("id"),
                     name = rs.getString("name") ?: "",
-                    phone = rs.getString("phone") ?: "",
-                    email = rs.getString("email"),
-                    address = rs.getString("address"),
+                    phone = decryptColumn(rs.getString("phone")) ?: "",
+                    email = decryptColumn(rs.getString("email")),
+                    address = decryptColumn(rs.getString("address")),
                     membershipStatus = rs.getString("membership_status") ?: "ACTIVE",
                     branchId = rs.getString("branch_id")
                 )

@@ -1,6 +1,7 @@
 package com.example.barandgrillownerpanel.utils
 
 import kotlinx.coroutines.delay
+import kotlin.random.Random
 import java.io.IOException
 
 object NetworkUtils {
@@ -28,8 +29,9 @@ object NetworkUtils {
                     throw e
                 }
                 
-                Logger.warn(tag, "Attempt ${attempt + 1} failed: ${e.message}. Retrying in ${currentDelay}ms...")
-                delay(currentDelay)
+                val delayMillis = Random.nextLong(currentDelay / 2, currentDelay + 1)
+                Logger.warn(tag, "Attempt ${attempt + 1} failed: ${e.message}. Retrying in ${delayMillis}ms...")
+                delay(delayMillis)
                 currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelayMillis)
             }
         }

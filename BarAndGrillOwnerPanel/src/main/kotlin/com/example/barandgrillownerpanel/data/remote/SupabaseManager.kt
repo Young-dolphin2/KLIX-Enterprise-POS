@@ -12,13 +12,13 @@ object SupabaseManager {
      * Configuration precedence:
      * 1) JVM system properties: -Dsupabase.url / -Dsupabase.key
      * 2) Environment variables: SUPABASE_URL / SUPABASE_ANON_KEY (or SUPABASE_KEY)
-     * 3) Fallback defaults (useful for local dev)
+     *
+     * No embedded defaults are allowed; the app will fail fast if values are missing.
      */
     private val supabaseUrl: String by lazy {
         firstNonBlank(
             System.getProperty("supabase.url"),
-            System.getenv("SUPABASE_URL"),
-            "https://lwmbdrlogcordhubxbgy.supabase.co"
+            System.getenv("SUPABASE_URL")
         )
     }
 
@@ -26,8 +26,7 @@ object SupabaseManager {
         firstNonBlank(
             System.getProperty("supabase.key"),
             System.getenv("SUPABASE_ANON_KEY"),
-            System.getenv("SUPABASE_KEY"),
-            "sb_publishable_OAKmRF3LaW8dZYI-QUMkHA_eTbtlSqH"
+            System.getenv("SUPABASE_KEY")
         )
     }
 

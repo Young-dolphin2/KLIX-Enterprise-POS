@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.example.barandgrillownerpanel.ui.theme.*
 import com.example.barandgrillownerpanel.models.*
 import com.example.barandgrillownerpanel.data.remote.SupabaseManager
+import com.example.barandgrillownerpanel.utils.Logger
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.storage
@@ -202,7 +203,9 @@ fun BusinessProfileSection(
                                     onSettingsChange(settings.copy(companyLogoUrl = url))
                                 }
                             }
-                        } catch (e: Exception) { e.printStackTrace() }
+                        } catch (e: Exception) {
+                            Logger.error("SETTINGS", "Logo upload failed", e)
+                        }
                     }
                 }, colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange)) {
                     Text("Upload Logo", color = DarkBackground, fontWeight = FontWeight.Bold)
@@ -271,7 +274,9 @@ fun BusinessProfileSection(
                                 com.example.barandgrillownerpanel.data.remote.SupabaseManager.client.postgrest["branches"]
                                     .delete { filter { eq("id", branch.id ?: "") } }
                                 onBranchesChange(branches.filter { it.id != branch.id })
-                            } catch (e: Exception) { e.printStackTrace() }
+                            } catch (e: Exception) {
+                                Logger.error("SETTINGS", "Failed to delete branch", e)
+                            }
                         }
                     }) {
                         Icon(Icons.Default.Delete, null, tint = ErrorRed, modifier = Modifier.size(18.dp))
@@ -293,7 +298,9 @@ fun BusinessProfileSection(
                             put("business_name", settings.businessName)
                         }
                     }
-                } catch (e: Exception) { e.printStackTrace() } finally {
+                } catch (e: Exception) {
+                    Logger.error("SETTINGS", "Failed to save profile changes", e)
+                } finally {
                     isSavingProfile = false
                 }
             }
