@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.barandgrillownerpanel.ui.auth
 
 import androidx.compose.foundation.Canvas
@@ -28,9 +30,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.barandgrillownerpanel.data.remote.SupabaseManager
+import com.example.barandgrillownerpanel.utils.Logger
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import kotlinx.coroutines.launch
@@ -59,7 +63,7 @@ fun SignUpScreen(
             horizontalAlignment = Alignment.Start
         ) {
                 Image(
-                    painter = androidx.compose.ui.res.painterResource("icon_klix.png"),
+                    painter = painterResource("icon_klix.png"),
                     contentDescription = "KLIX Logo",
                     modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)).align(Alignment.End)
                 )
@@ -148,7 +152,7 @@ fun SignUpScreen(
                                     }
                                     onSignUpSuccess()
                                 } catch (e: Exception) {
-                                    e.printStackTrace()
+                                    Logger.error("SIGNUP", "Sign up failed", e)
                                     errorMessage = "Sign up failed: ${e.message}"
                                 } finally {
                                     isLoading = false

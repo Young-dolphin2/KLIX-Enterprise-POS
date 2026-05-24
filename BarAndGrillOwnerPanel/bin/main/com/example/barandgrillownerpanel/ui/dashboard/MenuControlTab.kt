@@ -750,7 +750,9 @@ fun MenuControlTab(
                                         com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
                                             .postgrest["categories"]
                                             .insert(com.example.barandgrillownerpanel.models.CategoryInsertDto(name = sub, parentName = selectedCategory))
-                                    } catch (e: Exception) { e.printStackTrace() }
+                                    } catch (e: Exception) {
+                                        com.example.barandgrillownerpanel.utils.Logger.error("MENU_CONTROL", "Failed creating new subcategory", e)
+                                    }
                                 }
                             }
                             selectedSubcategory = sub

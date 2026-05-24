@@ -20,7 +20,6 @@ import com.example.barandgrillownerpanel.ui.dashboard.AppSettings
 import com.example.barandgrillownerpanel.data.local.LocalDatabase
 import com.example.barandgrillownerpanel.ui.theme.PrimaryOrange
 import kotlinx.coroutines.delay
-import java.util.prefs.Preferences
 import kotlinx.serialization.json.Json
 
 enum class AppState {
@@ -36,27 +35,10 @@ fun MainApp() {
         LocalDatabase.initialize()
         delay(4000) // 4-second splash with animations
 
-        val prefs = Preferences.userRoot().node("com.example.barandgrillownerpanel")
-        val onboarded = prefs.getBoolean("is_onboarded", false)
-
-        if (onboarded) {
-            val localSettings = LocalDatabase.getAppSettings()
-            if (localSettings != null) {
-                appSettings = localSettings
-                currentState = AppState.DASHBOARD
-            } else {
-                val settingsJson = prefs.get("app_settings", null)
-                if (settingsJson != null) {
-                    try {
-                        appSettings = Json.decodeFromString(settingsJson)
-                        currentState = AppState.DASHBOARD
-                    } catch (e: Exception) {
-                        currentState = AppState.WELCOME
-                    }
-                } else {
-                    currentState = AppState.WELCOME
-                }
-            }
+        val localSettings = LocalDatabase.getAppSettings()
+        if (localSettings != null) {
+            appSettings = localSettings
+            currentState = AppState.DASHBOARD
         } else {
             currentState = AppState.WELCOME
         }
@@ -109,9 +91,9 @@ fun MainApp() {
                             )
                             AppState.LOGIN -> LoginScreen(
                                 funOnLoginSuccess = {
-                                    val prefs = Preferences.userRoot().node("com.example.barandgrillownerpanel")
-                                    if (prefs.getBoolean("is_onboarded", false)) {
-                                        appSettings = LocalDatabase.getAppSettings()
+                                    val localSettings = LocalDatabase.getAppSettings()
+                                    if (localSettings != null) {
+                                        appSettings = localSettings
                                         currentState = AppState.DASHBOARD
                                     } else {
                                         currentState = AppState.ONBOARDING

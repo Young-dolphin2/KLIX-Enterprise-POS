@@ -670,7 +670,7 @@ fun EmployeesSection(branches: List<BranchDto> = emptyList()) {
             employees.clear()
             employees.addAll(list)
         } catch (e: Exception) {
-            e.printStackTrace()
+            com.example.barandgrillownerpanel.utils.Logger.error("SETTINGS", "Failed loading employee list", e)
         } finally {
             isLoading = false
         }
@@ -782,7 +782,7 @@ fun EmployeesSection(branches: List<BranchDto> = emptyList()) {
                                     .delete { filter { eq("id", employee.id!!) } }
                                 employees.remove(employee)
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                com.example.barandgrillownerpanel.utils.Logger.error("SETTINGS", "Failed deleting employee", e)
                             }
                         }
                     })
@@ -957,7 +957,7 @@ fun EmployeesSection(branches: List<BranchDto> = emptyList()) {
                                     showAddDialog = false
                                     newName = ""; newRole = ""; newPin = ""; selectedParentBranch = null; selectedSubBranch = null
                                 } catch (e: Exception) {
-                                    e.printStackTrace()
+                                    com.example.barandgrillownerpanel.utils.Logger.error("SETTINGS", "Failed adding new employee", e)
                                 }
                             }
                         }
@@ -1044,7 +1044,9 @@ fun SecuritySection(settings: AppSettings, onSettingsChange: (AppSettings) -> Un
                     GlobalScope.launch {
                         try {
                             SupabaseManager.client.auth.updateUser { password = newOwnerPassword }
-                        } catch (e: Exception) { e.printStackTrace() } finally {
+                        } catch (e: Exception) {
+                            com.example.barandgrillownerpanel.utils.Logger.error("SETTINGS", "Failed updating owner password", e)
+                        } finally {
                             isUpdatingPassword = false
                             newOwnerPassword = ""
                         }

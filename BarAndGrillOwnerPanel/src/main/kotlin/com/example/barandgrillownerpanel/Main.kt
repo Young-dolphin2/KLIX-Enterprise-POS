@@ -1,8 +1,11 @@
+@file:Suppress("SpellCheckingInspection", "DEPRECATION")
+
 package com.example.barandgrillownerpanel
 
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import com.example.barandgrillownerpanel.ui.theme.BarAndGrillPOSTheme
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowState
 import com.example.barandgrillownerpanel.ui.main.MainApp

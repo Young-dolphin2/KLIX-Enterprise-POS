@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.barandgrillownerpanel.ui.dashboard
 
 import androidx.compose.foundation.Image
@@ -787,7 +789,9 @@ fun DashboardScreen(
                                             newItemName = null,
                                             inventoryItems = inventoryItems
                                         )
-                                    } catch (e: Exception) { e.printStackTrace() }
+                                    } catch (e: Exception) {
+                                        com.example.barandgrillownerpanel.utils.Logger.error("DASHBOARD", "Failed updating menu item price", e)
+                                    }
                                 }
                             },
                             onDeleteItem = { item: DesktopMenuItem ->
@@ -798,7 +802,9 @@ fun DashboardScreen(
                                             .update({ set("is_active", false) }) {
                                                 filter { eq("id", item.id) }
                                             }
-                                    } catch (e: Exception) { e.printStackTrace() }
+                                    } catch (e: Exception) {
+                                        com.example.barandgrillownerpanel.utils.Logger.error("DASHBOARD", "Failed deactivating menu item", e)
+                                    }
                                 }
                             }
                         )
@@ -825,7 +831,9 @@ fun DashboardScreen(
                                             .decodeSingle<CreditDto>()
                                         val isCurrentBranch = selectedBranch == null || newRecord.branchId == selectedBranch?.id
                                         if (isCurrentBranch) credits.add(0, newRecord)
-                                    } catch (e: Exception) { e.printStackTrace() }
+                                    } catch (e: Exception) {
+                                        com.example.barandgrillownerpanel.utils.Logger.error("DASHBOARD", "Failed creating credit entry", e)
+                                    }
                                 }
                             },
                             onSaveInventoryCredit = { submission: CreditInventorySubmission ->
@@ -959,7 +967,9 @@ fun DashboardScreen(
                                                 settledAt = java.time.OffsetDateTime.now().toString()
                                             )
                                         }
-                                    } catch (e: Exception) { e.printStackTrace() }
+                                    } catch (e: Exception) {
+                                        com.example.barandgrillownerpanel.utils.Logger.error("DASHBOARD", "Failed settling credit", e)
+                                    }
                                 }
                             }
                         )

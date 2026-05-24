@@ -1073,7 +1073,7 @@ fun InventoryTab(
                                         }
                                     }
                             } catch(e: Exception) {
-                                e.printStackTrace()
+                                com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Failed updating inventory item record", e)
                                 allInventoryItems[index] = currentItem
                             }
                          }
@@ -1134,7 +1134,7 @@ fun InventoryTab(
                             menuItems = menuItems
                         )
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Failed syncing retail price update", e)
                         allInventoryItems[index] = currentItem
                     }
                 }
@@ -1204,7 +1204,9 @@ fun InventoryTab(
                                 currentStock = newStock
                             )
                         }
-                    } catch (e: Exception) { e.printStackTrace() }
+                    } catch (e: Exception) {
+                        com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Failed updating asset rent status", e)
+                    }
                 }
                 showRentDialog = null
             }
@@ -2314,7 +2316,9 @@ private fun RentAssetDialog(
                             }
                         }
                     }.decodeAs<List<CustomerDto>>()
-            } catch (e: Exception) { e.printStackTrace() }
+            } catch (e: Exception) {
+                com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Failed loading customer search results", e)
+            }
             isLoading = false
         }
     }

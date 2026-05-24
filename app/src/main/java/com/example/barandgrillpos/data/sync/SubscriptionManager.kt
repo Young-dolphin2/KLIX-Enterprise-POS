@@ -1,6 +1,7 @@
 package com.example.barandgrillpos.data.sync
 
 import com.example.barandgrillpos.data.remote.SupabaseManager
+import com.example.barandgrillpos.utils.AppLogger
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -71,7 +72,7 @@ object SubscriptionManager {
                 else -> SubscriptionInfo(SubscriptionStatus.NONE)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.e("SubscriptionManager", "Subscription status fetch failed", e)
             SubscriptionInfo(SubscriptionStatus.ERROR)
         }
     }

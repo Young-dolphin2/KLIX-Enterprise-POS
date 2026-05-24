@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import com.example.barandgrillpos.data.remote.SupabaseManager
+import com.example.barandgrillpos.utils.AppLogger
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 
@@ -138,7 +139,7 @@ fun LoginScreen(
                             }
                             onLoginSuccess()
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            AppLogger.e("LoginScreen", "Login failed", e)
                             errorMessage = "Login failed: ${e.message}"
                         } finally {
                             isLoading = false

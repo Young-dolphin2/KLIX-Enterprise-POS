@@ -142,7 +142,7 @@ object SettingsRepository {
             settings = settings,
             phone = "",
             country = settings.country,
-            currencyCode = settings.currencySymbol,
+            currencyCode = settings.currencyCode,
             isOnboarded = true
         )
         Logger.info(TAG, "Settings saved to local database")

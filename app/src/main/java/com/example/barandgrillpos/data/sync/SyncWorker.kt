@@ -11,6 +11,7 @@ import com.example.barandgrillpos.data.remote.dto.SaleDto
 import com.example.barandgrillpos.data.remote.dto.SaleItemDto
 import com.example.barandgrillpos.models.BranchRef
 import com.example.barandgrillpos.models.OrderItem
+import com.example.barandgrillpos.utils.AppLogger
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.rpc
 import kotlinx.serialization.Serializable
@@ -29,7 +30,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
     override suspend fun doWork(): Result {
         if (runAttemptCount >= 3) {
             // Stop retrying after 3 failed attempts to prevent infinite loops
-            println("SYNC: SyncWorker failed after $runAttemptCount attempts. Stopping retries.")
+            AppLogger.w("SyncWorker", "SyncWorker failed after $runAttemptCount attempts. Stopping retries.")
             return Result.failure()
         }
 
@@ -47,7 +48,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
                 .decodeAs<List<BranchRef>>()
                 .firstOrNull()?.id
         } catch (e: Exception) {
-            e.printStackTrace()
+            AppLogger.e("SyncWorker", "Failed to resolve branch ID", e)
             null
         }
 
@@ -121,7 +122,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
                                             put("b_id", saleEntity.branchId ?: resolvedBranchId)
                                         }
                                     )
-                                } catch (e: Exception) { e.printStackTrace() }
+                                } catch (e: Exception) { AppLogger.e("SyncWorker", "Failed to deduct inventory (ingredient path)", e) }
                             }
                         } else {
                             try {
@@ -134,7 +135,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
                                     }
                                 )
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                AppLogger.e("SyncWorker", "Failed to deduct inventory", e)
                             }
                         }
                     }
@@ -143,7 +144,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
                 saleDao.markAsSynced(saleEntity.id)
                 saleDao.removeFromSyncQueue(entry)
             } catch (e: Exception) {
-                e.printStackTrace()
+                AppLogger.e("SyncWorker", "Failed to sync sale entry", e)
                 // Don't return Result.retry() here, continue with other sales/expenses
             }
         }
@@ -227,7 +228,7 @@ class SyncWorker(appContext: Context, workerParams: WorkerParameters) : Coroutin
                 database.cacheDao().upsertCustomers(customerEntities)
 
             } catch (e: Exception) {
-                e.printStackTrace()
+                AppLogger.e("SyncWorker", "Failed to refresh remote menu/inventory/customers", e)
             }
         }
 

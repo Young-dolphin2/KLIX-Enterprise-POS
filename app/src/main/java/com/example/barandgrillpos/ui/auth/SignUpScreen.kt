@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import com.example.barandgrillpos.data.remote.SupabaseManager
+import com.example.barandgrillpos.utils.AppLogger
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.postgrest
@@ -143,7 +144,7 @@ fun SignUpScreen(
                                     buildJsonObject { put("name", "Main Branch") }
                                 )
                             } catch (e: Exception) {
-                                e.printStackTrace() // Ignore if already exists or fails
+                                AppLogger.w("SignUpScreen", "Branch initialization failed, ignoring", e)
                             }
 
                             // Initialize Tenant Sandbox: Create default Owner Profile
@@ -156,12 +157,12 @@ fun SignUpScreen(
                                     }
                                 )
                             } catch (e: Exception) {
-                                e.printStackTrace() // Ignore
+                                AppLogger.w("SignUpScreen", "Owner profile initialization failed, ignoring", e)
                             }
 
                             onSignUpSuccess()
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            AppLogger.e("SignUpScreen", "Signup failed", e)
                             errorMessage = "Sign up failed: ${e.message}"
                         } finally {
                             isLoading = false

@@ -62,8 +62,26 @@ object PdfReportService {
         yPosition -= 10f
 
         // Data rows
-        val metrics = data["metrics"] as? Map<String, Double> ?: emptyMap()
-        val items = data["items"] as? List<Map<String, Any>> ?: emptyList()
+        val metrics = (data["metrics"] as? Map<*, *>)
+            ?.mapNotNull { (key, value) ->
+                val label = key as? String ?: return@mapNotNull null
+                val amount = when (value) {
+                    is Number -> value.toDouble()
+                    is String -> value.toDoubleOrNull()
+                    else -> null
+                }
+                amount?.let { label to it }
+            }
+            ?.toMap() ?: emptyMap()
+
+        val items = (data["items"] as? List<*>)
+            ?.mapNotNull { item ->
+                @Suppress("UNCHECKED_CAST")
+                (item as? Map<*, *>)?.mapNotNull { (itemKey, itemValue) ->
+                    val key = itemKey as? String ?: return@mapNotNull null
+                    key to itemValue
+                }?.toMap() as? Map<String, Any>
+            } ?: emptyList()
         
         metrics.forEach { (label, value) ->
             write("$label: ${String.format("%.2f", value)} MK", fontNormal, 12f)

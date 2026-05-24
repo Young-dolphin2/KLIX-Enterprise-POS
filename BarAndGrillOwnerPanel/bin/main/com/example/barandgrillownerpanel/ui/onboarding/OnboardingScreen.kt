@@ -29,7 +29,6 @@ import com.example.barandgrillownerpanel.ui.theme.PrimaryOrange
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
-import java.util.prefs.Preferences
 import kotlinx.serialization.encodeToString
 
 enum class OnboardingStep {
@@ -162,11 +161,6 @@ fun OnboardingScreen(onComplete: () -> Unit) {
                                         isOnboarded = true
                                     )
 
-                                    // 3. Save to Preferences for legacy support
-                                    val prefs = Preferences.userRoot().node("com.example.barandgrillownerpanel")
-                                    prefs.putBoolean("is_onboarded", true)
-                                    prefs.put("app_settings", kotlinx.serialization.json.Json.encodeToString(finalSettings))
-                                    
                                     onComplete()
                                 } catch (e: Exception) {
                                     com.example.barandgrillownerpanel.utils.Logger.error("ONBOARDING", "Onboarding exception", e)

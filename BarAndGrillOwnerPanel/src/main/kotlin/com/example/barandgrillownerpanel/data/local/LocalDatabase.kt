@@ -178,10 +178,29 @@ object LocalDatabase {
                     phone_number TEXT,
                     payment_methods_json TEXT,
                     primary_color_hex TEXT DEFAULT '#FF5722',
+                    admin_pin TEXT DEFAULT '0000',
+                    manager_pin TEXT DEFAULT '1234',
+                    lock_timeout_minutes INTEGER DEFAULT 0,
                     is_onboarded INTEGER DEFAULT 0,
                     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
                 )
             """)
+
+            // Add missing app_settings columns from older schema versions.
+            val columns = conn.createStatement().executeQuery("PRAGMA table_info(app_settings)")
+            val existingColumns = mutableSetOf<String>()
+            while (columns.next()) {
+                existingColumns.add(columns.getString("name"))
+            }
+            if ("admin_pin" !in existingColumns) {
+                execute("ALTER TABLE app_settings ADD COLUMN admin_pin TEXT DEFAULT '0000'")
+            }
+            if ("manager_pin" !in existingColumns) {
+                execute("ALTER TABLE app_settings ADD COLUMN manager_pin TEXT DEFAULT '1234'")
+            }
+            if ("lock_timeout_minutes" !in existingColumns) {
+                execute("ALTER TABLE app_settings ADD COLUMN lock_timeout_minutes INTEGER DEFAULT 0")
+            }
 
             // Branches
             execute("""
@@ -422,8 +441,8 @@ object LocalDatabase {
             val stmt = conn.prepareStatement("""
                 INSERT OR REPLACE INTO app_settings (
                     id, business_name, country, currency_symbol, currency_code, 
-                    phone_number, payment_methods_json, primary_color_hex, is_onboarded, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+                    phone_number, payment_methods_json, primary_color_hex, admin_pin, manager_pin, lock_timeout_minutes, is_onboarded, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
             """)
             stmt.setString(1, "singleton")
             stmt.setString(2, settings.businessName)
@@ -433,7 +452,10 @@ object LocalDatabase {
             stmt.setString(6, encryptColumn(phone))
             stmt.setString(7, kotlinx.serialization.json.Json.encodeToString(settings.paymentMethods))
             stmt.setString(8, settings.primaryColorHex)
-            stmt.setInt(9, if (isOnboarded) 1 else 0)
+            stmt.setString(9, settings.adminPin)
+            stmt.setString(10, settings.managerPin)
+            stmt.setInt(11, settings.lockTimeoutMinutes)
+            stmt.setInt(12, if (isOnboarded) 1 else 0)
             stmt.execute()
             
             queueSync("app_settings", "singleton", "UPDATE")
@@ -459,7 +481,10 @@ object LocalDatabase {
                     currencyCode = rs.getString("currency_code") ?: "USD",
                     phoneNumber = decryptColumn(rs.getString("phone_number")) ?: "",
                     primaryColorHex = rs.getString("primary_color_hex") ?: "#FF5722",
-                    paymentMethods = methods
+                    paymentMethods = methods,
+                    adminPin = rs.getString("admin_pin") ?: "0000",
+                    managerPin = rs.getString("manager_pin") ?: "1234",
+                    lockTimeoutMinutes = rs.getInt("lock_timeout_minutes")
                 )
             }
         } catch (e: Exception) {

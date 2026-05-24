@@ -18,6 +18,7 @@ import android.net.Network
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+import com.example.barandgrillpos.utils.AppLogger
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -79,6 +80,10 @@ import kotlinx.serialization.json.put
 import com.dantsu.escposprinter.EscPosPrinter
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class MainActivity : ComponentActivity() {
@@ -188,7 +193,9 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-                    } catch (e: Exception) { e.printStackTrace() }
+                    } catch (e: Exception) {
+                        AppLogger.e("MainActivity", "Failed retrieving user session metadata", e)
+                    }
                 }
             }
 
@@ -260,7 +267,9 @@ class MainActivity : ComponentActivity() {
                         appBranchType = currentBranch?.type ?: "RETAIL"
                         childBranchIds = fetched.filter { it.parentId == resolvedId }.map { it.id }
                         appBranchId = resolvedId
-                    } catch (e: Exception) { e.printStackTrace() }
+                    } catch (e: Exception) {
+                        AppLogger.e("MainActivity", "Failed loading branch list", e)
+                    }
                 }
 
                 LaunchedEffect(sessionStatus) {
@@ -419,7 +428,9 @@ class MainActivity : ComponentActivity() {
                                                     )
                                                 )
                                                 SyncManager.startImmediateSync(this@MainActivity)
-                                            } catch (e: Exception) { e.printStackTrace() }
+                                            } catch (e: Exception) {
+                                                AppLogger.e("MainActivity", "Failed queuing sale for sync", e)
+                                            }
                                         }
                                     }
                                 )
@@ -776,7 +787,7 @@ fun POSScreen(
                     Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
                         Text("Current Order", fontWeight = FontWeight.Bold, color = TextPrimary, fontSize = 16.sp)
                         Spacer(Modifier.height(8.dp))
-                        Divider(color = CharcoalGray)
+                        HorizontalDivider(color = CharcoalGray)
                         Spacer(Modifier.height(8.dp))
                         LazyColumn(modifier = Modifier.weight(1f)) {
                             items(orderItems, key = { it.item.id }) { orderItem ->
@@ -796,7 +807,7 @@ fun POSScreen(
                             }
                         }
                         Spacer(Modifier.height(8.dp))
-                        Divider(color = CharcoalGray)
+                        HorizontalDivider(color = CharcoalGray)
                         Spacer(Modifier.height(8.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("TOTAL", color = TextSecondary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
@@ -1007,8 +1018,7 @@ suspend fun printThermalReceipt(context: Context, orderItems: List<OrderItem>, t
 
 fun buildReceiptText(orderItems: List<OrderItem>, total: Double): String {
     val sb = StringBuilder()
-    val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-    val currentDate = sdf.format(Date())
+    val currentDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
     sb.append("[C]<font size='big'>${BuildConfig.STORE_NAME}</font>\n")
     sb.append("[C]--------------------------------\n")
     sb.append("[C]Date: $currentDate\n")
@@ -1115,7 +1125,7 @@ fun MobileRentAssetDialog(
 
                             onComplete()
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            AppLogger.e("MainActivity", "Asset history submission failed", e)
                         } finally {
                             isProcessing = false
                         }
@@ -1254,9 +1264,15 @@ fun CustomerMembershipCard(customer: CustomerEntity) {
                 }
                 
                 customer.membershipExpiry?.let {
-                    val df = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+                    val expiryMillis = it.toLongOrNull() ?: try {
+                        Instant.parse(it).toEpochMilli()
+                    } catch (_: Exception) {
+                        0L
+                    }
+                    val expiryDate = Instant.ofEpochMilli(expiryMillis).atZone(ZoneId.systemDefault())
+                    val df = DateTimeFormatter.ofPattern("dd MMM yyyy")
                     Text(
-                        "Exp: ${df.format(Date(it))}",
+                        "Exp: ${expiryDate.format(df)}",
                         color = TextSecondary,
                         fontSize = 10.sp,
                         modifier = Modifier.padding(top = 4.dp)

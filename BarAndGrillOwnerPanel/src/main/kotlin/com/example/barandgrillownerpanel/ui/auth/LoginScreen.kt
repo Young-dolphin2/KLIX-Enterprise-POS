@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.barandgrillownerpanel.ui.auth
 
 import androidx.compose.foundation.Canvas
@@ -27,6 +29,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.barandgrillownerpanel.data.remote.SupabaseManager
@@ -63,7 +66,7 @@ fun LoginScreen(
             horizontalAlignment = Alignment.Start
         ) {
                 Image(
-                    painter = androidx.compose.ui.res.painterResource("icon_klix.png"),
+                    painter = painterResource("icon_klix.png"),
                     contentDescription = "KLIX Logo",
                     modifier = Modifier.size(48.dp).clip(RoundedCornerShape(8.dp)).align(Alignment.End)
                 )
@@ -211,9 +214,9 @@ fun LoginScreen(
 
                 // Or continue with
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                    Divider(modifier = Modifier.weight(1f), color = Color(0xFF334155))
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFF334155))
                     Text("Or continue with", color = Color(0xFF94A3B8), fontSize = 14.sp, modifier = Modifier.padding(horizontal = 16.dp))
-                    Divider(modifier = Modifier.weight(1f), color = Color(0xFF334155))
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFF334155))
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
