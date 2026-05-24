@@ -3,6 +3,7 @@ package com.example.barandgrillownerpanel.data.export
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.PDPage
 import org.apache.pdfbox.pdmodel.PDPageContentStream
+import org.apache.pdfbox.pdmodel.common.PDRectangle
 import org.apache.pdfbox.pdmodel.font.PDType1Font
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts
 import java.io.FileOutputStream
@@ -10,6 +11,11 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 object PdfReportService {
+    private const val PAGE_HEIGHT = 800f
+    private const val MARGIN = 50f
+    private const val FOOTER_Y = 40f
+    private var currentPage = 0
+    private var yPosition = 750f
 
     fun generateReport(
         filePath: String,
@@ -19,73 +25,93 @@ object PdfReportService {
         data: Map<String, Any>
     ) {
         val document = PDDocument()
-        val page = PDPage()
-        document.addPage(page)
-
+        currentPage = 0
+        yPosition = 750f
+        
+        addNewPage(document)
+        
         val fontBold = PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD)
         val fontNormal = PDType1Font(Standard14Fonts.FontName.HELVETICA)
+        
+        var contentStream = PDPageContentStream(document, document.getPage(currentPage))
 
-        PDPageContentStream(document, page).use { contentStream ->
-            var yPosition = 750f
-
-            // Header
-            contentStream.beginText()
-            contentStream.setFont(fontBold, 20f)
-            contentStream.newLineAtOffset(50f, yPosition)
-            contentStream.showText("KLIX ENTERPRISE POS")
-            contentStream.endText()
-            yPosition -= 30f
-
-            contentStream.beginText()
-            contentStream.setFont(fontBold, 16f)
-            contentStream.newLineAtOffset(50f, yPosition)
-            contentStream.showText(type.label)
-            contentStream.endText()
-            yPosition -= 20f
-
-            contentStream.beginText()
-            contentStream.setFont(fontNormal, 12f)
-            contentStream.newLineAtOffset(50f, yPosition)
-            contentStream.showText("Business: $businessName")
-            contentStream.endText()
-            yPosition -= 15f
-
-            contentStream.beginText()
-            contentStream.setFont(fontNormal, 12f)
-            contentStream.newLineAtOffset(50f, yPosition)
-            contentStream.showText("Period: ${period.label}")
-            contentStream.endText()
-            yPosition -= 15f
-
-            contentStream.beginText()
-            contentStream.setFont(fontNormal, 10f)
-            contentStream.newLineAtOffset(50f, yPosition)
-            contentStream.showText("Generated: ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))}")
-            contentStream.endText()
-            yPosition -= 40f
-
-            // Simple Content rendering
-            contentStream.beginText()
-            contentStream.setFont(fontBold, 14f)
-            contentStream.newLineAtOffset(50f, yPosition)
-            contentStream.showText("Financial Summary")
-            contentStream.endText()
-            yPosition -= 25f
-
-            val metrics = data["metrics"] as? Map<String, Double> ?: emptyMap()
-            metrics.forEach { (label, value) ->
-                contentStream.beginText()
-                contentStream.setFont(fontNormal, 12f)
-                contentStream.newLineAtOffset(50f, yPosition)
-                contentStream.showText("$label: ${String.format("%.2f", value)} MK")
+        fun write(text: String, font: PDType1Font, size: Float) {
+            if (yPosition < FOOTER_Y) {
                 contentStream.endText()
-                yPosition -= 20f
-                
-                if (yPosition < 50) return@forEach
+                contentStream.close()
+                addNewPage(document)
+                contentStream = PDPageContentStream(document, document.getPage(currentPage))
+                yPosition = 750f
+            }
+            contentStream.beginText()
+            contentStream.setFont(font, size)
+            contentStream.newLineAtOffset(MARGIN, yPosition)
+            contentStream.showText(text)
+            contentStream.endText()
+            yPosition -= (size + 8f)
+        }
+
+        // Header
+        write("KLIX ENTERPRISE POS", fontBold, 20f)
+        write(type.label, fontBold, 16f)
+        write("Business: $businessName", fontNormal, 12f)
+        write("Period: ${period.label}", fontNormal, 12f)
+        write("Generated: ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))}", fontNormal, 10f)
+        yPosition -= 20f
+        write("Financial Summary", fontBold, 14f)
+        yPosition -= 10f
+
+        // Data rows
+        val metrics = data["metrics"] as? Map<String, Double> ?: emptyMap()
+        val items = data["items"] as? List<Map<String, Any>> ?: emptyList()
+        
+        metrics.forEach { (label, value) ->
+            write("$label: ${String.format("%.2f", value)} MK", fontNormal, 12f)
+        }
+
+        // Detail section
+        if (items.isNotEmpty()) {
+            yPosition -= 15f
+            write("Details", fontBold, 14f)
+            yPosition -= 5f
+            
+            // Column headers
+            write("Item                          Amount       Date", fontBold, 11f)
+            yPosition -= 3f
+            write("─".repeat(60), fontNormal, 10f)
+            
+            items.forEach { item ->
+                val name = (item["name"] as? String ?: "").take(25)
+                val amount = when (val a = item["amount"]) {
+                    is Double -> String.format("%.2f", a)
+                    is Number -> String.format("%.2f", a.toDouble())
+                    else -> "0.00"
+                }
+                val date = item["date"] as? String ?: ""
+                write("$name${" ".repeat(25 - name.length)}$amount${" ".repeat(12 - amount.length)}$date", fontNormal, 10f)
             }
         }
 
+        // Footer
+        if (yPosition < FOOTER_Y) {
+            contentStream.endText()
+            contentStream.close()
+            addNewPage(document)
+            contentStream = PDPageContentStream(document, document.getPage(currentPage))
+            yPosition = 750f
+        }
+        write("Report generated by KLIX POS System", fontNormal, 8f)
+
+        contentStream.endText()
+        contentStream.close()
         document.save(FileOutputStream(filePath))
         document.close()
+    }
+
+    private fun addNewPage(document: PDDocument) {
+        val page = PDPage(PDRectangle.A4)
+        document.addPage(page)
+        currentPage = document.numberOfPages - 1
+        yPosition = 750f
     }
 }
