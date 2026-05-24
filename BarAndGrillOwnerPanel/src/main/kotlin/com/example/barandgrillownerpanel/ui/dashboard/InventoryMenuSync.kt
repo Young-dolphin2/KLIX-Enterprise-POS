@@ -119,7 +119,7 @@ suspend fun insertInventoryWithCloneBranchesAndMenu(
                 .decodeAs<List<InventoryItemDto>>()
             allCreatedDtos.addAll(insertedClones)
         } catch (e: Exception) {
-            e.printStackTrace()
+            com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY_SYNC", "Inventory sync error", e)
         }
     }
 
@@ -160,7 +160,7 @@ suspend fun insertInventoryWithCloneBranchesAndMenu(
                 }
                 if (idx >= 0) menuItems[idx] = desktop else menuItems.add(desktop)
             } catch (e: Exception) {
-                e.printStackTrace()
+                com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY_SYNC", "Inventory sync worker error", e)
             }
         }
 
@@ -277,7 +277,7 @@ suspend fun syncBar1ToBar2(
             }
         }
     } catch (e: Exception) {
-        e.printStackTrace()
+        com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY_SYNC", "Inventory full sync failed", e)
     }
 }
 

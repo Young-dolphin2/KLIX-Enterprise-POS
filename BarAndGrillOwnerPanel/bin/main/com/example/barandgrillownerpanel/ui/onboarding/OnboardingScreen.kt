@@ -169,7 +169,7 @@ fun OnboardingScreen(onComplete: () -> Unit) {
                                     
                                     onComplete()
                                 } catch (e: Exception) {
-                                    e.printStackTrace()
+                                    com.example.barandgrillownerpanel.utils.Logger.error("ONBOARDING", "Onboarding exception", e)
                                     errorMessage = e.message ?: "An unknown error occurred during finalization."
                                     currentStep = OnboardingStep.BRANCH
                                 }

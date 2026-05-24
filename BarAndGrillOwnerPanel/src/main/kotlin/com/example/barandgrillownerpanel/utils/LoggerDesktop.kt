@@ -56,8 +56,13 @@ object Logger {
             LogLevel.ERROR, LogLevel.FATAL -> "\u001B[31m"
         }
         val reset = "\u001B[0m"
-        println("$color[${level.name}] [$tag] $message$reset")
-        throwable?.printStackTrace()
+        val redactedMessage = redact(message)
+        val stack = truncateStackTrace(throwable)
+        if (stack != null) {
+            println("$color[${level.name}] [$tag] $redactedMessage\n$stack$reset")
+        } else {
+            println("$color[${level.name}] [$tag] $redactedMessage$reset")
+        }
 
         if (!isRemoteLoggingEnabled) return
 

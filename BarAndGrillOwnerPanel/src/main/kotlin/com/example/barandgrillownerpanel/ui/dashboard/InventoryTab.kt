@@ -481,7 +481,7 @@ fun InventoryTab(
                                                                 newItemCategory = customCategories.firstOrNull() ?: ""
                                                                 newItemSubcategory = customSubcategories[newItemCategory]?.firstOrNull() ?: ""
                                                             }
-                                                        } catch (e: Exception) { e.printStackTrace() }
+                                                        } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Inventory load failed", e) }
                                                     }
                                                 },
                                                 modifier = Modifier.size(24.dp)
@@ -558,7 +558,7 @@ fun InventoryTab(
                                                                 if (newItemSubcategory == sub) {
                                                                     newItemSubcategory = subsList?.firstOrNull() ?: ""
                                                                 }
-                                                            } catch (e: Exception) { e.printStackTrace() }
+                                                            } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Inventory action failed", e) }
                                                         }
                                                     },
                                                     modifier = Modifier.size(24.dp)
@@ -890,7 +890,7 @@ fun InventoryTab(
                                 }
                                 showAddItemDialog = false
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Inventory update failed", e)
                             } finally {
                                 isSaving = false
                             }
@@ -944,7 +944,7 @@ fun InventoryTab(
                                         com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
                                             .postgrest["categories"]
                                             .insert(com.example.barandgrillownerpanel.models.CategoryInsertDto(name = cat))
-                                    } catch (e: Exception) { e.printStackTrace() }
+                                    } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Inventory delete failed", e) }
                                 }
                                 newItemCategory = cat
                                 newItemSubcategory = ""
@@ -994,7 +994,7 @@ fun InventoryTab(
                                             com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
                                                 .postgrest["categories"]
                                                 .insert(com.example.barandgrillownerpanel.models.CategoryInsertDto(name = sub, parentName = newItemCategory))
-                                        } catch (e: Exception) { e.printStackTrace() }
+                                        } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Import failed", e) }
                                     }
                                 }
                                 newItemSubcategory = sub
@@ -1051,7 +1051,7 @@ fun InventoryTab(
                                         }
                                     }
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Export failed", e)
                                 // Revert UI if sync fails
                                 allInventoryItems[index] = currentItem
                             }
@@ -1159,7 +1159,7 @@ fun InventoryTab(
                             
                             showAdjustDialog = null
                         } catch (e: Exception) {
-                            e.printStackTrace()
+                            com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Inventory search failed", e)
                         }
                     }
                 }

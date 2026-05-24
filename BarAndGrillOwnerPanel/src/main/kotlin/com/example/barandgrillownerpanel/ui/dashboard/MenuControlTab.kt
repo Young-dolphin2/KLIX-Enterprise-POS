@@ -617,7 +617,7 @@ fun MenuControlTab(
                                     selectedCategory = categories.firstOrNull() ?: ""
                                     selectedSubcategory = subcategoriesMap[selectedCategory]?.firstOrNull() ?: ""
                                 }
-                            } catch (e: Exception) { e.printStackTrace() }
+                            } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("MENU_CTRL", "Menu update failed", e) }
                         }
                         pendingCategoryDelete = null
                     },
@@ -656,7 +656,7 @@ fun MenuControlTab(
                                 if (selectedSubcategory == subToDelete) {
                                     selectedSubcategory = subsList?.firstOrNull() ?: ""
                                 }
-                            } catch (e: Exception) { e.printStackTrace() }
+                            } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("MENU_CTRL", "Menu create failed", e) }
                         }
                         pendingSubcategoryDelete = null
                     },
@@ -700,7 +700,7 @@ fun MenuControlTab(
                                     com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
                                         .postgrest["categories"]
                                         .insert(com.example.barandgrillownerpanel.models.CategoryInsertDto(name = cat))
-                                } catch (e: Exception) { e.printStackTrace() }
+                                } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("MENU_CTRL", "Menu delete failed", e) }
                             }
                             selectedCategory = cat
                             selectedSubcategory = ""

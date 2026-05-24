@@ -4,10 +4,38 @@ import kotlinx.coroutines.delay
 import kotlin.random.Random
 import java.io.IOException
 
+enum class SupabaseError {
+    SERVER_ERROR,    // 5xx — Supabase down
+    AUTH_EXPIRED,    // 401 — token expired
+    NOT_FOUND,       // 404 — data missing
+    TIMEOUT,         // Connection timeout
+    UNKNOWN          // Other
+}
+
 object NetworkUtils {
     private var circuitTripped = false
     private var trippedAtMillis = 0L
     private const val RESET_TIMEOUT_MILLIS = 30000L // 30 seconds
+
+    /**
+     * Classify a Supabase error for appropriate user feedback.
+     */
+    fun classifyError(e: Exception): SupabaseError {
+        val message = e.message ?: ""
+        return when {
+            message.contains("401") || message.contains("Unauthorized") || message.contains("JWT") -> SupabaseError.AUTH_EXPIRED
+            message.contains("404") || message.contains("Not Found") -> SupabaseError.NOT_FOUND
+            message.contains("500") || message.contains("502") || message.contains("503") || 
+            message.contains("50") || message.contains("Server Error") -> SupabaseError.SERVER_ERROR
+            message.contains("timeout", ignoreCase = true) || 
+            message.contains("Timeout", ignoreCase = true) ||
+            e is java.util.concurrent.TimeoutException -> SupabaseError.TIMEOUT
+            message.contains("timeout", ignoreCase = true) || 
+            message.contains("Timed out") -> SupabaseError.TIMEOUT
+            e is IOException -> SupabaseError.TIMEOUT // Network error = treat as timeout
+            else -> SupabaseError.UNKNOWN
+        }
+    }
 
     /**
      * Executes a network-related block with exponential backoff retry.
@@ -39,8 +67,8 @@ object NetworkUtils {
                 val isTransient = e is IOException || 
                                   e is java.util.concurrent.TimeoutException ||
                                   (e.message?.contains("Timeout", ignoreCase = true) == true) ||
-                                  (e.message?.contains("50", ignoreCase = true) == true) // crude 5xx match
-                
+                                  (e.message?.contains("50", ignoreCase = true) == true)
+
                 if (!isTransient) {
                     Logger.error(tag, "Non-transient error, aborting retries: ${e.message}", e)
                     throw e

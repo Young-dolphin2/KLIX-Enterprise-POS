@@ -80,6 +80,10 @@ object SyncEngine {
         val pendingSyncs = LocalDatabase.getPendingSyncs()
         if (pendingSyncs.isEmpty()) return
 
+        if (pendingSyncs.size > 500) {
+            Logger.error(TAG, "Sync queue has exceeded critical limit: ${pendingSyncs.size} items pending. The local database is diverging significantly from the remote state due to a potential prolonged outage.")
+        }
+
         Logger.info(TAG, "Pushing ${pendingSyncs.size} local changes to Supabase")
 
         for (sync in pendingSyncs.take(PUSH_BATCH_SIZE)) {

@@ -158,7 +158,7 @@ fun SalesStatsTab(
             }
             
         } catch (e: Exception) {
-            e.printStackTrace()
+            com.example.barandgrillownerpanel.utils.Logger.error("SALES_STATS", "Realtime subscription error", e)
             errorMessage = e.message ?: e.toString()
             isLoading = false
         }

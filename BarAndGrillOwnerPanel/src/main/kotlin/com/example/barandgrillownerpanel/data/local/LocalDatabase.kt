@@ -362,6 +362,10 @@ object LocalDatabase {
             execute("CREATE INDEX IF NOT EXISTS idx_customers_updated_at ON customers(updated_at)")
             execute("CREATE INDEX IF NOT EXISTS idx_customers_name ON customers(name)")
             execute("CREATE INDEX IF NOT EXISTS idx_sync_queue_pushed ON sync_queue(pushed)")
+            // Additional indexes for high-frequency filtered queries
+            execute("CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category)")
+            execute("CREATE INDEX IF NOT EXISTS idx_credits_is_settled ON credits(is_settled)")
+            execute("CREATE INDEX IF NOT EXISTS idx_sync_queue_created_at ON sync_queue(created_at)")
         }
     }
 

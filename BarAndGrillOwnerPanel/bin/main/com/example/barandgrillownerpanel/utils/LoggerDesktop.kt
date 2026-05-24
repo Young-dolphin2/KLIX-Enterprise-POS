@@ -16,7 +16,30 @@ data class SystemLogDto(
 )
 
 object Logger {
+    var isRemoteLoggingEnabled = false
+    
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    // Redaction patterns
+    private val emailRegex = Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")
+    private val ccRegex = Regex("\\b(?:\\d[ -]*?){13,16}\\b")
+
+    private fun redact(message: String): String {
+        return message
+            .replace(emailRegex, "***@***.***")
+            .replace(ccRegex, "****-****-****-****")
+    }
+
+    private fun truncateStackTrace(throwable: Throwable?): String? {
+        if (throwable == null) return null
+        val stack = throwable.stackTraceToString()
+        val lines = stack.lines()
+        return if (lines.size > 15) {
+            lines.take(15).joinToString("\n") + "\n... [truncated]"
+        } else {
+            stack
+        }
+    }
 
     fun info(tag: String, message: String) = log(LogLevel.INFO, tag, message)
     fun warn(tag: String, message: String) = log(LogLevel.WARN, tag, message)
@@ -33,8 +56,15 @@ object Logger {
             LogLevel.ERROR, LogLevel.FATAL -> "\u001B[31m"
         }
         val reset = "\u001B[0m"
-        println("$color[${level.name}] [$tag] $message$reset")
-        throwable?.printStackTrace()
+        val redactedMessage = redact(message)
+        val stack = truncateStackTrace(throwable)
+        if (stack != null) {
+            println("$color[${level.name}] [$tag] $redactedMessage\n$stack$reset")
+        } else {
+            println("$color[${level.name}] [$tag] $redactedMessage$reset")
+        }
+
+        if (!isRemoteLoggingEnabled) return
 
         // 2. Supabase Output (Async)
         scope.launch {
@@ -42,8 +72,8 @@ object Logger {
                 val logDto = SystemLogDto(
                     level = level.name,
                     tag = tag,
-                    message = message,
-                    stack_trace = throwable?.stackTraceToString()
+                    message = redact(message),
+                    stack_trace = truncateStackTrace(throwable)
                 )
                 SupabaseManager.client.postgrest["system_logs"].insert(logDto)
             } catch (e: Exception) {

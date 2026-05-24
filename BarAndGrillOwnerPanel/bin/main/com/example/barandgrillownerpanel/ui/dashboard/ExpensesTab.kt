@@ -342,7 +342,7 @@ fun ExpensesTab(
                                 onRefresh()
                                 showAddDialog = false
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                com.example.barandgrillownerpanel.utils.Logger.error("EXPENSES", "Expense action failed", e)
                             } finally {
                                 isSaving = false
                             }

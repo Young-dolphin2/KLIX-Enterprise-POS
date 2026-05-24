@@ -387,7 +387,7 @@ fun BusinessProfileSection(
                                 }
                                 showAddBranchDialog = false
                                 editingBranch = null
-                            } catch (e: Exception) { e.printStackTrace() } finally { isSaving = false }
+                            } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("SETTINGS", "Save settings failed", e) } finally { isSaving = false }
                         }
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
@@ -1184,7 +1184,7 @@ fun DataExportSection(
                                         businessName = settings.businessName
                                     )
                                 }
-                            } catch (e: Exception) { e.printStackTrace() }
+                            } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("SETTINGS", "Failed listing files", e) }
                         }
                     },
                     modifier = Modifier.fillMaxWidth().height(48.dp),
@@ -1268,7 +1268,7 @@ fun DataExportSection(
                                         data = mapOf("metrics" to mapOf("Total Revenue" to totalRev, "Total Expenses" to totalExp, "Net Profit" to (totalRev - totalExp)))
                                     )
                                 }
-                            } catch (e: Exception) { e.printStackTrace() }
+                            } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("SETTINGS", "Failed uploading branding", e) }
                         }
                     },
                     modifier = Modifier.fillMaxWidth().height(48.dp),

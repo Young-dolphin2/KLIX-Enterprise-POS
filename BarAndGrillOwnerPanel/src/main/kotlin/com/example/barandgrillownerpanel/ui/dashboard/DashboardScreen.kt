@@ -691,7 +691,7 @@ fun DashboardScreen(
                                                 branchId = dto.branchId
                                             )
                                         })
-                                    } catch (e: Exception) { e.printStackTrace() }
+                                    } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("DASHBOARD", "Widget load failed", e) }
                                 }
                             },
                             onSaveItem = { dto: com.example.barandgrillownerpanel.models.MenuItemDto ->
@@ -748,7 +748,7 @@ fun DashboardScreen(
                                                 }
                                             }
                                         }
-                                    } catch (e: Exception) { e.printStackTrace() }
+                                    } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("DASHBOARD", "Widget refresh failed", e) }
                                 }
                             },
                             onUpdateItem = { updated: DesktopMenuItem, previousName: String ->
@@ -769,7 +769,7 @@ fun DashboardScreen(
                                             newItemName = updated.name.takeIf { it != previousName },
                                             inventoryItems = inventoryItems
                                         )
-                                    } catch (e: Exception) { e.printStackTrace() }
+                                    } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("DASHBOARD", "Realtime update failed", e) }
                                 }
                             },
                             onAdjustMenuPrice = { item: DesktopMenuItem, newPrice: Double ->
@@ -937,7 +937,7 @@ fun DashboardScreen(
                                             }
                                         }
                                     } catch (e: Exception) {
-                                        e.printStackTrace()
+                                        com.example.barandgrillownerpanel.utils.Logger.error("DASHBOARD", "Realtime handler error", e)
                                     }
                                 }
                             },

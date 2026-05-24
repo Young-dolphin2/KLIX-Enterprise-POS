@@ -6,6 +6,7 @@ import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.realtime.Realtime
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.storage.Storage
+import io.ktor.client.engine.okhttp.OkHttp
 
 object SupabaseManager {
     /**
@@ -38,6 +39,21 @@ object SupabaseManager {
         install(Realtime)
         install(Auth)
         install(Storage)
+
+        // Custom configured OkHttp engine instance to set connection pools and concurrency
+        httpEngine = OkHttp.create {
+            config {
+                dispatcher(okhttp3.Dispatcher().apply {
+                    maxRequests = 100
+                    maxRequestsPerHost = 100
+                })
+                connectionPool(okhttp3.ConnectionPool(
+                    10,
+                    5,
+                    java.util.concurrent.TimeUnit.MINUTES
+                ))
+            }
+        }
     }
 
     fun getUrl(): String = supabaseUrl

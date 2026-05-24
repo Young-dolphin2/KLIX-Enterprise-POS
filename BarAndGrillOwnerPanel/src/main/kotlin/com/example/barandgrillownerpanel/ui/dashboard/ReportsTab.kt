@@ -18,6 +18,9 @@ import com.example.barandgrillownerpanel.ui.theme.*
 import com.example.barandgrillownerpanel.models.*
 import com.example.barandgrillownerpanel.data.remote.SupabaseManager
 import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -68,7 +71,7 @@ fun ReportsTab(
             val fetched = SupabaseManager.client.postgrest["expenses"].select().decodeAs<List<ExpenseDto>>()
             allExpenses.clear()
             allExpenses.addAll(fetched)
-        } catch (e: Exception) { e.printStackTrace() }
+        } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("REPORTS", "Failed fetching expenses", e) }
     }
 
     // Overall profit
@@ -425,42 +428,44 @@ private fun ReportKpiCard(
 }
 
 private fun exportSalesToCSV(sales: List<SaleRecord>, settings: AppSettings) {
-    try {
-        val timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"))
-        val fileName = "KLIX_Sales_Report_$timestamp.csv"
-        val userHome = System.getProperty("user.home")
-        val downloadsDir = java.io.File(userHome, "Downloads")
-        if (!downloadsDir.exists()) downloadsDir.mkdirs()
-        
-        val file = java.io.File(downloadsDir, fileName)
-        
-        java.io.FileWriter(file).use { writer ->
-            // Header
-            writer.append("Sale ID,Date,Amount (${settings.currencySymbol}),Payment Method,Sold By,Branch ID\n")
-            
-            // Rows
-            sales.forEach { sale ->
-                val date = java.time.Instant.ofEpochMilli(sale.timestamp)
-                    .atZone(java.time.ZoneId.systemDefault())
-                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                
-                writer.append("${sale.id},")
-                writer.append("$date,")
-                writer.append("${sale.totalAmount},")
-                writer.append("${sale.paymentMethod},")
-                writer.append("${sale.soldBy.replace(",", " ")},")
-                writer.append("${sale.branchId ?: "N/A"}\n")
-            }
-        }
-        
-        // Try to open the directory
+    kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
         try {
-            if (java.awt.Desktop.isDesktopSupported()) {
-                java.awt.Desktop.getDesktop().open(downloadsDir)
+            val timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd_HHmm"))
+            val fileName = "KLIX_Sales_Report_$timestamp.csv"
+            val userHome = System.getProperty("user.home")
+            val downloadsDir = java.io.File(userHome, "Downloads")
+            if (!downloadsDir.exists()) downloadsDir.mkdirs()
+            
+            val file = java.io.File(downloadsDir, fileName)
+            
+            java.io.FileWriter(file).use { writer ->
+                // Header
+                writer.append("Sale ID,Date,Amount (${settings.currencySymbol}),Payment Method,Sold By,Branch ID\n")
+                
+                // Rows
+                sales.forEach { sale ->
+                    val date = java.time.Instant.ofEpochMilli(sale.timestamp)
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                    
+                    writer.append("${sale.id},")
+                    writer.append("$date,")
+                    writer.append("${sale.totalAmount},")
+                    writer.append("${sale.paymentMethod},")
+                    writer.append("${sale.soldBy.replace(",", " ")},")
+                    writer.append("${sale.branchId ?: "N/A"}\n")
+                }
             }
-        } catch (_: Exception) {}
-        
-    } catch (e: Exception) {
-        e.printStackTrace()
+            
+            // Try to open the directory
+            try {
+                if (java.awt.Desktop.isDesktopSupported()) {
+                    java.awt.Desktop.getDesktop().open(downloadsDir)
+                }
+            } catch (_: Exception) {}
+            
+        } catch (e: Exception) {
+            com.example.barandgrillownerpanel.utils.Logger.error("REPORTS", "Failed export", e)
+        }
     }
 }

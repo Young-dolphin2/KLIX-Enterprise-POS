@@ -47,24 +47,28 @@ object CacheManager {
     private const val KEY_NODE = "com.example.barandgrillownerpanel.cache"
     private const val KEY_NAME = "cache_encryption_key"
 
-    // Secure OS Keystore-backed key generation
-    private val secretKey: SecretKeySpec by lazy {
-        val prefs = Preferences.userRoot().node(KEY_NODE)
-        val storedKey = prefs.getByteArray(KEY_NAME, null)
-        if (storedKey != null && storedKey.size == 32) {
-            SecretKeySpec(storedKey, "AES")
-        } else {
-            val newKey = ByteArray(32).also { SecureRandom().nextBytes(it) }
-            prefs.putByteArray(KEY_NAME, newKey)
-            SecretKeySpec(newKey, "AES")
-        }
-    }
+    // Cache encryption key stored in an owner-only key file next to the JSON cache.
+    // This avoids storing raw secrets in Java Preferences.
+    private val cacheKeyFile: File by lazy { File(cacheFile.parentFile ?: File("."), ".klix_cache_key.bin") }
 
-    // Legacy machine-locked key for backward compatibility
-    private val legacySecretKey: SecretKeySpec by lazy {
-        val machineId = System.getenv("COMPUTERNAME") ?: System.getProperty("user.name") ?: "KLIX_FALLBACK"
-        val hash = MessageDigest.getInstance("SHA-256").digest(machineId.toByteArray())
-        SecretKeySpec(hash.copyOf(16), "AES")
+    private val secretKey: SecretKeySpec by lazy {
+        try {
+            cacheKeyFile.parentFile?.mkdirs()
+            val keyBytes = if (cacheKeyFile.exists()) {
+                cacheKeyFile.readBytes().also { setOwnerOnlyPermissions(cacheKeyFile) }
+            } else {
+                val generated = ByteArray(32).also { SecureRandom().nextBytes(it) }
+                cacheKeyFile.writeBytes(generated)
+                setOwnerOnlyPermissions(cacheKeyFile)
+                generated
+            }
+            if (keyBytes.size == 32) SecretKeySpec(keyBytes, "AES") else throw IllegalStateException("Invalid cache key length")
+        } catch (e: Exception) {
+            // Best-effort fallback to a generated in-memory key (not persisted). This is safer
+            // than deriving from machine identifiers or storing in Preferences.
+            val generated = ByteArray(32).also { SecureRandom().nextBytes(it) }
+            SecretKeySpec(generated, "AES")
+        }
     }
 
     private fun encrypt(data: String): String {
@@ -85,10 +89,9 @@ object CacheManager {
             cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(AES_GCM_TAG_LEN, iv))
             String(cipher.doFinal(cipherText), Charsets.UTF_8)
         } catch (e: Exception) {
-            // Fallback to legacy ECB decryption if GCM fails
-            val cipher = Cipher.getInstance("AES")
-            cipher.init(Cipher.DECRYPT_MODE, legacySecretKey)
-            String(cipher.doFinal(Base64.getDecoder().decode(encrypted)))
+            Logger.error("CACHE", "Decryption failed for legacy cache: ${e.message}", e)
+            // Return the original value so callers can decide if it's plain JSON or handle failures.
+            encrypted
         }
     }
 
