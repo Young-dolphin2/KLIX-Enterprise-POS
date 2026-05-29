@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,7 +23,7 @@ import com.example.barandgrillownerpanel.ui.theme.*
 data class GuideStep(
     val title: String,
     val description: String,
-    val icon: ImageVector = Icons.Default.HelpCenter
+    val icon: ImageVector = Icons.AutoMirrored.Filled.HelpCenter
 )
 
 @Composable
@@ -155,7 +156,7 @@ object Guides {
         GuideStep(
             "Predictive Trends",
             "The charts show expected revenue vs actual. Hover over bars to see detailed breakdowns.",
-            Icons.Default.TrendingUp
+            Icons.AutoMirrored.Filled.TrendingUp
         )
     )
     
@@ -176,7 +177,7 @@ object Guides {
         GuideStep(
             "Menu Management",
             "Create and organize the items you sell. Every item can be categorized for faster discovery on the POS app.",
-            Icons.Default.MenuBook
+            Icons.AutoMirrored.Filled.MenuBook
         ),
         GuideStep(
             "Inventory Linking",
@@ -220,7 +221,7 @@ object Guides {
         GuideStep(
             "Expense Recording",
             "Log business costs like Rent, Salaries, Stock Purchase, or Utilities. This is vital for accurate profit calculation.",
-            Icons.Default.ReceiptLong
+            Icons.AutoMirrored.Filled.ReceiptLong
         ),
         GuideStep(
             "Net Profit",
@@ -242,3 +243,5 @@ object Guides {
         )
     )
 }
+
+

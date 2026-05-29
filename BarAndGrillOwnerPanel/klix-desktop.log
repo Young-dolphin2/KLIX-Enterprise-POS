@@ -1,0 +1,1388 @@
+[2026-05-25T23:44:43.418211Z] [INFO] [LOCAL_DB] Database initialized at C:\Users\HP\AndroidStudioProjects\BarAndGrillPOS\BarAndGrillOwnerPanel\.\klix_local_v2.db
+[2026-05-26T00:10:36.459602800Z] [INFO] [LOCAL_DB] Database initialized at C:\Users\HP\AndroidStudioProjects\BarAndGrillPOS\BarAndGrillOwnerPanel\.\klix_local_v2.db
+[2026-05-26T00:21:41.321560500Z] [INFO] [LOCAL_DB] Database initialized at C:\Users\HP\AndroidStudioProjects\BarAndGrillPOS\BarAndGrillOwnerPanel\.\klix_local_v2.db
+[2026-05-26T00:21:55.194434Z] [FATAL] [CRASH] Uncaught exception on thread AWT-EventQueue-0
+java.lang.ExceptionInInitializerError
+	at com.example.barandgrillownerpanel.ui.dashboard.DashboardScreenKt$DashboardScreen$5$1.invokeSuspend(DashboardScreen.kt:133)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:63)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:58)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.performRun(FlushCoroutineDispatcher.skiko.kt:102)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.access$performRun(FlushCoroutineDispatcher.skiko.kt:37)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2.invokeSuspend(FlushCoroutineDispatcher.skiko.kt:58)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:773)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:720)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:714)
+... [truncated]
+[2026-05-26T00:21:55.206633300Z] [INFO] [CACHE] Migrated legacy cache to SQLite (0 branches, 0 sales, 0 inventory items)
+[2026-05-26T00:21:55.294355100Z] [ERROR] [DASHBOARD] Cache initialization failed
+kotlinx.coroutines.JobCancellationException: Parent job is Cancelling; job=JobImpl{Cancelling}@40017286
+Caused by: java.lang.ExceptionInInitializerError
+	at com.example.barandgrillownerpanel.ui.dashboard.DashboardScreenKt$DashboardScreen$5$1.invokeSuspend(DashboardScreen.kt:133)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:63)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:58)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.performRun(FlushCoroutineDispatcher.skiko.kt:102)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.access$performRun(FlushCoroutineDispatcher.skiko.kt:37)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2.invokeSuspend(FlushCoroutineDispatcher.skiko.kt:58)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:773)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:720)
+... [truncated]
+[2026-05-26T00:21:55.304668400Z] [INFO] [SYNC] Sync cycle started
+[2026-05-26T00:23:34.344351200Z] [INFO] [LOCAL_DB] Database initialized at C:\Users\HP\AndroidStudioProjects\BarAndGrillPOS\BarAndGrillOwnerPanel\.\klix_local_v2.db
+[2026-05-26T00:24:30.024590800Z] [FATAL] [CRASH] Uncaught exception on thread AWT-EventQueue-0
+java.lang.ExceptionInInitializerError
+	at com.example.barandgrillownerpanel.ui.auth.LoginScreenKt$LoginScreen$1$1$4$1$1$1.invokeSuspend(LoginScreen.kt:149)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$flush$1.invoke(FlushCoroutineDispatcher.skiko.kt:93)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$flush$1.invoke(FlushCoroutineDispatcher.skiko.kt:80)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.performRun(FlushCoroutineDispatcher.skiko.kt:102)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.flush(FlushCoroutineDispatcher.skiko.kt:80)
+	at androidx.compose.ui.scene.ComposeSceneRecomposer.performScheduledEffects(ComposeSceneRecomposer.skiko.kt:91)
+	at androidx.compose.ui.scene.BaseComposeScene.sendPointerEvent-BGSDPeU(BaseComposeScene.skiko.kt:216)
+	at androidx.compose.ui.scene.ComposeScene.sendPointerEvent-BGSDPeU$default(ComposeScene.skiko.kt:194)
+	at androidx.compose.ui.scene.ComposeSceneMediator_desktopKt.onMouseEvent-d-4ec7I(ComposeSceneMediator.desktop.kt:802)
+	at androidx.compose.ui.scene.ComposeSceneMediator_desktopKt.access$onMouseEvent-d-4ec7I(ComposeSceneMediator.desktop.kt:1)
+	at androidx.compose.ui.scene.ComposeSceneMediator.onMouseEvent(ComposeSceneMediator.desktop.kt:435)
+	at androidx.compose.ui.scene.ComposeSceneMediator.access$onMouseEvent(ComposeSceneMediator.desktop.kt:113)
+... [truncated]
+[2026-05-26T09:59:56.760562700Z] [INFO] [LOCAL_DB] Database initialized at C:\Users\HP\AndroidStudioProjects\BarAndGrillPOS\BarAndGrillOwnerPanel\.\klix_local_v2.db
+[2026-05-26T10:00:37.036248900Z] [WARN] [AUTH] Failed login attempt for user: ***@***.*** - null
+[2026-05-26T10:00:48.793411400Z] [WARN] [AUTH] Failed login attempt for user: ***@***.*** - Could not initialize class com.example.barandgrillownerpanel.data.remote.SupabaseManager
+[2026-05-26T10:00:50.438468800Z] [ERROR] [DASHBOARD] Subscription check failed (Supabase not configured?)
+java.lang.NoClassDefFoundError: Could not initialize class com.example.barandgrillownerpanel.data.remote.SupabaseManager
+	at com.example.barandgrillownerpanel.ui.dashboard.DashboardScreenKt$DashboardScreen$5$1.invokeSuspend(DashboardScreen.kt:134)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:63)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:58)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.performRun(FlushCoroutineDispatcher.skiko.kt:102)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.access$performRun(FlushCoroutineDispatcher.skiko.kt:37)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2.invokeSuspend(FlushCoroutineDispatcher.skiko.kt:58)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:773)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:720)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:714)
+... [truncated]
+[2026-05-26T10:00:50.438468800Z] [ERROR] [DASHBOARD] Realtime subscription setup failed
+java.lang.NoClassDefFoundError: Could not initialize class com.example.barandgrillownerpanel.data.remote.SupabaseManager
+	at com.example.barandgrillownerpanel.ui.dashboard.DashboardScreenKt$DashboardScreen$7$1.invokeSuspend(DashboardScreen.kt:472)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:63)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:58)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.performRun(FlushCoroutineDispatcher.skiko.kt:102)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.access$performRun(FlushCoroutineDispatcher.skiko.kt:37)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2.invokeSuspend(FlushCoroutineDispatcher.skiko.kt:58)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:773)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:720)
+	at java.desktop/java.awt.EventQueue$4.run(EventQueue.java:714)
+... [truncated]
+[2026-05-26T10:00:50.475333900Z] [INFO] [CACHE] Migrated legacy cache to SQLite (0 branches, 0 sales, 0 inventory items)
+[2026-05-26T10:00:50.502058900Z] [FATAL] [CRASH] Uncaught exception on thread AWT-EventQueue-0
+java.lang.NoClassDefFoundError: Could not initialize class com.example.barandgrillownerpanel.data.remote.SupabaseManager
+	at com.example.barandgrillownerpanel.ui.dashboard.DashboardScreenKt.DashboardScreen$refreshCredits(DashboardScreen.kt:246)
+	at com.example.barandgrillownerpanel.ui.dashboard.DashboardScreenKt.access$DashboardScreen$refreshCredits(DashboardScreen.kt:1)
+	at com.example.barandgrillownerpanel.ui.dashboard.DashboardScreenKt$DashboardScreen$6$1.invokeSuspend(DashboardScreen.kt:350)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:63)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:58)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.performRun(FlushCoroutineDispatcher.skiko.kt:102)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.access$performRun(FlushCoroutineDispatcher.skiko.kt:37)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2.invokeSuspend(FlushCoroutineDispatcher.skiko.kt:58)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)
+	at java.desktop/java.awt.EventQueue.dispatchEventImpl(EventQueue.java:773)
+... [truncated]
+[2026-05-26T10:00:50.504066400Z] [ERROR] [DASHBOARD] Cache initialization failed
+kotlinx.coroutines.JobCancellationException: Parent job is Cancelling; job=JobImpl{Cancelling}@1f44eed2
+Caused by: java.lang.NoClassDefFoundError: Could not initialize class com.example.barandgrillownerpanel.data.remote.SupabaseManager
+	at com.example.barandgrillownerpanel.ui.dashboard.DashboardScreenKt.DashboardScreen$refreshCredits(DashboardScreen.kt:246)
+	at com.example.barandgrillownerpanel.ui.dashboard.DashboardScreenKt.access$DashboardScreen$refreshCredits(DashboardScreen.kt:1)
+	at com.example.barandgrillownerpanel.ui.dashboard.DashboardScreenKt$DashboardScreen$6$1.invokeSuspend(DashboardScreen.kt:350)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:63)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:58)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.performRun(FlushCoroutineDispatcher.skiko.kt:102)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.access$performRun(FlushCoroutineDispatcher.skiko.kt:37)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2.invokeSuspend(FlushCoroutineDispatcher.skiko.kt:58)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at java.desktop/java.awt.event.InvocationEvent.dispatch(InvocationEvent.java:318)
+... [truncated]
+[2026-05-26T10:00:50.504066400Z] [INFO] [SYNC] Sync cycle started
+[2026-05-27T00:07:29.730902900Z] [INFO] [LOCAL_DB] Database initialized at C:\Users\HP\AndroidStudioProjects\BarAndGrillPOS\BarAndGrillOwnerPanel\.\klix_local_v2.db
+[2026-05-27T00:08:02.078761Z] [WARN] [SUPABASE] Supabase URL or Key not configured; operating in offline/no-remote mode.
+[2026-05-27T00:08:02.081763400Z] [INFO] [AUTH] Login successful for user: ***@***.***
+[2026-05-27T00:49:14.586455500Z] [INFO] [SYNC] Starting full sync...
+[2026-05-27T00:49:14.589434900Z] [INFO] [CACHE] Migrated legacy cache to SQLite (0 branches, 0 sales, 0 inventory items)
+[2026-05-27T00:49:14.591437600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:49:14.601933700Z] [ERROR] [SYNC] Full sync failed
+java.time.format.DateTimeParseException: Text '2026-05-27 00:49:14' could not be parsed at index 10
+	at java.base/java.time.format.DateTimeFormatter.parseResolved0(DateTimeFormatter.java:2108)
+	at java.base/java.time.format.DateTimeFormatter.parse(DateTimeFormatter.java:2010)
+	at java.base/java.time.Instant.parse(Instant.java:398)
+	at com.example.barandgrillownerpanel.data.sync.SyncEngine.pushLocalChanges(SyncEngine.kt:92)
+	at com.example.barandgrillownerpanel.data.sync.SyncEngine.fullSync(SyncEngine.kt:323)
+	at com.example.barandgrillownerpanel.ui.dashboard.DashboardScreenKt$DashboardScreen$6$1.invokeSuspend(DashboardScreen.kt:351)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:63)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2$1.invoke(FlushCoroutineDispatcher.skiko.kt:58)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.performRun(FlushCoroutineDispatcher.skiko.kt:102)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher.access$performRun(FlushCoroutineDispatcher.skiko.kt:37)
+	at androidx.compose.ui.platform.FlushCoroutineDispatcher$dispatch$2.invokeSuspend(FlushCoroutineDispatcher.skiko.kt:58)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:33)
+... [truncated]
+[2026-05-27T00:49:14.604938Z] [INFO] [CACHE] Cache system initialized (SQLite primary, JSON fallback)
+[2026-05-27T00:49:14.606935100Z] [INFO] [SYNC] Sync cycle started
+[2026-05-27T00:49:14.606935100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:49:14.608934800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:49:44.617408400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:49:44.618313600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:50:14.623705300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:50:14.624714Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:50:44.633024600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:50:44.635030400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:51:14.651117900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:51:14.652121100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:51:48.595513500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:51:48.596515400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:52:18.601852200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:52:18.602853600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:52:48.608983400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:52:48.610983400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:53:18.624141400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:53:18.625654700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:53:48.641544800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:53:48.642543200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:54:18.651905800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:54:18.652908300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:54:48.657827Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:54:48.658823600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:55:18.671834600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:55:18.673833900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:55:48.689792600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:55:48.692788600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:56:18.704692800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:56:18.707695Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:56:48.717360400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:56:48.718354200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:57:18.734471600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:57:18.736382100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:57:48.741213700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:57:48.743119Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:58:18.758470500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:58:18.759470400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:58:48.770245400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:58:48.771245700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:59:18.781050600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:59:18.781948Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T00:59:48.790126200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T00:59:48.791206400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:00:18.797299800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:00:18.798300900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:00:48.803777500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:00:48.804777300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:01:18.828646300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:01:18.830647500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:01:48.880248100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:01:48.882257900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:02:18.922391100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:02:18.924394Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:02:48.969110500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:02:48.970108300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:03:19.010641600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:03:19.011641800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:03:49.049721300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:03:49.050716100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:04:19.096984400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:04:19.100989200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:04:49.131424300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:04:49.132337500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:05:19.175776500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:05:19.176775500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:05:49.222264800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:05:49.224267500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:06:19.256767700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:06:19.257772300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:06:49.294735700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:06:49.295644800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:07:19.340472900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:07:19.341471900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:07:49.391524600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:07:49.392523400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:08:19.443975700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:08:19.444978900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:08:49.482551Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:08:49.483552Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:09:19.528077900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:09:19.529078400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:09:49.575495300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:09:49.576500900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:10:19.619665800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:10:19.621668700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:10:49.670932800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:10:49.672934200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:11:19.719422300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:11:19.720422Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:11:49.757883400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:11:49.758885500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:12:19.799192600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:12:19.800152700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:12:49.844479900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:12:49.847516Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:13:19.891131100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:13:19.893130800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:13:49.955855100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:13:49.966854400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:14:20.020889500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:14:20.021889600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:14:50.125438900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:14:50.128960800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:15:20.300971500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:15:20.312421800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:15:50.352420300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:15:50.361579900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:16:21.486868600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:16:21.622871700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:16:53.220782Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:16:53.263781Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:17:24.447092200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:17:24.464091400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:17:54.681639900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:17:54.694154500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:18:24.818672200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:18:24.826672700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:18:54.858279900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:18:54.868182200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:19:24.890797100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:19:24.892789900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:19:54.903864600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:19:54.903864600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:20:24.920122600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:20:24.922119600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:20:54.936375100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:20:54.937294900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:21:24.950918100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:21:24.951908500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:21:54.963302500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:21:54.963302500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:22:24.973969400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:22:24.974968Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:22:54.979295900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:22:54.980281200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:23:24.991737200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:23:24.995048800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:23:55.008608300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:23:55.009606800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:24:25.022457700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:24:25.024445900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:24:55.036553900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:24:55.038701500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:25:25.051153400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:25:25.054246400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:25:55.063733600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:25:55.067533300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:26:25.079596400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:26:25.080596300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:26:55.097684600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:26:55.099648200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:27:25.107745Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:27:25.109745800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:27:55.133848200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:27:55.136848800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:28:25.149582500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:28:25.150461Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:28:55.210079100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:28:55.212080Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:29:25.227081100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:29:25.228083500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:29:55.240842300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:29:55.241935300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:30:25.247567400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:30:25.248563700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:30:55.264043100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:30:55.268030500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:31:25.281507600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:31:25.282491Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:31:55.286545200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:31:55.287546700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:32:25.304144100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:32:25.305140300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:32:55.319942Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:32:55.320937100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:33:25.324718200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:33:25.326733200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:33:55.341976700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:33:55.342973500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:34:25.351829800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:34:25.354827300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:34:55.359417200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:34:55.360362100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:35:25.364071500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:35:25.367873900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:35:55.383309400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:35:55.384308800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:36:25.394895100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:36:25.397060500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:36:55.409009600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:36:55.409009600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:37:25.424387700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:37:25.427372200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:37:55.433552500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:37:55.434548400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:38:25.447105300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:38:25.449118900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:38:55.502052100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:38:55.502052100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:39:25.557522800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:39:25.557522800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:39:55.609748900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:39:55.609748900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:40:25.663279100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:40:25.674872900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:40:55.728523300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:40:55.728523300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:41:25.779871300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:41:25.779871300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:41:55.826178200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:41:55.826178200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:42:25.885922100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:42:25.887929900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:42:55.938064700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:42:55.939613700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:43:25.998502200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:43:26.000501300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:43:56.041091800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:43:56.048358300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:44:26.110124300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:44:26.110124300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:44:56.155734100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:44:56.160549700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:45:26.211858400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:45:26.218232200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:45:56.285609Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:45:56.293557700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:46:26.468386200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:46:26.470395400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:46:56.518512300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:46:56.518512300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:47:26.567408300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:47:26.567408300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:47:56.619571900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:47:56.625639Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:48:26.670092200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:48:26.670092200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:48:56.725617900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:48:56.725617900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:49:26.789701400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:49:26.789701400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:49:56.845615500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:49:56.847718400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:50:26.887923400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:50:26.894301600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:50:56.958954100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:50:56.961828800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:51:27.017140600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:51:27.017140600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:51:57.069947800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:51:57.073900600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:52:27.119985100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:52:27.126994500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:52:57.178766800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:52:57.181358600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:53:27.224026400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:53:27.233747700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:53:57.277080Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:53:57.277080Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:54:27.333719200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:54:27.337919200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:54:57.394240900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:54:57.394852300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:55:27.440294700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:55:27.440294700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:55:57.500497300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:55:57.500497300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:56:27.550022400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:56:27.552034700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:56:57.595033100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:56:57.601469400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:57:27.635054700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:57:27.649163100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:57:57.691943400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:57:57.691943400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:58:27.748677600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:58:27.748677600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:58:57.799377300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:58:57.808897400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:59:27.857992500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:59:27.862837200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T01:59:57.909724400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T01:59:57.920699Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:00:27.957745500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:00:27.970245900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:00:58.033161600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:00:58.033161600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:01:28.081538500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:01:28.087439500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:01:58.135602600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:01:58.135602600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:02:28.190755700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:02:28.196392Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:02:58.248646800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:02:58.248646800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:03:28.304390Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:03:28.304390Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:03:58.370809700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:03:58.370809700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:04:28.423040900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:04:28.424042700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:04:58.481061300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:04:58.482058700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:05:28.572797700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:05:28.576796300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:05:58.641022400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:05:58.642023600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:06:28.694732300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:06:28.696733100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:06:58.765601Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:06:58.767601700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:07:29.589917100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:07:29.637916900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:07:59.980778100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:07:59.996778Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:08:30.193278400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:08:30.203282200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:09:00.399398100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:09:00.409397600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:09:30.464769400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:09:30.466768400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:10:00.532787900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:10:00.536786600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:10:30.598945100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:10:30.602940800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:11:00.658616500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:11:00.659614300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:11:30.717213800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:11:30.718215500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:12:00.820224500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:12:00.828222300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:12:30.902171200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:12:30.903170800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:13:00.953506800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:13:00.954507100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:13:31.028715900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:13:31.031715300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:14:01.100671300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:14:01.102671300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:14:31.183608100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:14:31.185605800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:15:01.252489Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:15:01.253488600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:15:31.302143600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:15:31.306146100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:16:01.365519900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:16:01.367520700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:16:31.457178300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:16:31.458177400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:17:01.527133900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:17:01.530132600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:17:31.595941800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:17:31.598942600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:18:01.658679500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:18:01.659672600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:18:33.287545100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:18:33.420545800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:19:04.438267100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:19:05.318265700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:19:35.631598700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:19:36.323599600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:20:06.443937700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:20:06.766939500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:20:37.178512800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:20:37.250513300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:21:07.338524500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:21:07.364525900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:21:37.464556400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:21:37.519558600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:22:07.894236300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:22:07.967242800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:22:38.139471200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:22:38.194467Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:23:08.232029200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:23:08.254028200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:23:38.294155700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:23:38.301156800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:24:08.304751600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:24:08.307752700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:24:38.315287800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:24:38.316223500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:25:08.331507700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:25:08.332506500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:25:38.478859800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:25:38.492857900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:26:08.527779200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:26:08.539781100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:26:38.578613100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:26:38.591613Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:27:08.612238Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:27:08.622239300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:27:38.917430100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:27:38.927432900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:28:08.948650900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:28:08.950650900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:28:39.004033500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:28:39.006029400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:29:09.054340600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:29:09.058341500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:29:39.131495500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:29:39.132494500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:30:09.196144900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:30:09.199153Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:30:39.260155200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:30:39.261156600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:31:09.315380600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:31:09.317379200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:31:39.378436900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:31:39.380438600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:32:09.439307700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:32:09.440308500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:32:39.496451400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:32:39.497451800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:33:09.573250100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:33:09.574252600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:33:39.612638600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:33:39.614639900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:34:09.685184800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:34:09.687185400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:34:39.737336500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:34:39.738338Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:35:09.810927600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:35:09.812930200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:35:39.866305300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:35:39.867305600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:36:09.930269200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:36:09.931265300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:36:39.985488400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:36:39.986487700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:37:10.184479100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:37:10.186475300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:37:40.242229600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:37:40.243228100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:38:10.313097400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:38:10.314093800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:38:40.369027600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:38:40.370028800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:39:10.438325700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:39:10.440325600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:39:40.499782400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:39:40.501782100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:40:10.566296200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:40:10.567294400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:40:40.623349200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:40:40.625349900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:41:10.684953100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:41:10.685952600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:41:40.754738800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:41:40.757741600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:42:10.804882Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:42:10.805881400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:42:40.865106200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:42:40.867110600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:43:10.922361700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:43:10.924363200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:43:40.989475400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:43:40.990476600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:44:11.046951800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:44:11.048953800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:44:41.121200200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:44:41.123200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:45:11.188302Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:45:11.190304200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:45:41.253870400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:45:41.254871700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:46:11.340994900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:46:11.341995600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:46:41.418359400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:46:41.419354700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:47:11.481568300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:47:11.482566400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:47:41.537300900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:47:41.539303300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:48:11.597108900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:48:11.599111500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:48:41.655922800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:48:41.657918300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:49:11.738225200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:49:11.740223500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:49:41.796522800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:49:41.797522100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:50:11.851222Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:50:11.854228Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:50:41.921574300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:50:41.922575400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:51:11.974066800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:51:11.976067800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:51:42.044644200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:51:42.045644100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:52:12.102675400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:52:12.104674400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:52:42.165763400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:52:42.166766Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:53:12.221156400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:53:12.222156300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:53:42.280884800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:53:42.282888200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:54:12.387514200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:54:12.389513200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:54:42.453128900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:54:42.455129800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:55:12.522947600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:55:12.524953Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:55:42.578207600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:55:42.579206100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:56:12.652469600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:56:12.654470500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:56:42.707364500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:56:42.708367100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:57:12.770650200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:57:12.772653700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:57:42.827175600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:57:42.828177400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:58:12.895027400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:58:12.896027300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:58:42.970679500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:58:42.971680900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:59:13.087508Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:59:13.088510500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T02:59:43.094492800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T02:59:43.097490800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:00:13.137024500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:00:13.138068400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:00:43.198105900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:00:43.199620Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:01:13.295295800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:01:13.296298Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:01:43.357961Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:01:43.359289100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:02:13.412539300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:02:13.413536600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:02:43.466861500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:02:43.468369700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:03:13.530168Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:03:13.532169500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:03:43.609906300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:03:43.610902600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:04:13.674241600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:04:13.675245200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:04:43.731178100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:04:43.732177400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:05:13.793953300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:05:13.794955100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:05:43.854085Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:05:43.856087300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:06:13.923136600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:06:13.924134200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:06:43.986104400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:06:43.987101400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:07:14.044278100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:07:14.045280100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:07:44.118793200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:07:44.119807600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:08:14.189979700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:08:14.190980200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:08:44.249187500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:08:44.250189900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:09:14.313774900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:09:14.315776500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:09:44.370891200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:09:44.371896500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:10:14.431940800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:10:14.432940Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:10:44.498523800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:10:44.499532800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:11:14.557978700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:11:14.558986400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:11:44.626947600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:11:44.628454300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:12:14.683387600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:12:14.685388Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:12:44.749403600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:12:44.750405Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:13:14.806727500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:13:14.809248Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:13:44.874381500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:13:44.875380800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:14:14.925519300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:14:14.926519900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:14:44.992167300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:14:44.993166900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:15:15.053116100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:15:15.054124Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:15:45.120675Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:15:45.121675900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:16:15.179357500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:16:15.180355800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:16:45.228332800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:16:45.229848200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:17:15.293293500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:17:15.294291600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:17:45.354609400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:17:45.356610200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:18:15.400289200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:18:15.401289900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:18:45.471441100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:18:45.473443Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:19:15.524367Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:19:15.525369200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:19:45.583409300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:19:45.584416300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:20:15.639232800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:20:15.640744100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:20:45.705367600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:20:45.706365600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:21:15.762697800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:21:15.764696400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:21:46.808210Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:21:46.922207600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:22:18.367767Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:22:18.389768100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:22:48.546474700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:22:48.665474500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:23:18.733146500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:23:18.755147500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:23:48.768087400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:23:48.773061400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:24:18.784673Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:24:18.786674700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:24:48.795714100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:24:48.796716700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:25:18.799794300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:25:18.800886300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:25:48.817932600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:25:48.820929200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:26:18.828186700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:26:18.830187500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:26:48.842828300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:26:48.843828400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:27:18.859450400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:27:18.860366500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:27:48.868332200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:27:48.869334100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:28:18.877934100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:28:18.878937500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:28:48.889394Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:28:48.892419900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:29:18.906715100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:29:18.907714700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:29:48.909819200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:29:48.910815200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:30:18.920108500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:30:18.921087100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:30:48.930847900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:30:48.930847900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:31:18.949222300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:31:18.951186Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:31:48.966379400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:31:48.967380300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:32:18.981487600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:32:18.981487600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:32:48.995006200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:32:48.996013800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:33:18.999359600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:33:19.000271600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:33:49.015771400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:33:49.016685800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:34:19.023906900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:34:19.024909300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:34:49.039678500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:34:49.040679600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:35:19.046538700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:35:19.047440900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:35:49.062220600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:35:49.063209Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:36:19.066010Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:36:19.068010600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:36:49.074596200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:36:49.076605900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:37:19.090621Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:37:19.091620200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:37:49.100262600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:37:49.101223700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:38:19.109363800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:38:19.110365100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:38:49.120120800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:38:49.123092900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:39:19.138579700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:39:19.139578900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:39:49.155240300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:39:49.156240500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:40:19.171871800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:40:19.173385700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:40:49.183731300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:40:49.184739300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:41:19.219258500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:41:19.221259300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:41:49.278440500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:41:49.279441600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:42:19.341242Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:42:19.343281300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:42:49.399287500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:42:49.400290Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:43:19.465469200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:43:19.466468500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:43:49.514687300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:43:49.515698Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:44:19.573807300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:44:19.575817800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:44:49.638271800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:44:49.639279300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:45:19.687430100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:45:19.688427800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:45:49.763020800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:45:49.764907200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:46:19.824115800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:46:19.825116300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:46:49.878931400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:46:49.879929500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:47:19.928637600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:47:19.930550400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:47:49.993735600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:47:49.994743400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:48:20.054767900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:48:20.056773400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:48:50.120479500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:48:50.122987Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:49:20.181219300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:49:20.183219300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:49:50.231812500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:49:50.231812500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:50:20.286939400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:50:20.288937400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:50:50.338504200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:50:50.340504700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:51:20.388451400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:51:20.389453900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:51:50.438334500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:51:50.439337500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:52:20.486911600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:52:20.488912Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:52:50.540054800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:52:50.541056100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:53:20.591014900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:53:20.592015Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:53:50.655221300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:53:50.657223600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:54:20.709804600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:54:20.711803600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:54:50.761505Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:54:50.763505900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:55:20.821452900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:55:20.823969800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:55:50.869249Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:55:50.870249900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:56:20.930461700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:56:20.931455800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:56:50.995000300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:56:50.996918500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:57:21.053366500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:57:21.056750400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:57:51.118145700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:57:51.119663200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:58:21.185129Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:58:21.188137600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:58:51.234144600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:58:51.237170600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:59:21.293094400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:59:21.294101900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T03:59:51.344653800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T03:59:51.345724700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:00:21.403131200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:00:21.403638800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:00:51.450253700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:00:51.451254300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:01:21.511584500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:01:21.512579500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:01:51.557799600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:01:51.558795100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:02:21.615859Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:02:21.616859800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:02:51.673353800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:02:51.675361700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:03:21.733347100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:03:21.734824Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:03:51.782369600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:03:51.783368100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:04:21.843886400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:04:21.845904Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:04:51.895975900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:04:51.896966Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:05:21.946152700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:05:21.947153400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:05:52.013874500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:05:52.014882700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:06:22.077737800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:06:22.078738800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:06:52.129249700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:06:52.130249600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:07:22.178298800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:07:22.178298800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:07:52.237734200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:07:52.239736Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:08:22.295871100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:08:22.297354100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:08:52.345107200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:08:52.347108700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:09:22.406297Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:09:22.407297100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:09:52.465364500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:09:52.466372800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:10:22.536915500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:10:22.537915100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:10:52.591760600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:10:52.591760600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:11:22.649881200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:11:22.650881500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:11:52.702115200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:11:52.703623200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:12:22.757004300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:12:22.758004700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:12:52.811723800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:12:52.813232800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:13:22.870073200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:13:22.871110400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:13:52.918659600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:13:52.919659800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:14:22.968767700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:14:22.969773100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:14:53.023400600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:14:53.024885100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:15:23.088236100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:15:23.089237700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:15:53.139773700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:15:53.141773900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:16:23.199687700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:16:23.201956700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:16:53.252422200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:16:53.253420800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:17:23.312386900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:17:23.313892300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:17:53.372329700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:17:53.373817800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:18:23.428729300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:18:23.430731600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:18:53.473657900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:18:53.475169300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:19:23.531511900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:19:23.532510800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:19:53.578604200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:19:53.579605600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:20:23.633548500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:20:23.634557100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:20:53.692269500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:20:53.692269500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:21:23.750341400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:21:23.753835700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:21:53.796742500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:21:53.797741500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:22:23.861502100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:22:23.862501600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:22:53.918904900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:22:53.920904700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:23:23.976946700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:23:23.977945200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:23:54.036984200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:23:54.037987900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:24:24.097006100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:24:24.098003500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:24:54.157867600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:24:54.158869600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:25:24.220361Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:25:24.221364900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:25:54.267703500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:25:54.268704400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:26:24.316106600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:26:24.317108Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:26:54.374081900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:26:54.375090800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:27:24.426853200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:27:24.427853300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:27:54.490406200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:27:54.491406200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:28:24.540279100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:28:24.541283900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:28:54.603672900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:28:54.604681700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:29:24.662561200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:29:24.664063600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:29:54.718328400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:29:54.719328300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:30:24.783321100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:30:24.784327600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:30:54.835418Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:30:54.837412800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:31:24.892717Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:31:24.893717600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:31:54.953767100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:31:54.955794900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:32:25.012562800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:32:25.013558900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:32:55.073413600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:32:55.074926400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:33:25.127297400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:33:25.136420500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:33:55.196956700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:33:55.198965400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:34:25.243382400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:34:25.259374800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:34:55.310238800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:34:55.320590500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:35:25.368214200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:35:25.368214200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:35:55.421260300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:35:55.421260300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:36:25.462497900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:36:25.462497900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:36:55.522288100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:36:55.522288100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:37:25.580572200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:37:25.580572200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:37:55.646168Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:37:55.646168Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:38:25.700518200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:38:25.700518200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:38:55.739342400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:38:55.739342400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:39:25.792795400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:39:25.802830800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:39:55.850887100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:39:55.850887100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:40:25.910232300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:40:25.910232300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:40:55.951994600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:40:55.951994600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:41:26.001891400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:41:26.017762800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:41:56.057764100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:41:56.073895700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:42:26.117494400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:42:26.131614400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:42:56.175346800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:42:56.186233500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:43:26.231154Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:43:26.235195900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:43:56.286077800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:43:56.286077800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:44:26.336317400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:44:26.339464600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:44:56.395966500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:44:56.395966500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:45:26.446301300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:45:26.455155100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:45:56.516022800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:45:56.516022800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:46:26.570969800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:46:26.570969800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:46:56.627509700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:46:56.628506700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:47:26.679720400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:47:26.680720Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:47:56.728217Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:47:56.729220Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:48:26.788907700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:48:26.789908900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:48:56.842683400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:48:56.843681800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:49:26.895797700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:49:26.896800900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:49:56.950921400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:49:56.951925700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:50:27.023117100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:50:27.023117100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:50:57.085395Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:50:57.086394400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:51:27.140626200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:51:27.141623500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:51:57.192760700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:51:57.193759700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:52:27.250546300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:52:27.251549700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:52:57.300931900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:52:57.301932Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:53:27.348792100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:53:27.349791700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:53:57.406753800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:53:57.407754900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:54:27.464193Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:54:27.464193Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:54:57.521957800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:54:57.522959900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:55:27.584014900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:55:27.585017400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:55:57.640316700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:55:57.642223500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:56:27.700533800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:56:27.701532800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:56:57.761878700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:56:57.765429900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:57:27.825353100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:57:27.827366Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:57:57.879284400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:57:57.881288100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:58:27.934580700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:58:27.935579300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:58:57.997571600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:58:57.998573600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:59:28.048139Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:59:28.051155300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T04:59:58.094275200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T04:59:58.094275200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:00:28.155457100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:00:28.156456600Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:00:58.214381400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:00:58.215383Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:01:28.274161600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:01:28.275083700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:01:58.325997Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:01:58.327001700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:02:28.379276500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:02:28.380278Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:02:58.433982800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:02:58.434985100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:03:28.493706800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:03:28.493706800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:03:58.542915900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:03:58.543913800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:04:28.600597200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:04:28.601598800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:04:58.650074Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:04:58.652080300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:05:28.702817500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:05:28.703817300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:05:58.753794200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:05:58.755795300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:06:28.801699200Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:06:28.802698100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:06:58.858210500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:06:58.859204800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:07:28.912806300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:07:28.913806700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:07:58.980505400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:07:58.982506700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:08:29.036078Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:08:29.037074400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:08:59.095633300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:08:59.096634Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:09:29.151346700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:09:29.152347500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:09:59.200681Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:09:59.201689400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:10:29.252858300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:10:29.253856900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:10:59.312072400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:10:59.313068800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:11:29.363171300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:11:29.364171700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:11:59.429510600Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:11:59.430511200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:12:29.504934Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:12:29.505932700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:12:59.558620100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:12:59.559625200Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:13:29.611294300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:13:29.612294500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:13:59.663264800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:13:59.665262400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:14:29.720046700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:14:29.720046700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:14:59.776780700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:14:59.777781500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:15:29.837600800Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:15:29.839604100Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:15:59.895082Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:15:59.896080900Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:16:29.948265500Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:16:29.950265400Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:17:00.006234100Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:17:00.010237800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:17:30.057781300Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:17:30.064515500Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:18:00.114549900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:18:00.115550300Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:18:30.170262400Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:18:30.176263700Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:19:00.230347Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:19:00.231348800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T05:19:30.290264900Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T05:19:30.291263800Z] [WARN] [SYNC] Sync cycle failed: Text '2026-05-27 00:49:14' could not be parsed at index 10
+[2026-05-27T10:12:06.415462200Z] [INFO] [LOCAL_DB] Database initialized at C:\Users\HP\AndroidStudioProjects\BarAndGrillPOS\BarAndGrillOwnerPanel\.\klix_local_v2.db
+[2026-05-27T10:12:10.934241300Z] [WARN] [SUPABASE] Supabase URL or Key not configured; operating in offline/no-remote mode.
+[2026-05-27T10:12:10.941184300Z] [INFO] [SYNC] Starting full sync...
+[2026-05-27T10:12:10.941184300Z] [INFO] [CACHE] Migrated legacy cache to SQLite (0 branches, 0 sales, 0 inventory items)
+[2026-05-27T10:12:10.950372700Z] [INFO] [SYNC] Pushing 2 local changes to Supabase
+[2026-05-27T10:12:10.959875100Z] [INFO] [SYNC] Pulling remote changes since 1970-01-01T00:00:00Z
+[2026-05-27T10:12:10.965380Z] [INFO] [SYNC] Pull complete
+[2026-05-27T10:12:10.965380Z] [INFO] [SYNC] Full sync complete
+[2026-05-27T10:12:10.972872400Z] [INFO] [CACHE] Cache system initialized (SQLite primary, JSON fallback)
+[2026-05-27T10:12:10.972872400Z] [INFO] [SYNC] Sync cycle started
+[2026-05-27T10:12:10.974883500Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T10:12:10.959875100Z
+[2026-05-27T10:12:10.976895100Z] [INFO] [SYNC] Pull complete
+[2026-05-27T10:12:40.986937200Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T10:12:10.974883500Z
+[2026-05-27T10:12:40.986937200Z] [INFO] [SYNC] Pull complete
+[2026-05-27T10:13:11.006745100Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T10:12:40.986937200Z
+[2026-05-27T10:13:11.008952800Z] [INFO] [SYNC] Pull complete
+[2026-05-27T10:13:41.021494400Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T10:13:11.006745100Z
+[2026-05-27T10:13:41.021494400Z] [INFO] [SYNC] Pull complete
+[2026-05-27T10:14:11.035577800Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T10:13:41.021494400Z
+[2026-05-27T10:14:11.035577800Z] [INFO] [SYNC] Pull complete
+[2026-05-27T10:14:41.057815900Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T10:14:11.035577800Z
+[2026-05-27T10:14:41.057815900Z] [INFO] [SYNC] Pull complete
+[2026-05-27T10:15:11.078180300Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T10:14:41.057815900Z
+[2026-05-27T10:15:11.078180300Z] [INFO] [SYNC] Pull complete
+[2026-05-27T10:15:41.092078400Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T10:15:11.078180300Z
+[2026-05-27T10:15:41.092078400Z] [INFO] [SYNC] Pull complete
+[2026-05-27T10:16:11.106639900Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T10:15:41.092078400Z
+[2026-05-27T10:16:11.108651200Z] [INFO] [SYNC] Pull complete
+[2026-05-27T10:16:41.125266200Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T10:16:11.106639900Z
+[2026-05-27T10:16:41.125266200Z] [INFO] [SYNC] Pull complete
+[2026-05-27T10:17:11.133212Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T10:16:41.125266200Z
+[2026-05-27T10:17:11.138665Z] [INFO] [SYNC] Pull complete
+[2026-05-27T10:17:41.148345300Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T10:17:11.133212Z
+[2026-05-27T10:17:41.153083100Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:27:30.549770800Z] [INFO] [LOCAL_DB] Database initialized at C:\Users\HP\AndroidStudioProjects\BarAndGrillPOS\BarAndGrillOwnerPanel\.\klix_local_v2.db
+[2026-05-27T23:27:34.952153200Z] [WARN] [SUPABASE] Supabase URL or Key not configured; operating in offline/no-remote mode.
+[2026-05-27T23:27:34.964612500Z] [INFO] [SYNC] Starting full sync...
+[2026-05-27T23:27:34.969226900Z] [INFO] [CACHE] Migrated legacy cache to SQLite (0 branches, 0 sales, 0 inventory items)
+[2026-05-27T23:27:34.971239800Z] [INFO] [SYNC] Pulling remote changes since 1970-01-01T00:00:00Z
+[2026-05-27T23:27:34.976501700Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:27:34.976501700Z] [INFO] [SYNC] Full sync complete
+[2026-05-27T23:27:34.980265700Z] [INFO] [CACHE] Cache system initialized (SQLite primary, JSON fallback)
+[2026-05-27T23:27:34.982274400Z] [INFO] [SYNC] Sync cycle started
+[2026-05-27T23:27:34.982274400Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:27:34.971239800Z
+[2026-05-27T23:27:34.984282600Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:28:04.994145700Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:27:34.982274400Z
+[2026-05-27T23:28:04.998765200Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:28:35.004730900Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:28:04.994145700Z
+[2026-05-27T23:28:35.004730900Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:29:05.022791Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:28:35.002701Z
+[2026-05-27T23:29:05.024791100Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:29:35.038786100Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:29:05.021803600Z
+[2026-05-27T23:29:35.041787900Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:30:05.049517300Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:29:35.036811600Z
+[2026-05-27T23:30:05.053551Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:30:35.060233700Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:30:05.049517300Z
+[2026-05-27T23:30:35.066314800Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:31:05.082904700Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:30:35.060233700Z
+[2026-05-27T23:31:05.084915300Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:31:35.096418700Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:31:05.082904700Z
+[2026-05-27T23:31:35.100265200Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:32:05.110285500Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:31:35.094427300Z
+[2026-05-27T23:32:05.110285500Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:32:35.125104300Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:32:05.110285500Z
+[2026-05-27T23:32:35.125104300Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:33:05.143008100Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:32:35.125104300Z
+[2026-05-27T23:33:05.145942400Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:33:35.155023600Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:33:05.143008100Z
+[2026-05-27T23:33:35.157153Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:34:05.169512800Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:33:35.155023600Z
+[2026-05-27T23:34:05.169512800Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:34:35.187818700Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:34:05.169512800Z
+[2026-05-27T23:34:35.189855100Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:35:05.200854100Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:34:35.185804400Z
+[2026-05-27T23:35:05.204852600Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:35:35.207303200Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:35:05.199857400Z
+[2026-05-27T23:35:35.210273600Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:36:05.223675200Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:35:35.207303200Z
+[2026-05-27T23:36:05.228230100Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:36:35.235628400Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:36:05.223675200Z
+[2026-05-27T23:36:35.237646600Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:37:05.248101900Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:36:35.234630100Z
+[2026-05-27T23:37:05.250411900Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:37:35.260945200Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:37:05.247510600Z
+[2026-05-27T23:37:35.263947100Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:38:05.276278600Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:37:35.260945200Z
+[2026-05-27T23:38:05.279280500Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:38:35.285987200Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:38:05.275307400Z
+[2026-05-27T23:38:35.289957400Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:39:05.306396600Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:38:35.284956700Z
+[2026-05-27T23:39:05.309376600Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:39:35.323199800Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:39:05.305376400Z
+[2026-05-27T23:39:35.326165400Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:40:05.341045500Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:39:35.322217400Z
+[2026-05-27T23:40:05.343080800Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:40:35.369644200Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:40:05.339044100Z
+[2026-05-27T23:40:35.378641400Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:41:05.390842800Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:40:35.355643700Z
+[2026-05-27T23:41:05.399841100Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:41:35.415339100Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:41:05.388842200Z
+[2026-05-27T23:41:35.418341600Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:42:05.668397800Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:41:35.414341500Z
+[2026-05-27T23:42:05.681148800Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:42:35.691649900Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:42:05.637137600Z
+[2026-05-27T23:42:35.693665Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:43:05.702265100Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:42:35.689641300Z
+[2026-05-27T23:43:05.706475400Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:43:35.721141400Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:43:05.700138900Z
+[2026-05-27T23:43:35.723161400Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:44:05.739486300Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:43:35.719089500Z
+[2026-05-27T23:44:05.742482700Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:44:35.755876Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:44:05.738530100Z
+[2026-05-27T23:44:35.755876Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:45:05.765487500Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:44:35.755876Z
+[2026-05-27T23:45:05.768484900Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:45:35.781436100Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:45:05.764516900Z
+[2026-05-27T23:45:35.783446700Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:46:05.796049300Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:45:35.779346100Z
+[2026-05-27T23:46:05.799048300Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:46:35.808660600Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:46:05.796049300Z
+[2026-05-27T23:46:35.808660600Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:47:05.821232100Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:46:35.808126300Z
+[2026-05-27T23:47:05.827826400Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:47:36.534462500Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:47:05.821232100Z
+[2026-05-27T23:47:36.578460900Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:48:06.629676400Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:47:36.529461Z
+[2026-05-27T23:48:06.639026Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:48:36.784954600Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:48:06.618172800Z
+[2026-05-27T23:48:36.812942900Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:49:06.927857100Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:48:36.757623100Z
+[2026-05-27T23:49:06.966856900Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:49:37.101386200Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:49:06.894856800Z
+[2026-05-27T23:49:37.124160200Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:50:07.370035Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:49:37.051756400Z
+[2026-05-27T23:50:07.399035Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:50:43.456155200Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:50:07.319034800Z
+[2026-05-27T23:50:44.828154800Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:51:16.102485300Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:50:40.334635400Z
+[2026-05-27T23:51:16.182482Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:51:46.353096900Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:51:15.984482400Z
+[2026-05-27T23:51:46.383098500Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:52:16.493559600Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:51:46.282099700Z
+[2026-05-27T23:52:16.506561500Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:52:47.089364600Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:52:16.463558200Z
+[2026-05-27T23:52:47.133382200Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:53:17.678769700Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:52:47.002364700Z
+[2026-05-27T23:53:17.774768300Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:53:47.998454100Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:53:17.626769700Z
+[2026-05-27T23:53:48.056450800Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:54:18.083774200Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:53:47.888453700Z
+[2026-05-27T23:54:18.089772900Z] [INFO] [SYNC] Pull complete
+[2026-05-27T23:54:48.098601600Z] [INFO] [SYNC] Pulling remote changes since 2026-05-27T23:54:18.081769800Z
+[2026-05-27T23:54:48.106599300Z] [INFO] [SYNC] Pull complete

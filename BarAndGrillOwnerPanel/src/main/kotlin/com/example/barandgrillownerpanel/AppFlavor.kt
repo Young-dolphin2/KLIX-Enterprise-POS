@@ -26,3 +26,5 @@ enum class AppFlavor(
         val current: AppFlavor = KLIX
     }
 }
+
+

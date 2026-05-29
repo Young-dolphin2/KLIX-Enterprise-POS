@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -76,14 +77,14 @@ fun CreditsTab(
             DesktopKPICard(
                 title = "Money Owed To Us (Given)",
                 value = "MK ${String.format("%,.0f", totalGiven)}",
-                icon = Icons.Default.TrendingUp,
+                icon = Icons.AutoMirrored.Filled.TrendingUp,
                 color = SuccessGreen,
                 modifier = Modifier.weight(1f)
             )
             DesktopKPICard(
                 title = "Money We Owe (Received)",
                 value = "MK ${String.format("%,.0f", totalReceived)}",
-                icon = Icons.Default.TrendingDown,
+                icon = Icons.AutoMirrored.Filled.TrendingDown,
                 color = ErrorRed,
                 modifier = Modifier.weight(1f)
             )
@@ -95,7 +96,7 @@ fun CreditsTab(
         var viewMode by remember { mutableStateOf("GIVEN") } // GIVEN, RECEIVED, SETTLED
         
         Row(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
-            listOf("GIVEN" to "Customers Owe Us", "RECEIVED" to "We Owe Suppliers", "SETTLED" to "Settled History").forEach { (mode, label) ->
+            listOf("GIVEN" to "Customers Owe Us", "RECEIVED" to "We Owe Suppliers", "SETTLED" to "Settled History")?.forEach { (mode, label) ->
                 val isSelected = viewMode == mode
                 TextButton(
                     onClick = { viewMode = mode },
@@ -960,3 +961,5 @@ private fun formatMoneyField(v: Double): String {
     if (v % 1.0 == 0.0) return v.toInt().toString()
     return v.toString()
 }
+
+

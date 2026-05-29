@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -113,7 +114,7 @@ fun OverviewTab(
             KPICard(
                 title = "Total Revenue",
                 value = "${settings.currencySymbol} ${String.format("%,.0f", totalRevenue)}",
-                icon = Icons.Default.TrendingUp,
+                icon = Icons.AutoMirrored.Filled.TrendingUp,
                 iconTint = Color(0xFF4FC3F7),
                 modifier = Modifier.weight(1f)
             )
@@ -303,3 +304,5 @@ fun KPICard(
         }
     }
 }
+
+

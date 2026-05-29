@@ -10,56 +10,74 @@ import io.ktor.client.engine.okhttp.OkHttp
 
 object SupabaseManager {
     /**
-     * Configuration precedence:
+     * Configuration precedence (nullable):
      * 1) JVM system properties: -Dsupabase.url / -Dsupabase.key
      * 2) Environment variables: SUPABASE_URL / SUPABASE_ANON_KEY (or SUPABASE_KEY)
      *
-     * No embedded defaults are allowed; the app will fail fast if values are missing.
+     * Initialization is tolerant: if values are missing or client creation fails,
+     * `client` will be null and callers should handle that case. This prevents
+     * a hard crash during class initialization when running locally without
+     * environment variables (e.g., developer machines).
      */
-    private val supabaseUrl: String by lazy {
-        firstNonBlank(
+    private fun firstNonBlankNullable(vararg values: String?): String? =
+        values.firstOrNull { !it.isNullOrBlank() }
+
+    private val supabaseUrl: String? by lazy {
+        firstNonBlankNullable(
             System.getProperty("supabase.url"),
             System.getenv("SUPABASE_URL")
         )
     }
 
-    private val supabaseKey: String by lazy {
-        firstNonBlank(
+    private val supabaseKey: String? by lazy {
+        firstNonBlankNullable(
             System.getProperty("supabase.key"),
             System.getenv("SUPABASE_ANON_KEY"),
             System.getenv("SUPABASE_KEY")
         )
     }
 
-    val client: SupabaseClient = createSupabaseClient(
-        supabaseUrl = supabaseUrl,
-        supabaseKey = supabaseKey
-    ) {
-        install(Postgrest)
-        install(Realtime)
-        install(Auth)
-        install(Storage)
+    val client: SupabaseClient? by lazy {
+        if (supabaseUrl.isNullOrBlank() || supabaseKey.isNullOrBlank()) {
+            com.example.barandgrillownerpanel.utils.Logger.warn(
+                "SUPABASE",
+                "Supabase URL or Key not configured; operating in offline/no-remote mode."
+            )
+            return@lazy null
+        }
 
-        // Custom configured OkHttp engine instance to set connection pools and concurrency
-        httpEngine = OkHttp.create {
-            config {
-                dispatcher(okhttp3.Dispatcher().apply {
-                    maxRequests = 100
-                    maxRequestsPerHost = 100
-                })
-                connectionPool(okhttp3.ConnectionPool(
-                    10,
-                    5,
-                    java.util.concurrent.TimeUnit.MINUTES
-                ))
+        try {
+            createSupabaseClient(
+                supabaseUrl = supabaseUrl!!,
+                supabaseKey = supabaseKey!!
+            ) {
+                install(Postgrest)
+                install(Realtime)
+                install(Auth)
+                install(Storage)
+
+                httpEngine = OkHttp.create {
+                    config {
+                        dispatcher(okhttp3.Dispatcher().apply {
+                            maxRequests = 100
+                            maxRequestsPerHost = 100
+                        })
+                        connectionPool(okhttp3.ConnectionPool(
+                            10,
+                            5,
+                            java.util.concurrent.TimeUnit.MINUTES
+                        ))
+                    }
+                }
             }
+        } catch (t: Throwable) {
+            com.example.barandgrillownerpanel.utils.Logger.error("SUPABASE", "Failed to initialize Supabase client", t)
+            null
         }
     }
 
-    fun getUrl(): String = supabaseUrl
-    fun getAnonKey(): String = supabaseKey
-
-    private fun firstNonBlank(vararg values: String?): String =
-        values.firstOrNull { !it.isNullOrBlank() }
-            ?: error("Supabase configuration missing. Set -Dsupabase.url/-Dsupabase.key or SUPABASE_URL/SUPABASE_ANON_KEY.")
+    fun getUrl(): String? = supabaseUrl
+    fun getAnonKey(): String? = supabaseKey
 }
+
+

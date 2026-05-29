@@ -11,6 +11,8 @@ import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,6 +32,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlinx.serialization.encodeToString
+
+private fun String.toTitleCase(): String = split(' ')
+    .filter { it.isNotBlank() }
+    .joinToString(" ") { word ->
+        word.lowercase(Locale.getDefault()).replaceFirstChar { it.uppercase(Locale.getDefault()) }
+    }
 
 enum class OnboardingStep {
     BUSINESS_INFO,
@@ -52,20 +60,22 @@ fun OnboardingScreen(onComplete: () -> Unit) {
     var branchName by remember { mutableStateOf("Main Branch") }
     var branchType by remember { mutableStateOf("BAR") }
     
-    val settings = remember { 
-        com.example.barandgrillownerpanel.ui.dashboard.AppSettings(
-            businessName = "",
-            country = "",
-            currencySymbol = "$",
-            primaryColorHex = "#FF5722",
-            paymentMethods = listOf(
-                com.example.barandgrillownerpanel.ui.dashboard.PaymentMethod("CASH"),
-                com.example.barandgrillownerpanel.ui.dashboard.PaymentMethod("MOBILE_MONEY", "M-Pesa"),
-                com.example.barandgrillownerpanel.ui.dashboard.PaymentMethod("BANK_TRANSFER")
+    var settings by remember {
+        mutableStateOf(
+            com.example.barandgrillownerpanel.ui.dashboard.AppSettings(
+                businessName = "",
+                country = "",
+                currencySymbol = "$",
+                currencyCode = "USD",
+                email = "hello@klix.com",
+                emailPassword = "klix1234",
+                primaryColorHex = "#FF5722",
+                paymentMethods = emptyList()
             )
-        ) 
+        )
     }
-
+    var mobileMoneyOperator by remember { mutableStateOf("") }
+    var mobileMoneyTabIndex by remember { mutableStateOf(0) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
 
@@ -129,7 +139,39 @@ fun OnboardingScreen(onComplete: () -> Unit) {
                     OnboardingStep.CURRENCY -> CurrencyStep(currencySymbol, currencyCode, { currencySymbol = it }, { currencyCode = it }) {
                         currentStep = OnboardingStep.PAYMENTS
                     }
-                    OnboardingStep.PAYMENTS -> PaymentsStep(settings.paymentMethods.map { it.toString() }) {
+                    OnboardingStep.PAYMENTS -> PaymentsStep(
+                        methods = settings.paymentMethods,
+                        country = country,
+                        mobileMoneyOperator = mobileMoneyOperator,
+                        mobileMoneyTabIndex = mobileMoneyTabIndex,
+                        onToggleMethod = { type ->
+                            settings = when {
+                                type == "MOBILE_MONEY" && settings.paymentMethods.any { it.type == "MOBILE_MONEY" } -> {
+                                    mobileMoneyOperator = ""
+                                    settings.copy(paymentMethods = settings.paymentMethods.filter { it.type != "MOBILE_MONEY" })
+                                }
+                                type == "MOBILE_MONEY" -> {
+                                    settings.copy(paymentMethods = settings.paymentMethods + com.example.barandgrillownerpanel.ui.dashboard.PaymentMethod("MOBILE_MONEY"))
+                                }
+                                settings.paymentMethods.any { it.type == type } -> {
+                                    settings.copy(paymentMethods = settings.paymentMethods.filter { it.type != type })
+                                }
+                                settings.paymentMethods.size < 4 -> {
+                                    settings.copy(paymentMethods = settings.paymentMethods + com.example.barandgrillownerpanel.ui.dashboard.PaymentMethod(type))
+                                }
+                                else -> settings
+                            }
+                        },
+                        onMobileMoneyOperatorChange = { operatorValue ->
+                            val formatted = operatorValue.toTitleCase()
+                            mobileMoneyOperator = formatted
+                            settings = settings.copy(paymentMethods = settings.paymentMethods.map {
+                                if (it.type == "MOBILE_MONEY") com.example.barandgrillownerpanel.ui.dashboard.PaymentMethod("MOBILE_MONEY", formatted)
+                                else it
+                            })
+                        },
+                        onMobileMoneyTabSelected = { mobileMoneyTabIndex = it }
+                    ) {
                         currentStep = OnboardingStep.BRANCH
                     }
                     OnboardingStep.BRANCH -> BranchStep(branchName, branchType, { branchName = it }, { branchType = it }) {
@@ -151,7 +193,8 @@ fun OnboardingScreen(onComplete: () -> Unit) {
                                     val finalSettings = settings.copy(
                                         businessName = businessName,
                                         country = country,
-                                        currencySymbol = currencySymbol
+                                        currencySymbol = currencySymbol,
+                                        currencyCode = currencyCode
                                     )
                                     LocalDatabase.saveAppSettings(
                                         settings = finalSettings,
@@ -321,17 +364,165 @@ fun CurrencyStep(symbol: String, code: String, onSymbolChange: (String) -> Unit,
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun PaymentsStep(methods: List<String>, onNext: () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-        Text("Choose your default payment methods", color = Color(0xFF94A3B8), fontSize = 16.sp)
-        Text("You can change these later in Settings", color = Color(0xFF475569), fontSize = 14.sp)
+fun PaymentsStep(
+    methods: List<com.example.barandgrillownerpanel.ui.dashboard.PaymentMethod>,
+    country: String,
+    mobileMoneyOperator: String,
+    mobileMoneyTabIndex: Int,
+    onToggleMethod: (String) -> Unit,
+    onMobileMoneyOperatorChange: (String) -> Unit,
+    onMobileMoneyTabSelected: (Int) -> Unit,
+    onNext: () -> Unit
+) {
+    val availableTypes = listOf(
+        "CASH" to "Cash",
+        "BANK_TRANSFER" to "Bank Transfer",
+        "POS" to "POS",
+        "CHEQUE" to "Cheque",
+        "MOBILE_MONEY" to "Mobile Money"
+    )
+    val selectedTypes = methods.map { it.type }.toSet()
+    val mobileMoneySelected = selectedTypes.contains("MOBILE_MONEY")
+    val mobileMoneyReady = mobileMoneyOperator.isNotBlank() || methods.any { it.type == "MOBILE_MONEY" && it.operatorName?.isNotBlank() == true }
+    val selectionLimitReached = methods.size >= 4
+
+    fun countryBasedMobileMoneySuggestions(countryName: String): List<String> {
+        val lower = countryName.lowercase(Locale.getDefault())
+        return when {
+            lower.contains("malawi") -> listOf("Airtel Money", "TNM Mpamba", "MTN MoMo")
+            lower.contains("kenya") -> listOf("M-Pesa", "Airtel Money", "Orange Money")
+            lower.contains("uganda") -> listOf("MTN MoMo", "Airtel Money", "M-Pesa")
+            lower.contains("ghana") -> listOf("MTN MoMo", "Orange Money", "Airtel Money")
+            lower.contains("tanzania") -> listOf("M-Pesa", "Airtel Money", "Tigo Pesa")
+            lower.contains("zimbabwe") -> listOf("EcoCash", "MTN MoMo", "Airtel Money")
+            lower.contains("philippines") -> listOf("GCash", "PayMaya", "Coins.ph")
+            lower.contains("bangladesh") -> listOf("bKash", "Nagad", "Rocket")
+            lower.contains("malaysia") -> listOf("Boost", "Touch 'n Go eWallet", "GrabPay")
+            else -> listOf("M-Pesa", "Airtel Money", "Orange Money", "MTN MoMo", "EcoCash", "GCash", "bKash", "Boost", "Tigo Money")
+        }
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        Text("Choose up to four payment methods", color = Color(0xFF94A3B8), fontSize = 16.sp)
+        Text("Select the payment types your business will accept. Mobile Money opens a second tab for operator details.", color = Color(0xFF475569), fontSize = 14.sp)
+        Spacer(Modifier.height(12.dp))
+
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+            availableTypes.forEach { (type, label) ->
+                val selected = selectedTypes.contains(type)
+                Button(
+                    onClick = { onToggleMethod(type) },
+                    modifier = Modifier.height(52.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (selected) PrimaryOrange else Color(0xFF1E293B),
+                        contentColor = if (selected) Color.White else Color(0xFFCBD5E1)
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    enabled = selected || !selectionLimitReached
+                ) {
+                    Text(label, fontSize = 12.sp)
+                }
+            }
+        }
+
+        if (selectionLimitReached) {
+            Text("Maximum of 4 payment methods selected.", color = Color(0xFFEF4444), fontSize = 12.sp)
+        }
+
+        if (mobileMoneySelected) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = Color(0xFF0F172A),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    val tabTitles = listOf("Operator", "Suggestions")
+                    TabRow(
+                        selectedTabIndex = mobileMoneyTabIndex,
+                        containerColor = Color.Transparent,
+                        contentColor = PrimaryOrange
+                    ) {
+                        tabTitles.forEachIndexed { index, title ->
+                            Tab(
+                                selected = mobileMoneyTabIndex == index,
+                                onClick = { onMobileMoneyTabSelected(index) },
+                                text = { Text(title) }
+                            )
+                        }
+                    }
+
+                    when (mobileMoneyTabIndex) {
+                        0 -> {
+                            OutlinedTextField(
+                                value = mobileMoneyOperator,
+                                onValueChange = { onMobileMoneyOperatorChange(it) },
+                                label = { Text("Mobile Money Operator") },
+                                placeholder = { Text("e.g., M-Pesa") },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = PrimaryOrange,
+                                    unfocusedBorderColor = Color(0xFF334155),
+                                    focusedTextColor = Color.White,
+                                    unfocusedTextColor = Color.White,
+                                    cursorColor = PrimaryOrange
+                                ),
+                                shape = RoundedCornerShape(12.dp)
+                            )
+                        }
+                        else -> {
+                            val suggestions = countryBasedMobileMoneySuggestions(country)
+                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                suggestions.forEach { suggestion ->
+                                    FilterChip(
+                                        selected = mobileMoneyOperator == suggestion,
+                                        onClick = { onMobileMoneyOperatorChange(suggestion) },
+                                        label = { Text(suggestion) },
+                                        colors = FilterChipDefaults.filterChipColors(
+                                            selectedContainerColor = PrimaryOrange,
+                                            selectedLabelColor = Color.White
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    if (mobileMoneyOperator.isBlank()) {
+                        Text("Enter the mobile money operator before continuing.", color = Color(0xFFEF4444), fontSize = 12.sp)
+                    }
+                }
+            }
+        }
+
+        if (methods.isNotEmpty()) {
+            Text("Enabled payment methods:", color = Color(0xFF94A3B8), fontSize = 14.sp)
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                methods.forEach { method ->
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = PrimaryOrange.copy(alpha = 0.15f),
+                        tonalElevation = 0.dp
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                            Text(method.toString(), color = Color.White, fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
+        } else {
+            Text("No payment methods selected. Choose at least one to continue.", color = Color(0xFFEF4444), fontSize = 12.sp)
+        }
+
         Spacer(Modifier.height(16.dp))
         Button(
             onClick = onNext,
             modifier = Modifier.fillMaxWidth().height(56.dp),
             colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
-            shape = RoundedCornerShape(16.dp)
+            shape = RoundedCornerShape(16.dp),
+            enabled = methods.isNotEmpty() && (!mobileMoneySelected || mobileMoneyReady)
         ) {
             Text("Continue", fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
@@ -360,7 +551,7 @@ fun BranchStep(name: String, type: String, onNameChange: (String) -> Unit, onTyp
         )
         Text("Business Type", color = Color(0xFF94A3B8), fontSize = 14.sp)
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            listOf("BAR" to "🍺 Bar / Restaurant", "SHOP" to "🏪 Retail Shop", "RENTAL" to "🚗 Car Rental", "GYM" to "💪 Gym").forEach { (value, label) ->
+            listOf("BAR" to "🍺 Bar / Restaurant", "SHOP" to "🏪 Retail Shop", "RENTAL" to "🚗 Car Rental", "GYM" to "💪 Gym")?.forEach { (value, label) ->
                 FilterChip(
                     selected = type == value,
                     onClick = { onTypeChange(value) },
@@ -384,3 +575,5 @@ fun BranchStep(name: String, type: String, onNameChange: (String) -> Unit, onTyp
         }
     }
 }
+
+

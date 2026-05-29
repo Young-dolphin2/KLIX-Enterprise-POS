@@ -74,19 +74,19 @@ fun SignUpScreen(
                     text = "Create an Account",
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = Color(0xFFC0C0C0)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = "Sign up to start managing your business",
-                    color = Color(0xFF94A3B8),
+                    color = Color(0xFFC0C0C0),
                     fontSize = 18.sp
                 )
 
                 Spacer(modifier = Modifier.height(48.dp))
 
                 // Email Field
-                Text("Email Address", color = Color(0xFFCBD5E1), fontSize = 14.sp)
+                Text("Email Address", color = Color(0xFFC0C0C0), fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(8.dp))
                 CustomTextField(
                     value = email,
@@ -98,7 +98,7 @@ fun SignUpScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Password Field
-                Text("Password", color = Color(0xFFCBD5E1), fontSize = 14.sp)
+                Text("Password", color = Color(0xFFC0C0C0), fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(8.dp))
                 CustomTextField(
                     value = password,
@@ -111,7 +111,7 @@ fun SignUpScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Confirm Password Field
-                Text("Confirm Password", color = Color(0xFFCBD5E1), fontSize = 14.sp)
+                Text("Confirm Password", color = Color(0xFFC0C0C0), fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(8.dp))
                 CustomTextField(
                     value = confirmPassword,
@@ -146,14 +146,14 @@ fun SignUpScreen(
                             errorMessage = null
                             scope.launch {
                                 try {
-                                    SupabaseManager.client.auth.signUpWith(Email) {
+                                    SupabaseManager.client?.auth?.signUpWith(Email) {
                                         this.email = email
                                         this.password = password
                                     }
                                     onSignUpSuccess()
-                                } catch (e: Exception) {
-                                    Logger.error("SIGNUP", "Sign up failed", e)
-                                    errorMessage = "Sign up failed: ${e.message}"
+                                } catch (t: Throwable) {
+                                    Logger.error("SIGNUP", "Sign up failed", t)
+                                    errorMessage = "Sign up failed: ${t.message}"
                                 } finally {
                                     isLoading = false
                                 }
@@ -161,13 +161,13 @@ fun SignUpScreen(
                         },
                         modifier = Modifier.fillMaxSize(),
                         shape = RoundedCornerShape(28.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB)),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD4AF37)),
                         enabled = !isLoading
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                         } else {
-                            Text("Create Account", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("Create Account", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                         }
                     }
                 }
@@ -207,4 +207,6 @@ fun SignUpScreen(
             }
     }
 }
+
+
 

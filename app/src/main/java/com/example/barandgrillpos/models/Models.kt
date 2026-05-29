@@ -41,7 +41,7 @@ data class SaleRecord(
     val branchId: String? = null
 )
 
-enum class Screen { POS, STATS, EMPLOYEE_PROFILE, ONBOARDING, LOGIN, SIGN_UP }
+enum class Screen { POS, STATS, EMPLOYEE_PROFILE, EMPLOYEE_LOGIN, ONBOARDING, LOGIN, SIGN_UP }
 
 @Serializable
 data class BranchRef(

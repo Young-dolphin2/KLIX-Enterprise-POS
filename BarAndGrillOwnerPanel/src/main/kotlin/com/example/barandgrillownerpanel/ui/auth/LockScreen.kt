@@ -30,8 +30,7 @@ fun LockScreen(
     // Read PIN from prefs — owner sets this in Settings; fallback to "1234" if none saved yet
     val storedPin = remember {
         Preferences.userRoot()
-            .node("com.example.barandgrillownerpanel")
-            .get("admin_pin", "1234")
+            .node("com.example.barandgrillownerpanel")?.get("admin_pin", "1234")
     }
 
     var pin by remember { mutableStateOf("") }
@@ -175,3 +174,5 @@ fun LockScreen(
         }
     }
 }
+
+

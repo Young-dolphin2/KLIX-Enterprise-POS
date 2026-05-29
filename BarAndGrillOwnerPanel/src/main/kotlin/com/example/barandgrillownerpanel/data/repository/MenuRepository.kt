@@ -21,9 +21,7 @@ object MenuRepository {
     suspend fun fetchCategories(): List<CategoryDto> {
         return withContext(Dispatchers.IO) {
             try {
-                val categories = SupabaseManager.client.postgrest["categories"]
-                    .select()
-                    .decodeAs<List<CategoryDto>>()
+                val categories = SupabaseManager.client?.postgrest?.get("categories")?.select()?.decodeAs<List<CategoryDto>>() ?: emptyList()
                 Logger.info(TAG, "Fetched ${categories.size} categories from Supabase")
                 categories
             } catch (e: Exception) {
@@ -40,9 +38,8 @@ object MenuRepository {
                 if (parentName != null) {
                     payload["parent_name"] = parentName
                 }
-                SupabaseManager.client.postgrest["categories"]
-                    .insert(payload) { select() }
-                    .decodeAs<CategoryDto>()
+                val created = SupabaseManager.client?.postgrest?.get("categories")?.insert(payload) { select() }?.decodeAs<List<CategoryDto>>()?.firstOrNull()
+                created
             } catch (e: Exception) {
                 Logger.error(TAG, "Failed to create category", e)
                 null
@@ -53,8 +50,7 @@ object MenuRepository {
     suspend fun updateCategory(id: String, name: String) {
         withContext(Dispatchers.IO) {
             try {
-                SupabaseManager.client.postgrest["categories"]
-                    .update(mapOf("name" to name)) { filter { eq("id", id) } }
+                SupabaseManager.client?.postgrest?.get("categories")?.update(mapOf("name" to name)) { filter { eq("id", id) } }
                 Logger.info(TAG, "Updated category $id")
             } catch (e: Exception) {
                 Logger.error(TAG, "Failed to update category $id", e)
@@ -65,8 +61,7 @@ object MenuRepository {
     suspend fun deleteCategory(id: String) {
         withContext(Dispatchers.IO) {
             try {
-                SupabaseManager.client.postgrest["categories"]
-                    .delete { filter { eq("id", id) } }
+                SupabaseManager.client?.postgrest?.get("categories")?.delete { filter { eq("id", id) } }
                 Logger.info(TAG, "Deleted category $id")
             } catch (e: Exception) {
                 Logger.error(TAG, "Failed to delete category $id", e)
@@ -74,3 +69,7 @@ object MenuRepository {
         }
     }
 }
+
+
+
+

@@ -49,11 +49,11 @@ object LocalDatabase {
             dbFile = File(dbDirectory, DB_NAME)
             setOwnerOnlyPermissions(dbFile)
             connection = DriverManager.getConnection("jdbc:sqlite:${dbFile?.absolutePath}")
-            connection?.apply {
-                createStatement().execute("PRAGMA journal_mode=WAL")
-                createStatement().execute("PRAGMA foreign_keys=ON")
-                createStatement().execute("PRAGMA secure_delete=ON")
-                createStatement().execute("PRAGMA temp_store=MEMORY")
+            connection?.createStatement().use { stmt ->
+                stmt?.execute("PRAGMA journal_mode=WAL")
+                stmt?.execute("PRAGMA foreign_keys=ON")
+                stmt?.execute("PRAGMA secure_delete=ON")
+                stmt?.execute("PRAGMA temp_store=MEMORY")
             }
             createTables()
             migrateIfNeeded()
@@ -68,11 +68,11 @@ object LocalDatabase {
                 dbFile?.delete()
                 setOwnerOnlyPermissions(dbFile)
                 connection = DriverManager.getConnection("jdbc:sqlite:${dbFile?.absolutePath}")
-                connection?.apply {
-                    createStatement().execute("PRAGMA journal_mode=WAL")
-                    createStatement().execute("PRAGMA foreign_keys=ON")
-                    createStatement().execute("PRAGMA secure_delete=ON")
-                    createStatement().execute("PRAGMA temp_store=MEMORY")
+                connection?.createStatement().use { stmt ->
+                    stmt?.execute("PRAGMA journal_mode=WAL")
+                    stmt?.execute("PRAGMA foreign_keys=ON")
+                    stmt?.execute("PRAGMA secure_delete=ON")
+                    stmt?.execute("PRAGMA temp_store=MEMORY")
                 }
                 createTables()
                 migrateIfNeeded()
@@ -166,9 +166,8 @@ object LocalDatabase {
 
     private fun createTables() {
         val conn = connection ?: return
-        conn.createStatement().apply {
-            // Business Settings
-            execute("""
+        conn.createStatement().use { statement ->
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS app_settings (
                     id TEXT PRIMARY KEY,
                     business_name TEXT NOT NULL,
@@ -176,15 +175,25 @@ object LocalDatabase {
                     currency_symbol TEXT DEFAULT '$',
                     currency_code TEXT DEFAULT 'USD',
                     phone_number TEXT,
+                    owner_email TEXT,
+                    owner_password TEXT,
                     payment_methods_json TEXT,
                     primary_color_hex TEXT DEFAULT '#FF5722',
                     is_onboarded INTEGER DEFAULT 0,
                     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
                 )
             """)
+            try {
+                statement.execute("ALTER TABLE app_settings ADD COLUMN owner_email TEXT")
+            } catch (_: Exception) { }
+            try {
+                statement.execute("ALTER TABLE app_settings ADD COLUMN owner_password TEXT")
+            } catch (_: Exception) { }
+            try {
+                statement.execute("ALTER TABLE app_settings ADD COLUMN payment_methods_json TEXT")
+            } catch (_: Exception) { }
 
-            // Branches
-            execute("""
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS branches (
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -198,8 +207,7 @@ object LocalDatabase {
                 )
             """)
 
-            // Menu & Inventory
-            execute("""
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS menu_items (
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -213,7 +221,8 @@ object LocalDatabase {
                     synced_at TEXT
                 )
             """)
-            execute("""
+
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS inventory (
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -238,8 +247,7 @@ object LocalDatabase {
                 )
             """)
 
-            // Sales & Items
-            execute("""
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS sales (
                     id TEXT PRIMARY KEY,
                     order_id TEXT NOT NULL,
@@ -253,7 +261,8 @@ object LocalDatabase {
                     synced_at TEXT
                 )
             """)
-            execute("""
+
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS sale_items (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     sale_id TEXT NOT NULL,
@@ -268,8 +277,7 @@ object LocalDatabase {
                 )
             """)
 
-            // Financials
-            execute("""
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS expenses (
                     id TEXT PRIMARY KEY,
                     branch_id TEXT,
@@ -283,7 +291,8 @@ object LocalDatabase {
                     synced_at TEXT
                 )
             """)
-            execute("""
+
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS credits (
                     id TEXT PRIMARY KEY,
                     branch_id TEXT,
@@ -301,8 +310,7 @@ object LocalDatabase {
                 )
             """)
 
-            // Metadata
-            execute("""
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS categories (
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -313,7 +321,8 @@ object LocalDatabase {
                     synced_at TEXT
                 )
             """)
-            execute("""
+
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS customers (
                     id TEXT PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -328,8 +337,7 @@ object LocalDatabase {
                 )
             """)
 
-            // Sync Infrastructure
-            execute("""
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS sync_queue (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     table_name TEXT NOT NULL,
@@ -342,30 +350,29 @@ object LocalDatabase {
                     retry_count INTEGER DEFAULT 0
                 )
             """)
-            execute("""
+
+            statement.execute("""
                 CREATE TABLE IF NOT EXISTS sync_metadata (
                     key TEXT PRIMARY KEY,
                     value TEXT NOT NULL
                 )
             """)
 
-            // Performance indexes for high-read queries
-            execute("CREATE INDEX IF NOT EXISTS idx_branches_is_active ON branches(is_active)")
-            execute("CREATE INDEX IF NOT EXISTS idx_menu_items_branch_id ON menu_items(branch_id)")
-            execute("CREATE INDEX IF NOT EXISTS idx_menu_items_is_active ON menu_items(is_active)")
-            execute("CREATE INDEX IF NOT EXISTS idx_inventory_branch_id ON inventory(branch_id)")
-            execute("CREATE INDEX IF NOT EXISTS idx_inventory_status ON inventory(status)")
-            execute("CREATE INDEX IF NOT EXISTS idx_sales_timestamp ON sales(timestamp)")
-            execute("CREATE INDEX IF NOT EXISTS idx_sales_branch_id ON sales(branch_id)")
-            execute("CREATE INDEX IF NOT EXISTS idx_expenses_expense_date ON expenses(expense_date)")
-            execute("CREATE INDEX IF NOT EXISTS idx_customers_branch_id ON customers(branch_id)")
-            execute("CREATE INDEX IF NOT EXISTS idx_customers_updated_at ON customers(updated_at)")
-            execute("CREATE INDEX IF NOT EXISTS idx_customers_name ON customers(name)")
-            execute("CREATE INDEX IF NOT EXISTS idx_sync_queue_pushed ON sync_queue(pushed)")
-            // Additional indexes for high-frequency filtered queries
-            execute("CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category)")
-            execute("CREATE INDEX IF NOT EXISTS idx_credits_is_settled ON credits(is_settled)")
-            execute("CREATE INDEX IF NOT EXISTS idx_sync_queue_created_at ON sync_queue(created_at)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_branches_is_active ON branches(is_active)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_menu_items_branch_id ON menu_items(branch_id)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_menu_items_is_active ON menu_items(is_active)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_inventory_branch_id ON inventory(branch_id)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_inventory_status ON inventory(status)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_sales_timestamp ON sales(timestamp)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_sales_branch_id ON sales(branch_id)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_expenses_expense_date ON expenses(expense_date)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_customers_branch_id ON customers(branch_id)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_customers_updated_at ON customers(updated_at)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_customers_name ON customers(name)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_sync_queue_pushed ON sync_queue(pushed)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_credits_is_settled ON credits(is_settled)")
+            statement.execute("CREATE INDEX IF NOT EXISTS idx_sync_queue_created_at ON sync_queue(created_at)")
         }
     }
 
@@ -384,10 +391,11 @@ object LocalDatabase {
     fun setMeta(key: String, value: String) {
         val conn = connection ?: return
         try {
-            val stmt = conn.prepareStatement("INSERT OR REPLACE INTO sync_metadata (key, value) VALUES (?, ?)")
-            stmt.setString(1, key)
-            stmt.setString(2, value)
-            stmt.execute()
+            conn.prepareStatement("INSERT OR REPLACE INTO sync_metadata (key, value) VALUES (?, ?)")?.use { stmt ->
+                stmt.setString(1, key)
+                stmt.setString(2, value)
+                stmt.execute()
+            }
         } catch (e: Exception) {
             Logger.error(TAG, "Failed to set meta $key", e)
         }
@@ -396,10 +404,12 @@ object LocalDatabase {
     fun getMeta(key: String): String? {
         val conn = connection ?: return null
         try {
-            val stmt = conn.prepareStatement("SELECT value FROM sync_metadata WHERE key = ?")
-            stmt.setString(1, key)
-            val rs = stmt.executeQuery()
-            if (rs.next()) return rs.getString("value")
+            conn.prepareStatement("SELECT value FROM sync_metadata WHERE key = ?")?.use { stmt ->
+                stmt.setString(1, key)
+                stmt.executeQuery().use { rs ->
+                    if (rs.next()) return rs.getString("value")
+                }
+            }
         } catch (e: Exception) {
             Logger.error(TAG, "Failed to get meta $key", e)
         }
@@ -419,23 +429,25 @@ object LocalDatabase {
     ) {
         val conn = connection ?: return
         try {
-            val stmt = conn.prepareStatement("""
+            conn.prepareStatement("""
                 INSERT OR REPLACE INTO app_settings (
                     id, business_name, country, currency_symbol, currency_code, 
-                    phone_number, payment_methods_json, primary_color_hex, is_onboarded, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
-            """)
-            stmt.setString(1, "singleton")
-            stmt.setString(2, settings.businessName)
-            stmt.setString(3, country)
-            stmt.setString(4, settings.currencySymbol)
-            stmt.setString(5, currencyCode)
-            stmt.setString(6, encryptColumn(phone))
-            stmt.setString(7, kotlinx.serialization.json.Json.encodeToString(settings.paymentMethods))
-            stmt.setString(8, settings.primaryColorHex)
-            stmt.setInt(9, if (isOnboarded) 1 else 0)
-            stmt.execute()
-            
+                    phone_number, owner_email, owner_password, payment_methods_json, primary_color_hex, is_onboarded, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+            """)?.use { stmt ->
+                stmt.setString(1, "singleton")
+                stmt.setString(2, settings.businessName)
+                stmt.setString(3, country)
+                stmt.setString(4, settings.currencySymbol)
+                stmt.setString(5, currencyCode)
+                stmt.setString(6, encryptColumn(phone))
+                stmt.setString(7, settings.email)
+                stmt.setString(8, settings.emailPassword)
+                stmt.setString(9, kotlinx.serialization.json.Json.encodeToString(settings.paymentMethods))
+                stmt.setString(10, settings.primaryColorHex)
+                stmt.setInt(11, if (isOnboarded) 1 else 0)
+                stmt.execute()
+            }
             queueSync("app_settings", "singleton", "UPDATE")
         } catch (e: Exception) {
             Logger.error(TAG, "Failed to save app settings", e)
@@ -445,22 +457,29 @@ object LocalDatabase {
     fun getAppSettings(): com.example.barandgrillownerpanel.ui.dashboard.AppSettings? {
         val conn = connection ?: return null
         try {
-            val rs = conn.createStatement().executeQuery("SELECT * FROM app_settings WHERE id = 'singleton'")
-            if (rs.next()) {
-                val methodsJson = rs.getString("payment_methods_json") ?: "[]"
-                val methods = try {
-                    kotlinx.serialization.json.Json.decodeFromString<List<com.example.barandgrillownerpanel.ui.dashboard.PaymentMethod>>(methodsJson)
-                } catch (e: Exception) { emptyList() }
+            conn.createStatement().use { stmt ->
+                stmt.executeQuery("SELECT * FROM app_settings WHERE id = 'singleton'")?.use { rs ->
+                    if (rs.next()) {
+                        val methodsJson = rs.getString("payment_methods_json") ?: "[]"
+                        val methods = try {
+                            kotlinx.serialization.json.Json.decodeFromString<List<com.example.barandgrillownerpanel.ui.dashboard.PaymentMethod>>(methodsJson)
+                        } catch (e: Exception) { emptyList() }
 
-                return com.example.barandgrillownerpanel.ui.dashboard.AppSettings(
-                    businessName = rs.getString("business_name") ?: "",
-                    country = rs.getString("country") ?: "",
-                    currencySymbol = rs.getString("currency_symbol") ?: "$",
-                    currencyCode = rs.getString("currency_code") ?: "USD",
-                    phoneNumber = decryptColumn(rs.getString("phone_number")) ?: "",
-                    primaryColorHex = rs.getString("primary_color_hex") ?: "#FF5722",
-                    paymentMethods = methods
-                )
+                        val ownerEmail = try { rs.getString("owner_email") } catch (_: Exception) { null }
+                        val ownerPassword = try { rs.getString("owner_password") } catch (_: Exception) { null }
+                        return com.example.barandgrillownerpanel.ui.dashboard.AppSettings(
+                            businessName = rs.getString("business_name") ?: "",
+                            email = ownerEmail ?: "hello@klix.com",
+                            emailPassword = ownerPassword ?: "klix1234",
+                            country = rs.getString("country") ?: "",
+                            currencySymbol = rs.getString("currency_symbol") ?: "$",
+                            currencyCode = rs.getString("currency_code") ?: "USD",
+                            phoneNumber = decryptColumn(rs.getString("phone_number")) ?: "",
+                            primaryColorHex = rs.getString("primary_color_hex") ?: "#FF5722",
+                            paymentMethods = methods
+                        )
+                    }
+                }
             }
         } catch (e: Exception) {
             Logger.error(TAG, "Failed to get app settings", e)
@@ -1280,3 +1299,5 @@ data class SyncQueueItem(
     val retryCount: Int,
     val createdAt: String
 )
+
+

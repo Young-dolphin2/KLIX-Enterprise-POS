@@ -23,9 +23,7 @@ object SettingsRepository {
     suspend fun fetchBranches(): List<BranchDto> {
         return withContext(Dispatchers.IO) {
             try {
-                val branches = SupabaseManager.client.postgrest["branches"]
-                    .select()
-                    .decodeAs<List<BranchDto>>()
+                val branches = SupabaseManager.client?.postgrest?.get("branches")?.select()?.decodeAs<List<BranchDto>>() ?: emptyList()
                 // Cache to local DB
                 branches.forEach { LocalDatabase.upsertBranch(it) }
                 Logger.info(TAG, "Fetched ${branches.size} branches from Supabase")
@@ -40,12 +38,11 @@ object SettingsRepository {
     suspend fun createBranch(name: String, type: String): BranchDto? {
         return withContext(Dispatchers.IO) {
             try {
-                val newBranch = SupabaseManager.client.postgrest["branches"]
-                    .insert(mapOf("name" to name, "type" to type)) {
+                val newBranch = SupabaseManager.client?.postgrest?.get("branches")?.insert(mapOf("name" to name, "type" to type)) {
                         select()
-                    }
-                    .decodeAs<BranchDto>()
-                newBranch.also { LocalDatabase.upsertBranch(it) }
+                    }?.decodeAs<List<BranchDto>>()?.firstOrNull()
+                newBranch?.also { LocalDatabase.upsertBranch(it) }
+                newBranch
             } catch (e: Exception) {
                 Logger.warn(TAG, "Failed to create branch on Supabase, saving locally")
                 // Create locally with temp ID
@@ -65,8 +62,7 @@ object SettingsRepository {
     suspend fun updateBranch(id: String, updates: Map<String, Any>) {
         withContext(Dispatchers.IO) {
             try {
-                SupabaseManager.client.postgrest["branches"]
-                    .update(updates) { filter { eq("id", id) } }
+                SupabaseManager.client?.postgrest?.get("branches")?.update(updates) { filter { eq("id", id) } }
                 Logger.info(TAG, "Updated branch $id")
             } catch (e: Exception) {
                 Logger.warn(TAG, "Failed to update branch $id on Supabase")
@@ -80,9 +76,7 @@ object SettingsRepository {
     suspend fun fetchEmployees(): List<Map<String, Any?>> {
         return withContext(Dispatchers.IO) {
             try {
-                SupabaseManager.client.postgrest["employees"]
-                    .select()
-                    .decodeAs<List<Map<String, Any?>>>()
+                SupabaseManager.client?.postgrest?.get("employees")?.select()?.decodeAs<List<Map<String, Any?>>>() ?: emptyList()
             } catch (e: Exception) {
                 Logger.warn(TAG, "Failed to fetch employees: ${e.message}")
                 emptyList()
@@ -93,9 +87,7 @@ object SettingsRepository {
     suspend fun createEmployee(employee: Map<String, Any?>): Map<String, Any?>? {
         return withContext(Dispatchers.IO) {
             try {
-                SupabaseManager.client.postgrest["employees"]
-                    .insert(employee) { select() }
-                    .decodeAs<Map<String, Any?>>()
+                SupabaseManager.client?.postgrest?.get("employees")?.insert(employee) { select() }?.decodeAs<List<Map<String, Any?>>>()?.firstOrNull()
             } catch (e: Exception) {
                 Logger.error(TAG, "Failed to create employee", e)
                 null
@@ -106,8 +98,7 @@ object SettingsRepository {
     suspend fun updateEmployee(id: String, updates: Map<String, Any?>) {
         withContext(Dispatchers.IO) {
             try {
-                SupabaseManager.client.postgrest["employees"]
-                    .update(updates) { filter { eq("id", id) } }
+                SupabaseManager.client?.postgrest?.get("employees")?.update(updates) { filter { eq("id", id) } }
             } catch (e: Exception) {
                 Logger.error(TAG, "Failed to update employee $id", e)
             }
@@ -117,8 +108,7 @@ object SettingsRepository {
     suspend fun deleteEmployee(id: String) {
         withContext(Dispatchers.IO) {
             try {
-                SupabaseManager.client.postgrest["employees"]
-                    .delete { filter { eq("id", id) } }
+                SupabaseManager.client?.postgrest?.get("employees")?.delete { filter { eq("id", id) } }
             } catch (e: Exception) {
                 Logger.error(TAG, "Failed to delete employee $id", e)
             }
@@ -148,3 +138,7 @@ object SettingsRepository {
         Logger.info(TAG, "Settings saved to local database")
     }
 }
+
+
+
+

@@ -23,6 +23,7 @@ import com.example.barandgrillownerpanel.models.*
 import com.example.barandgrillownerpanel.data.remote.SupabaseManager
 import com.example.barandgrillownerpanel.utils.Logger
 import io.github.jan.supabase.auth.auth
+import java.util.UUID
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.launch
@@ -196,7 +197,7 @@ fun BusinessProfileSection(
                                 val file = java.io.File(dirStr, fileStr)
                                 val bytes = file.readBytes()
                                 val uploadPath = "logo_${System.currentTimeMillis()}_${fileStr}"
-                                val bucket = SupabaseManager.client.storage.from("branding")
+                                val bucket = SupabaseManager.client?.storage?.from("branding") ?: return@launch
                                 bucket.upload(uploadPath, bytes) { upsert = true }
                                 val url = bucket.publicUrl(uploadPath)
                                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
@@ -271,8 +272,7 @@ fun BusinessProfileSection(
                     IconButton(onClick = {
                         scope.launch {
                             try {
-                                com.example.barandgrillownerpanel.data.remote.SupabaseManager.client.postgrest["branches"]
-                                    .delete { filter { eq("id", branch.id ?: "") } }
+                                com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("branches")?.delete { filter { eq("id", branch.id ?: "") } }
                                 onBranchesChange(branches.filter { it.id != branch.id })
                             } catch (e: Exception) {
                                 Logger.error("SETTINGS", "Failed to delete branch", e)
@@ -293,7 +293,7 @@ fun BusinessProfileSection(
             isSavingProfile = true
             scope.launch {
                 try {
-                    SupabaseManager.client.auth.updateUser {
+                    SupabaseManager.client?.auth?.updateUser {
                         data {
                             put("business_name", settings.businessName)
                         }
@@ -372,13 +372,11 @@ fun BusinessProfileSection(
                             try {
                                 if (dialogBranch == null) {
                                     val newBranch = BranchDto(name = bName, type = bType, address = bAddress.ifBlank { null })
-                                    val inserted = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                        .postgrest["branches"].insert(newBranch) { select() }
-                                        .decodeAs<List<BranchDto>>()
+                                    val inserted = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("branches")?.insert(newBranch) { select() }
+                                        ?.decodeAs<List<BranchDto>>() ?: emptyList()
                                     onBranchesChange(branches + inserted)
                                 } else {
-                                    com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                        .postgrest["branches"].update({
+                                    com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("branches")?.update({
                                             set("name", bName)
                                             set("type", bType)
                                             set("address", bAddress.ifBlank { null })
@@ -545,7 +543,7 @@ fun RegionalSettingsSection(settings: AppSettings, onSettingsChange: (AppSetting
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     Text("Payment Type", color = TextSecondary, fontSize = 12.sp)
                     Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
-                        listOf("CASH", "MOBILE_MONEY", "BANK_TRANSFER", "POS", "CHEQUE").forEach { t ->
+                        listOf("CASH", "MOBILE_MONEY", "BANK_TRANSFER", "POS", "CHEQUE")?.forEach { t ->
                             FilterChip(
                                 selected = type == t,
                                 onClick = { type = t },
@@ -642,6 +640,8 @@ fun EmployeesSection(branches: List<BranchDto> = emptyList()) {
     var selectedFilterBranch by remember { mutableStateOf<BranchDto?>(null) }
 
     // Dialog state
+    val generateEmployeeId = { UUID.randomUUID().toString().substring(0, 8).uppercase() }
+    var newEmployeeId by remember { mutableStateOf(generateEmployeeId()) }
     var newName by remember { mutableStateOf("") }
     var newRole by remember { mutableStateOf("") }
     var newPin by remember { mutableStateOf("") }
@@ -664,9 +664,8 @@ fun EmployeesSection(branches: List<BranchDto> = emptyList()) {
 
     LaunchedEffect(Unit) {
         try {
-            val list = SupabaseManager.client.postgrest["employees"]
-                .select()
-                .decodeAs<List<Employee>>()
+            val list = SupabaseManager.client?.postgrest?.get("employees")?.select()
+                ?.decodeAs<List<Employee>>() ?: emptyList()
             employees.clear()
             employees.addAll(list)
         } catch (e: Exception) {
@@ -710,7 +709,10 @@ fun EmployeesSection(branches: List<BranchDto> = emptyList()) {
             }
             Spacer(Modifier.width(16.dp))
             Button(
-                onClick = { showAddDialog = true },
+                onClick = {
+                    newEmployeeId = generateEmployeeId()
+                    showAddDialog = true
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryOrange),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -778,8 +780,7 @@ fun EmployeesSection(branches: List<BranchDto> = emptyList()) {
                     EmployeeCard(employee, branchName = branchName, onDelete = {
                         scope.launch {
                             try {
-                                SupabaseManager.client.postgrest["employees"]
-                                    .delete { filter { eq("id", employee.id!!) } }
+                                SupabaseManager.client?.postgrest?.get("employees")?.delete { filter { eq("id", employee.id!!) } }
                                 employees.remove(employee)
                             } catch (e: Exception) {
                                 com.example.barandgrillownerpanel.utils.Logger.error("SETTINGS", "Failed deleting employee", e)
@@ -800,6 +801,29 @@ fun EmployeesSection(branches: List<BranchDto> = emptyList()) {
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     SettingsTextField("Full Name", newName) { newName = it }
+
+                    Column {
+                        Text("Employee ID", color = TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = newEmployeeId,
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                unfocusedBorderColor = Color.White.copy(alpha = 0.1f),
+                                focusedBorderColor = PrimaryOrange,
+                                unfocusedContainerColor = DarkBackground,
+                                focusedContainerColor = DarkBackground,
+                                unfocusedTextColor = TextPrimary,
+                                focusedTextColor = TextPrimary
+                            )
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text("Use this ID for mobile login. It is generated by the owner.", color = TextSecondary, fontSize = 12.sp)
+                    }
                     
                     var roleDropdownExpanded by remember { mutableStateOf(false) }
                     val roles = listOf("Supervisor", "Employee")
@@ -945,16 +969,17 @@ fun EmployeesSection(branches: List<BranchDto> = emptyList()) {
                             scope.launch {
                                 try {
                                     val emp = Employee(
+                                        id = newEmployeeId,
                                         name = newName,
                                         role = newRole,
                                         pin = newPin.ifBlank { null },
                                         branchId = finalBranchToAssign?.id
                                     )
-                                    val inserted = SupabaseManager.client.postgrest["employees"]
-                                        .insert(emp) { select() }
-                                        .decodeSingle<Employee>()
+                                    val inserted = SupabaseManager.client?.postgrest?.get("employees")?.insert(emp) { select() }
+                                        ?.decodeSingle<Employee>() ?: return@launch
                                     employees.add(inserted)
                                     showAddDialog = false
+                                    newEmployeeId = generateEmployeeId()
                                     newName = ""; newRole = ""; newPin = ""; selectedParentBranch = null; selectedSubBranch = null
                                 } catch (e: Exception) {
                                     com.example.barandgrillownerpanel.utils.Logger.error("SETTINGS", "Failed adding new employee", e)
@@ -997,6 +1022,10 @@ fun EmployeeCard(employee: Employee, branchName: String? = null, onDelete: () ->
             Column(modifier = Modifier.weight(1f)) {
                 Text(employee.name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Text(employee.role, color = TextSecondary, fontSize = 13.sp)
+                if (!employee.id.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("ID: ${employee.id}", color = TextSecondary, fontSize = 12.sp)
+                }
                 if (branchName != null) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Surface(
@@ -1043,7 +1072,7 @@ fun SecuritySection(settings: AppSettings, onSettingsChange: (AppSettings) -> Un
                     isUpdatingPassword = true
                     GlobalScope.launch {
                         try {
-                            SupabaseManager.client.auth.updateUser { password = newOwnerPassword }
+                            SupabaseManager.client?.auth?.updateUser { password = newOwnerPassword }
                         } catch (e: Exception) {
                             com.example.barandgrillownerpanel.utils.Logger.error("SETTINGS", "Failed updating owner password", e)
                         } finally {
@@ -1358,3 +1387,7 @@ fun ColorCircle(color: Color, isSelected: Boolean, onClick: () -> Unit) {
             .clickable { onClick() }
     )
 }
+
+
+
+

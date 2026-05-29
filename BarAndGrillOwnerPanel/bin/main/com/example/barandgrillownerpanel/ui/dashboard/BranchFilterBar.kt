@@ -82,3 +82,5 @@ private fun branchIcon(branch: BranchDto): String = when (branch.type.uppercase(
     "LIQUOR_SHOP" -> "🍾"
     else -> "🍖"
 }
+
+

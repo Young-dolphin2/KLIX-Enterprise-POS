@@ -177,3 +177,5 @@ data class IngredientMenuPortionRow(
     val portions_per_sale: Double,
     val branch_id: String? = null
 )
+
+

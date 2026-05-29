@@ -55,7 +55,7 @@ fun LoginScreen(
 
     val scope = rememberCoroutineScope()
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize().background(Color(0xFF050505))) {
         val horizontalPadding = if (maxWidth < 600.dp) 32.dp else 100.dp
         
         Column(
@@ -77,19 +77,19 @@ fun LoginScreen(
                     text = "Welcome to KLIX",
                     fontSize = 36.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = Color(0xFFC0C0C0)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = "Sign in to manage your business",
-                    color = Color(0xFF94A3B8),
+                    color = Color(0xFFC0C0C0),
                     fontSize = 18.sp
                 )
 
                 Spacer(modifier = Modifier.height(56.dp))
 
                 // Email Field
-                Text("Email Address", color = Color(0xFFCBD5E1), fontSize = 14.sp)
+                Text("Email Address", color = Color(0xFFC0C0C0), fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(8.dp))
                 CustomTextField(
                     value = email,
@@ -101,7 +101,7 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Password Field
-                Text("Password", color = Color(0xFFCBD5E1), fontSize = 14.sp)
+                Text("Password", color = Color(0xFFC0C0C0), fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(8.dp))
                 CustomTextField(
                     value = password,
@@ -116,7 +116,7 @@ fun LoginScreen(
                 // Forgot Password
                 Text(
                     text = "Forgot Password?",
-                    color = Color(0xFF60A5FA),
+                    color = Color(0xFFC0C0C0),
                     fontSize = 14.sp,
                     modifier = Modifier
                         .align(Alignment.End)
@@ -146,15 +146,15 @@ fun LoginScreen(
                             errorMessage = null
                             scope.launch {
                                 try {
-                                    SupabaseManager.client.auth.signInWith(Email) {
-                                        this.email = email
-                                        this.password = password
-                                    }
-                                    failedAttempts = 0
-                                    Logger.info("AUTH", "Login successful for user: $email")
-                                    funOnLoginSuccess()
-                                } catch (e: Exception) {
-                                    Logger.warn("AUTH", "Failed login attempt for user: $email - ${e.message}")
+                                        SupabaseManager.client?.auth?.signInWith(Email) {
+                                            this.email = email
+                                            this.password = password
+                                        }
+                                        failedAttempts = 0
+                                        Logger.info("AUTH", "Login successful for user: $email")
+                                        funOnLoginSuccess()
+                                    } catch (t: Throwable) {
+                                        Logger.warn("AUTH", "Failed login attempt for user: $email - ${t.message}")
                                     failedAttempts++
                                     val now = System.currentTimeMillis()
                                     when {
@@ -184,7 +184,7 @@ fun LoginScreen(
                         },
                         modifier = Modifier.fillMaxSize(),
                         shape = RoundedCornerShape(28.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB)),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD4AF37)),
                         enabled = !isLoading && !isLockedOut
                     ) {
                         if (isLoading) {
@@ -192,7 +192,7 @@ fun LoginScreen(
                         } else if (isLockedOut) {
                             Text("Locked Out", color = Color.White.copy(0.5f))
                         } else {
-                            Text("Sign In", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text("Sign In", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                         }
                     }
                 }
@@ -204,7 +204,7 @@ fun LoginScreen(
                     onClick = onDevBypass,
                     modifier = Modifier.fillMaxWidth().height(48.dp),
                     shape = RoundedCornerShape(24.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF94A3B8)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFC0C0C0)),
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF334155))
                 ) {
                     Text("Developer Bypass (Skip Login)")
@@ -309,4 +309,6 @@ fun CustomTextField(
         }
     )
 }
+
+
 

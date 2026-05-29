@@ -23,3 +23,5 @@ data class SaleItemDto(
     val quantity: Int,
     val category: String
 )
+
+

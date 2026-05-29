@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.Text
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -98,7 +99,7 @@ fun InventoryTab(
             
             var showGuide by remember { mutableStateOf(false) }
             IconButton(onClick = { showGuide = true }) {
-                Icon(Icons.Default.HelpOutline, "Guide", tint = PrimaryOrange)
+                Icon(Icons.AutoMirrored.Filled.HelpOutline, "Guide", tint = PrimaryOrange)
             }
             
             com.example.barandgrillownerpanel.ui.components.GuideOverlay(
@@ -468,9 +469,7 @@ fun InventoryTab(
                                                 onClick = {
                                                     scope.launch {
                                                         try {
-                                                            com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                                                .postgrest["categories"]
-                                                                .delete { filter { com.example.barandgrillownerpanel.models.CategoryDto::name eq cat } }
+                                                            com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("categories")?.delete { filter { com.example.barandgrillownerpanel.models.CategoryDto::name eq cat } }
                                                                 
                                                             @Suppress("UNCHECKED_CAST")
                                                             (customCategories as? MutableList<String>)?.remove(cat)
@@ -542,19 +541,17 @@ fun InventoryTab(
                                                     onClick = {
                                                         scope.launch {
                                                             try {
-                                                                com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                                                    .postgrest["categories"]
-                                                                    .delete { 
-                                                                        filter { 
-                                                                            com.example.barandgrillownerpanel.models.CategoryDto::name eq sub
-                                                                            com.example.barandgrillownerpanel.models.CategoryDto::parentName eq newItemCategory 
-                                                                        } 
+                                                                com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("categories")?.delete {
+                                                                    filter {
+                                                                        com.example.barandgrillownerpanel.models.CategoryDto::name eq sub
+                                                                        com.example.barandgrillownerpanel.models.CategoryDto::parentName eq newItemCategory
                                                                     }
-                                                                    
+                                                                }
+
                                                                 @Suppress("UNCHECKED_CAST")
                                                                 val subsList = (customSubcategories as? MutableMap<String, MutableList<String>>)?.get(newItemCategory)
                                                                 subsList?.remove(sub)
-                                                                
+
                                                                 if (newItemSubcategory == sub) {
                                                                     newItemSubcategory = subsList?.firstOrNull() ?: ""
                                                                 }
@@ -940,11 +937,9 @@ fun InventoryTab(
                                     (customSubcategories as? MutableMap<String, MutableList<String>>)?.put(cat, mutableListOf())
                                 }
                                 scope.launch {
-                                    try {
-                                        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                            .postgrest["categories"]
-                                            .insert(com.example.barandgrillownerpanel.models.CategoryInsertDto(name = cat))
-                                    } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Inventory delete failed", e) }
+                                        try {
+                                            com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("categories")?.insert(com.example.barandgrillownerpanel.models.CategoryInsertDto(name = cat))
+                                        } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Inventory delete failed", e) }
                                 }
                                 newItemCategory = cat
                                 newItemSubcategory = ""
@@ -990,10 +985,8 @@ fun InventoryTab(
                                 if (existing != null && !existing.contains(sub)) {
                                     existing.add(sub)
                                     scope.launch {
-                                        try {
-                                            com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                                .postgrest["categories"]
-                                                .insert(com.example.barandgrillownerpanel.models.CategoryInsertDto(name = sub, parentName = newItemCategory))
+                                            try {
+                                            com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("categories")?.insert(com.example.barandgrillownerpanel.models.CategoryInsertDto(name = sub, parentName = newItemCategory))
                                         } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Import failed", e) }
                                     }
                                 }
@@ -1039,8 +1032,7 @@ fun InventoryTab(
                     if (type != "CAPACITY") {
                         scope.launch {
                             try {
-                                com.example.barandgrillownerpanel.data.remote.SupabaseManager.client.postgrest["inventory"]
-                                    .update(
+                                com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("inventory")?.update(
                                         {
                                             set("stock_quantity", updatedItem.currentStock)
                                             set("name", newName)
@@ -1061,8 +1053,7 @@ fun InventoryTab(
                          // To persist capacity changes properly, we would update min_threshold in Supabase here.
                          scope.launch {
                              try {
-                                com.example.barandgrillownerpanel.data.remote.SupabaseManager.client.postgrest["inventory"]
-                                    .update(
+                                com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("inventory")?.update(
                                         {
                                             set("min_threshold", (updatedItem.capacity / 5))
                                             set("name", newName)
@@ -1100,8 +1091,7 @@ fun InventoryTab(
                 allInventoryItems[index] = updatedItem
                 scope.launch {
                     try {
-                        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client.postgrest["inventory"]
-                            .update(
+                        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("inventory")?.update(
                                 {
                                     set("cost_price", cost)
                                     set("selling_price", retail)
@@ -1146,12 +1136,10 @@ fun InventoryTab(
                     scope.launch {
                         try {
                             // Delete from Inventory
-                            com.example.barandgrillownerpanel.data.remote.SupabaseManager.client.postgrest["inventory"]
-                                .delete { filter { eq("id", toDelete.id) } }
+                            com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("inventory")?.delete { filter { eq("id", toDelete.id) } }
                             
                             // Also delete from Menu Items (since they share ID or name-based alignment)
-                            com.example.barandgrillownerpanel.data.remote.SupabaseManager.client.postgrest["menu_items"]
-                                .delete { filter { eq("id", toDelete.id) } }
+                            com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("menu_items")?.delete { filter { eq("id", toDelete.id) } }
                             
                             // Update local state
                             allInventoryItems.removeAll { it.id == toDelete.id }
@@ -1179,7 +1167,7 @@ fun InventoryTab(
                         
                         // 1. Update Inventory Status & Stock
                         val newStock = if (newStatus == "RENTED") 0.0 else 1.0
-                        client.postgrest["inventory"].update({
+                        client?.postgrest?.get("inventory")?.update({
                             set("status", newStatus)
                             set("stock_quantity", newStock)
                         }) {
@@ -1194,7 +1182,7 @@ fun InventoryTab(
                             notes = notes,
                             branchId = asset.branchId
                         )
-                        client.postgrest["asset_history"].insert(history)
+                        client?.postgrest?.get("asset_history")?.insert(history)
 
                         // 3. Update Local State
                         val idx = allInventoryItems.indexOfFirst { it.id == asset.id }
@@ -2233,16 +2221,12 @@ private fun AdjustStockDialog(
 }
 
 private suspend fun fetchPortionMappings(inventoryId: String): List<IngredientMenuPortionRow> {
-    return com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-        .postgrest["ingredient_menu_portions"]
-        .select { filter { eq("inventory_id", inventoryId) } }
-        .decodeAs<List<IngredientMenuPortionRow>>()
+    return com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("ingredient_menu_portions")?.select { filter { eq("inventory_id", inventoryId) } }
+        ?.decodeAs<List<IngredientMenuPortionRow>>() ?: emptyList()
 }
 
 private suspend fun clearPortionMappings(inventoryId: String) {
-    com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-        .postgrest["ingredient_menu_portions"]
-        .delete { filter { eq("inventory_id", inventoryId) } }
+    com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("ingredient_menu_portions")?.delete { filter { eq("inventory_id", inventoryId) } }
 }
 
 private suspend fun upsertPortionMappings(
@@ -2263,9 +2247,7 @@ private suspend fun upsertPortionMappings(
         )
     }
     if (rows.isNotEmpty()) {
-        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-            .postgrest["ingredient_menu_portions"]
-            .insert(rows)
+        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("ingredient_menu_portions")?.insert(rows)
     }
 }
 
@@ -2274,12 +2256,10 @@ private suspend fun upsertPortionMappingsByInventoryName(
     branchId: String?,
     links: List<PortionLinkDraft>
 ) {
-    val rows = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-        .postgrest["inventory"]
-        .select {
+    val rows = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("inventory")?.select {
             filter { eq("name", inventoryName) }
         }
-        .decodeAs<List<com.example.barandgrillownerpanel.models.InventoryItemDto>>()
+        ?.decodeAs<List<com.example.barandgrillownerpanel.models.InventoryItemDto>>() ?: emptyList()
     val inv = rows.firstOrNull { it.branchId == branchId } ?: return
     val id = inv.id ?: return
     upsertPortionMappings(id, branchId, links)
@@ -2306,16 +2286,14 @@ private fun RentAssetDialog(
         if (searchQuery.length >= 2) {
             isLoading = true
             try {
-                customers = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                    .postgrest["customers"]
-                    .select {
+                customers = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("customers")?.select {
                         filter {
                             or {
                                 ilike("name", "%$searchQuery%")
                                 ilike("phone", "%$searchQuery%")
                             }
                         }
-                    }.decodeAs<List<CustomerDto>>()
+                    }?.decodeAs<List<CustomerDto>>() ?: emptyList()
             } catch (e: Exception) {
                 com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY", "Failed loading customer search results", e)
             }
@@ -2407,3 +2385,7 @@ private fun RentAssetDialog(
         }
     )
 }
+
+
+
+

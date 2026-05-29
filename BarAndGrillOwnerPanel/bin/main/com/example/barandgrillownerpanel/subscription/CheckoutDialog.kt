@@ -432,3 +432,5 @@ private fun calculateSavings(plan: SubscriptionPlan): Int {
     val yearlyTotal = plan.yearlyMwK
     return ((monthlyTotal - yearlyTotal) * 100 / monthlyTotal).coerceAtLeast(0)
 }
+
+

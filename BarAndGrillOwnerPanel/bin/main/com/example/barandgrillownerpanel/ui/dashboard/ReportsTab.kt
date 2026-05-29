@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,7 +33,7 @@ fun ReportsTab(
     branches: List<BranchDto>,
     settings: AppSettings
 ) {
-    val formatter = DateTimeFormatter.ofPattern("dd MMM").withZone(ZoneId.systemDefault())
+    val formatter = DateTimeFormatter.ofPattern("dd MMM")?.withZone(ZoneId.systemDefault())
 
     // Branch performance
     val branchRevenue: Map<String, Double> = saleHistory
@@ -68,7 +69,7 @@ fun ReportsTab(
     val allExpenses = remember { mutableStateListOf<ExpenseDto>() }
     LaunchedEffect(Unit) {
         try {
-            val fetched = SupabaseManager.client.postgrest["expenses"].select().decodeAs<List<ExpenseDto>>()
+            val fetched = SupabaseManager.client?.postgrest?.get("expenses")?.select()?.decodeAs<List<ExpenseDto>>() ?: emptyList()
             allExpenses.clear()
             allExpenses.addAll(fetched)
         } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("REPORTS", "Failed fetching expenses", e) }
@@ -138,7 +139,7 @@ fun ReportsTab(
             ReportKpiCard(
                 "Overall Profit",
                 "${settings.currencySymbol} ${String.format("%,.0f", overallProfit)}",
-                if (overallProfit >= 0) Icons.Default.TrendingUp else Icons.Default.TrendingDown,
+                if (overallProfit >= 0) Icons.AutoMirrored.Filled.TrendingUp else Icons.AutoMirrored.Filled.TrendingDown,
                 if (overallProfit >= 0) SuccessGreen else ErrorRed,
                 Modifier.weight(1f)
             )
@@ -152,7 +153,7 @@ fun ReportsTab(
             ReportKpiCard(
                 "Revenue Growth",
                 "${if (revenueGrowth >= 0) "+" else ""}${String.format("%.1f", revenueGrowth)}%",
-                if (revenueGrowth >= 0) Icons.Default.TrendingUp else Icons.Default.TrendingDown,
+                if (revenueGrowth >= 0) Icons.AutoMirrored.Filled.TrendingUp else Icons.AutoMirrored.Filled.TrendingDown,
                 if (revenueGrowth >= 0) SuccessGreen else ErrorRed,
                 Modifier.weight(1f)
             )
@@ -469,3 +470,5 @@ private fun exportSalesToCSV(sales: List<SaleRecord>, settings: AppSettings) {
         }
     }
 }
+
+

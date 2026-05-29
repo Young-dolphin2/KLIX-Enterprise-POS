@@ -55,22 +55,19 @@ fun SalesStatsTab(
         errorMessage = null
         try {
             // 1. Fetch all sales
-            val salesList = SupabaseManager.client.postgrest["sales"]
-                .select()
-                .decodeAs<List<SaleDto>>()
+            val salesList = SupabaseManager.client?.postgrest?.get("sales")?.select()
+                ?.decodeAs<List<SaleDto>>() ?: emptyList()
 
             // 2. Extract IDs to fetch relevant items
             val saleIds = salesList.map { it.id }
 
             if (saleIds.isNotEmpty()) {
                 // 3. Fetch all related sale items
-                val allSaleItems = SupabaseManager.client.postgrest["sale_items"]
-                    .select {
+                val allSaleItems = SupabaseManager.client?.postgrest?.get("sale_items")?.select {
                         filter {
                             isIn("sale_id", saleIds)
                         }
-                    }
-                    .decodeAs<List<SaleItemDto>>()
+                    }?.decodeAs<List<SaleItemDto>>() ?: emptyList()
 
                 // 4. Group items by sale_id
                 val groupedItems = allSaleItems.groupBy { it.saleId }
@@ -107,30 +104,28 @@ fun SalesStatsTab(
             saleHistory.addAll(newHistory.sortedByDescending { it.timestamp })
             isLoading = false
             // 7. Setup Realtime Listener
-            val channel = SupabaseManager.client.realtime.channel("public:sales")
-            val changeFlow = channel.postgresChangeFlow<io.github.jan.supabase.realtime.PostgresAction.Insert>(schema = "public") {
+            val channel = SupabaseManager.client?.realtime?.channel("public:sales")
+            val changeFlow = channel?.postgresChangeFlow<io.github.jan.supabase.realtime.PostgresAction.Insert>(schema = "public") {
                 table = "sales"
             }
             
-            channel.subscribe(blockUntilSubscribed = true)
+            channel?.subscribe(blockUntilSubscribed = true)
             
             // Collect new sales and re-fetch
             launch {
-                changeFlow.collect {
+                changeFlow?.collect {
                 // Short delay to ensure sale_items are inserted by the POS app
                 kotlinx.coroutines.delay(1000)
                 
                 // Re-fetch everything to ensure consistency
-                val updatedSalesList = SupabaseManager.client.postgrest["sales"]
-                    .select()
-                    .decodeAs<List<SaleDto>>()
+                val updatedSalesList = SupabaseManager.client?.postgrest?.get("sales")?.select()
+                    ?.decodeAs<List<SaleDto>>() ?: emptyList()
                     
                 val updatedSaleIds = updatedSalesList.map { it.id }
                 
                 if (updatedSaleIds.isNotEmpty()) {
-                    val updatedItems = SupabaseManager.client.postgrest["sale_items"]
-                        .select { filter { isIn("sale_id", updatedSaleIds) } }
-                        .decodeAs<List<SaleItemDto>>()
+                    val updatedItems = SupabaseManager.client?.postgrest?.get("sale_items")?.select { filter { isIn("sale_id", updatedSaleIds) } }
+                        ?.decodeAs<List<SaleItemDto>>() ?: emptyList()
                         
                     val newGroupedItems = updatedItems.groupBy { it.saleId }
                     newGroupedItems.forEach { (sId, items) ->
@@ -417,4 +412,8 @@ fun DesktopKPICard(title: String, value: String, icon: androidx.compose.ui.graph
         }
     }
 }
+
+
+
+
 

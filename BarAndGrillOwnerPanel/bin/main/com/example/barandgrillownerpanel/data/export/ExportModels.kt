@@ -51,3 +51,5 @@ data class ExportOptions(
     val includeExpenses: Boolean = true,
     val branchId: String? = null // null = all branches
 )
+
+

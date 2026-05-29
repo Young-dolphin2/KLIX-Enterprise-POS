@@ -83,12 +83,11 @@ suspend fun insertInventoryWithCloneBranchesAndMenu(
     }
 
     // ---- insert primary row (Use upsert to prevent duplicates if user tries to "add" an existing item) ----
-    val insertedList = SupabaseManager.client.postgrest["inventory"]
-        .upsert(effectiveInsertDto) {
+    val insertedList = SupabaseManager.client?.postgrest?.get("inventory")?.upsert(effectiveInsertDto) {
             onConflict = "name,branch_id"
             select()
         }
-        .decodeAs<List<InventoryItemDto>>()
+        ?.decodeAs<List<InventoryItemDto>>() ?: emptyList()
 
     val inserted = insertedList.firstOrNull() ?: return emptyList()
     val allCreatedDtos = mutableListOf(inserted)
@@ -111,12 +110,11 @@ suspend fun insertInventoryWithCloneBranchesAndMenu(
 
     if (allClonesDtos.isNotEmpty()) {
         try {
-            val insertedClones = SupabaseManager.client.postgrest["inventory"]
-                .upsert(allClonesDtos) {
+                val insertedClones = SupabaseManager.client?.postgrest?.get("inventory")?.upsert(allClonesDtos) {
                     onConflict = "name,branch_id"
                     select()
                 }
-                .decodeAs<List<InventoryItemDto>>()
+                ?.decodeAs<List<InventoryItemDto>>() ?: emptyList()
             allCreatedDtos.addAll(insertedClones)
         } catch (e: Exception) {
             com.example.barandgrillownerpanel.utils.Logger.error("INVENTORY_SYNC", "Inventory sync error", e)
@@ -141,12 +139,11 @@ suspend fun insertInventoryWithCloneBranchesAndMenu(
                 isActive = true
             )
             try {
-                val upserted = SupabaseManager.client.postgrest["menu_items"]
-                    .upsert(desiredMenuDto) {
+                val upserted = SupabaseManager.client?.postgrest?.get("menu_items")?.upsert(desiredMenuDto) {
                         onConflict = "name,branch_id"
                         select()
                     }
-                    .decodeSingle<MenuItemDto>()
+                    ?.decodeSingle<MenuItemDto>() ?: continue
                 val desktop = DesktopMenuItem(
                     id = upserted.id ?: inventoryId,
                     name = upserted.name,
@@ -242,12 +239,11 @@ suspend fun syncBar1ToBar2(
     }
 
     try {
-        val inserted = SupabaseManager.client.postgrest["inventory"]
-            .upsert(cloneDtos) {
+        val inserted = SupabaseManager.client?.postgrest?.get("inventory")?.upsert(cloneDtos) {
                 onConflict = "name,branch_id"
                 select()
             }
-            .decodeAs<List<InventoryItemDto>>()
+            ?.decodeAs<List<InventoryItemDto>>() ?: emptyList()
 
         inserted.forEach { dto ->
             val newItem = InventoryItem(
@@ -286,9 +282,8 @@ suspend fun syncBar1ToBar2(
 // ---------------------------------------------------------------------------
 
 suspend fun fetchInventoryDtoById(rowId: String): InventoryItemDto? {
-    val rows = SupabaseManager.client.postgrest["inventory"]
-        .select { filter { eq("id", rowId) } }
-        .decodeAs<List<InventoryItemDto>>()
+    val rows = SupabaseManager.client?.postgrest?.get("inventory")?.select { filter { eq("id", rowId) } }
+        ?.decodeAs<List<InventoryItemDto>>() ?: emptyList()
     return rows.firstOrNull()
 }
 
@@ -316,12 +311,11 @@ suspend fun upsertMenuRetailForInventoryItem(
         branchId = branchId,
         isActive = true
     )
-    val upserted = SupabaseManager.client.postgrest["menu_items"]
-        .upsert(desiredMenuDto) {
+    val upserted = SupabaseManager.client?.postgrest?.get("menu_items")?.upsert(desiredMenuDto) {
             onConflict = "name,branch_id"
             select()
         }
-        .decodeSingle<MenuItemDto>()
+        ?.decodeSingle<MenuItemDto>() ?: return
     val desktop = DesktopMenuItem(
         id = upserted.id ?: name,
         name = upserted.name,
@@ -356,7 +350,7 @@ suspend fun patchInventorySellingPriceFromMenu(
     if (idx < 0) return
     val inv = inventoryItems[idx]
     val finalName = newItemName?.trim()?.takeIf { it.isNotEmpty() } ?: inv.name
-    SupabaseManager.client.postgrest["inventory"].update({
+    SupabaseManager.client?.postgrest?.get("inventory")?.update({
         set("selling_price", newPrice)
         set("name", finalName)
     }) {
@@ -367,3 +361,7 @@ suspend fun patchInventorySellingPriceFromMenu(
         name = finalName
     )
 }
+
+
+
+

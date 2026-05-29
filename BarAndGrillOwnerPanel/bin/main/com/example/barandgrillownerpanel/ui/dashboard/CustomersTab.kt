@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -186,7 +187,7 @@ fun CustomerCard(customer: CustomerDto) {
             Spacer(Modifier.width(16.dp))
             
             IconButton(onClick = { /* TODO: View Profile/History */ }) {
-                Icon(Icons.Default.ArrowForwardIos, null, tint = TextSecondary, modifier = Modifier.size(16.dp))
+                Icon(Icons.AutoMirrored.Filled.ArrowForwardIos, null, tint = TextSecondary, modifier = Modifier.size(16.dp))
             }
         }
     }
@@ -227,3 +228,5 @@ fun AddCustomerDialog(onDismiss: () -> Unit, onSave: (CustomerDto) -> Unit) {
         }
     )
 }
+
+

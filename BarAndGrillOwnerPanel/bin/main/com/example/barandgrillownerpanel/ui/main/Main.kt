@@ -190,3 +190,5 @@ fun SplashScreen(message: String = "Starting KLIX POS...") {
         }
     }
 }
+
+

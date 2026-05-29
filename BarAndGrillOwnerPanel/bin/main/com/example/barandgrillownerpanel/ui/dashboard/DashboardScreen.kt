@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.barandgrillownerpanel.data.CacheManager
 import com.example.barandgrillownerpanel.data.DashboardDataCache
+import com.example.barandgrillownerpanel.data.local.LocalDatabase
 import com.example.barandgrillownerpanel.ui.theme.*
 import com.example.barandgrillownerpanel.models.*
 import io.github.jan.supabase.postgrest.*
@@ -130,29 +131,32 @@ fun DashboardScreen(
 
     // Check subscription on launch
     LaunchedEffect(Unit) {
-        val session = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client.auth.sessionStatus
-        if (session is SessionStatus.Authenticated) {
-            val userId = session.session?.user?.id ?: return@LaunchedEffect
-            userEmail = session.session?.user?.email ?: ""
-            userPhone = session.session?.user?.phone ?: ""
-            userBusinessName = appSettings.businessName
-            
-            subscriptionInfo = SubscriptionManager.checkStatus(userId)
-            
-            // Poll for subscription updates every 10 seconds
-            scope.launch {
-                while (true) {
-                    kotlinx.coroutines.delay(10_000)
-                    subscriptionInfo = SubscriptionManager.checkStatus(userId)
+        try {
+            val session = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.auth?.sessionStatus
+            if (session is SessionStatus.Authenticated) {
+                val userId = session.session?.user?.id ?: return@LaunchedEffect
+                userEmail = session.session?.user?.email ?: ""
+                userPhone = session.session?.user?.phone ?: ""
+                userBusinessName = appSettings.businessName
+
+                subscriptionInfo = SubscriptionManager.checkStatus(userId)
+
+                // Poll for subscription updates every 10 seconds
+                scope.launch {
+                    while (true) {
+                        kotlinx.coroutines.delay(10_000)
+                        subscriptionInfo = SubscriptionManager.checkStatus(userId)
+                    }
                 }
             }
+        } catch (t: Throwable) {
+            Logger.error("DASHBOARD", "Subscription check failed (Supabase not configured?)", t)
         }
     }
 
 
     suspend fun refreshInventory() {
-        val items = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-            .postgrest["inventory"].select().decodeAs<List<InventoryItemDto>>()
+        val items = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("inventory")?.select()?.decodeAs<List<InventoryItemDto>>() ?: emptyList()
 
         val mappedItems = items.map { dto ->
             InventoryItem(
@@ -181,8 +185,7 @@ fun DashboardScreen(
     }
 
     suspend fun refreshCategories() {
-        val cats = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-            .postgrest["categories"].select().decodeAs<List<com.example.barandgrillownerpanel.models.CategoryDto>>()
+        val cats = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("categories")?.select()?.decodeAs<List<com.example.barandgrillownerpanel.models.CategoryDto>>() ?: emptyList()
         
         customCategories.clear()
         customSubcategories.clear()
@@ -202,15 +205,12 @@ fun DashboardScreen(
     }
 
     suspend fun refreshSalesHistory() {
-        val salesList = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-            .postgrest["sales"].select().decodeAs<List<SaleDto>>()
+        val salesList = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("sales")?.select()?.decodeAs<List<SaleDto>>() ?: emptyList()
 
         val saleIds = salesList.map { it.id }
         val saleItems = if (saleIds.isNotEmpty()) {
-            com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                .postgrest["sale_items"].select {
-                    filter { isIn("sale_id", saleIds) }
-                }.decodeAs<List<SaleItemDto>>()
+            com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("sale_items")?.select {
+                }?.decodeAs<List<SaleItemDto>>() ?: emptyList()
         } else emptyList()
 
         val itemsBySale = saleItems.groupBy { it.saleId }
@@ -239,8 +239,7 @@ fun DashboardScreen(
 
     suspend fun refreshCredits() {
         try {
-            val fetched = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client.postgrest["credits"]
-                .select().decodeAs<List<CreditDto>>()
+            val fetched = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("credits")?.select()?.decodeAs<List<CreditDto>>() ?: emptyList()
             credits.clear()
             credits.addAll(fetched.sortedByDescending { it.created_at })
         } catch (e: Exception) {
@@ -250,8 +249,7 @@ fun DashboardScreen(
 
     suspend fun refreshExpenses() {
         try {
-            val fetched = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client.postgrest["expenses"]
-                .select().decodeAs<List<ExpenseDto>>()
+            val fetched = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("expenses")?.select()?.decodeAs<List<ExpenseDto>>() ?: emptyList()
             expenses.clear()
             expenses.addAll(fetched.sortedByDescending { it.created_at })
         } catch (e: Exception) {
@@ -259,114 +257,19 @@ fun DashboardScreen(
         }
     }
 
-    LaunchedEffect(retryCount) {
+    suspend fun loadLocalDashboardState() {
         isLoadingData = true
         errorLoading = null
-        
-        // Try to load from cache first
-        val cache = CacheManager.loadCache()
-        if (cache != null) {
-            // Populate UI from cache immediately
-            branches.clear(); branches.addAll(cache.branches)
-            appSettings = appSettings.copy(branches = cache.branches)
-            
-            menuItems.clear()
-            menuItems.addAll(cache.menuItems.mapIndexed { index, dto ->
-                DesktopMenuItem(
-                    id = dto.id ?: (index + 1).toString(),
-                    name = dto.name,
-                    price = dto.price,
-                    category = dto.category,
-                    subcategory = dto.subcategory,
-                    branchId = dto.branchId
-                )
-            })
-
-            // Map inventory from cache
-            val mappedInventory = cache.inventoryItems.map { dto ->
-                InventoryItem(
-                    id = dto.id ?: dto.name,
-                    name = dto.name,
-                    category = dto.category.uppercase(),
-                    subcategory = dto.subcategory,
-                    currentStock = dto.stock_quantity,
-                    capacity = (dto.min_threshold * 5).coerceAtLeast(10.0),
-                    lowStockThreshold = dto.min_threshold,
-                    unit = dto.unit,
-                    unitCost = dto.cost_price,
-                    retailPrice = dto.sellingPrice,
-                    isPortionTracked = dto.isPortionTracked,
-                    portionsPerUnit = dto.portionsPerUnit,
-                    linkedMenuItemName = dto.linkedMenuItemName,
-                    soldByShot = dto.soldByShot,
-                    bottleVolumeMl = dto.bottleVolumeMl,
-                    shotSizeMl = dto.shotSizeMl,
-                    status = dto.status,
-                    branchId = dto.branchId
-                )
-            }
-            inventoryItems.clear(); inventoryItems.addAll(mappedInventory)
-
-            // Map sales from cache (simplified mapping for cache display)
-            val mappedSales = cache.sales.map { dto ->
-                SaleRecord(
-                    id = dto.orderId,
-                    branchId = dto.branchId,
-                    items = dto.items.map { itemDto ->
-                        SaleItem(
-                            item = MenuItem("0", itemDto.name, itemDto.price, itemDto.category, ""),
-                            quantity = itemDto.quantity
-                        )
-                    },
-                    totalAmount = dto.totalAmount,
-                    paymentMethod = dto.paymentMethod,
-                    soldBy = dto.soldBy,
-                    timestamp = try {
-                        java.time.OffsetDateTime.parse(dto.timestamp).toInstant().toEpochMilli()
-                    } catch (e: Exception) { System.currentTimeMillis() }
-                )
-            }
-            saleHistory.clear(); saleHistory.addAll(mappedSales)
-
-            credits.clear()
-            credits.addAll(cache.credits.sortedByDescending { it.created_at })
-            
-            // Map categories from cache
-            if (cache.categories.isNotEmpty()) {
-                customCategories.clear()
-                customSubcategories.clear()
-                val topLevel = cache.categories.filter { it.parentName == null }.map { it.name }
-                customCategories.addAll(topLevel)
-                for (cat in topLevel) {
-                    val subs = cache.categories.filter { it.parentName == cat }.map { it.name }
-                    customSubcategories[cat] = androidx.compose.runtime.mutableStateListOf(*subs.toTypedArray())
-                }
-            }
-            
-            refreshCredits()
-            refreshExpenses()
-            isLoadingData = false // Show cache while loading fresh data
-            isOffline = true // Assume offline until network succeeds
-        }
 
         try {
-            // Use SyncEngine to pull latest data from Supabase
-            com.example.barandgrillownerpanel.data.sync.SyncEngine.fullSync()
-            
-            // Reload all data from SQLite
-            val localDb = com.example.barandgrillownerpanel.data.local.LocalDatabase
-            val freshBranches = localDb.getBranches()
-            if (freshBranches.isNotEmpty()) {
-                branches.clear()
-                branches.addAll(freshBranches)
-                appSettings = appSettings.copy(branches = freshBranches)
-            }
-            
-            val freshMenu = localDb.getMenuItems()
-            if (freshMenu.isNotEmpty()) {
+            val cache = CacheManager.loadCache()
+            if (cache != null) {
+                branches.clear(); branches.addAll(cache.branches)
+                appSettings = appSettings.copy(branches = cache.branches)
+
                 menuItems.clear()
-                menuItems.addAll(freshMenu.mapIndexed { index, dto ->
-                    com.example.barandgrillownerpanel.ui.dashboard.DesktopMenuItem(
+                menuItems.addAll(cache.menuItems.mapIndexed { index, dto ->
+                    DesktopMenuItem(
                         id = dto.id ?: (index + 1).toString(),
                         name = dto.name,
                         price = dto.price,
@@ -375,12 +278,9 @@ fun DashboardScreen(
                         branchId = dto.branchId
                     )
                 })
-            }
-            
-            val freshInventory = localDb.getInventory()
-            if (freshInventory.isNotEmpty()) {
-                val mapped = freshInventory.map { dto ->
-                    com.example.barandgrillownerpanel.ui.dashboard.InventoryItem(
+
+                val mappedInventory = cache.inventoryItems.map { dto ->
+                    InventoryItem(
                         id = dto.id ?: dto.name,
                         name = dto.name,
                         category = dto.category.uppercase(),
@@ -401,28 +301,105 @@ fun DashboardScreen(
                         branchId = dto.branchId
                     )
                 }
-                inventoryItems.clear(); inventoryItems.addAll(mapped)
-            }
-            
-            val freshCategories = localDb.getCategories()
-            if (freshCategories.isNotEmpty()) {
-                customCategories.clear()
-                customSubcategories.clear()
-                val topLevel = freshCategories.filter { it.parentName == null }.map { it.name }
-                customCategories.addAll(topLevel)
-                for (cat in topLevel) {
-                    val subs = freshCategories.filter { it.parentName == cat }.map { it.name }
-                    customSubcategories[cat] = androidx.compose.runtime.mutableStateListOf(*subs.toTypedArray())
+                inventoryItems.clear(); inventoryItems.addAll(mappedInventory)
+
+                val mappedSales = cache.sales.map { dto ->
+                    SaleRecord(
+                        id = dto.orderId,
+                        branchId = dto.branchId,
+                        items = dto.items.map { itemDto ->
+                            SaleItem(
+                                item = MenuItem("0", itemDto.name, itemDto.price, itemDto.category, ""),
+                                quantity = itemDto.quantity
+                            )
+                        },
+                        totalAmount = dto.totalAmount,
+                        paymentMethod = dto.paymentMethod,
+                        soldBy = dto.soldBy,
+                        timestamp = try {
+                            java.time.OffsetDateTime.parse(dto.timestamp).toInstant().toEpochMilli()
+                        } catch (e: Exception) { System.currentTimeMillis() }
+                    )
                 }
+                saleHistory.clear(); saleHistory.addAll(mappedSales)
+
+                credits.clear()
+                credits.addAll(cache.credits.sortedByDescending { it.created_at })
+
+                if (cache.categories.isNotEmpty()) {
+                    customCategories.clear()
+                    customSubcategories.clear()
+                    val topLevel = cache.categories.filter { it.parentName == null }.map { it.name }
+                    customCategories.addAll(topLevel)
+                    for (cat in topLevel) {
+                        val subs = cache.categories.filter { it.parentName == cat }.map { it.name }
+                        customSubcategories[cat] = androidx.compose.runtime.mutableStateListOf(*subs.toTypedArray())
+                    }
+                }
+
+                refreshCredits()
+                refreshExpenses()
+                isLoadingData = false
+                isOffline = true
+                return
             }
-            
-            val freshCredits = localDb.getRecentCredits(90)
-            credits.clear()
-            credits.addAll(freshCredits.sortedByDescending { it.created_at })
-            
-            val freshSales = localDb.getRecentSales(90)
-            val mappedSales = freshSales.map { dto ->
-                com.example.barandgrillownerpanel.models.SaleRecord(
+
+            // Fall back to fresh local DB reads when cache is unavailable.
+            val localDb = com.example.barandgrillownerpanel.data.local.LocalDatabase
+            val localBranches = localDb.getBranches()
+            if (localBranches.isNotEmpty()) {
+                branches.clear(); branches.addAll(localBranches)
+                appSettings = appSettings.copy(branches = localBranches)
+            }
+
+            val localMenu = localDb.getMenuItems()
+            if (localMenu.isNotEmpty()) {
+                menuItems.clear()
+                menuItems.addAll(localMenu.mapIndexed { index, dto ->
+                    DesktopMenuItem(
+                        id = dto.id ?: (index + 1).toString(),
+                        name = dto.name,
+                        price = dto.price,
+                        category = dto.category,
+                        subcategory = dto.subcategory,
+                        branchId = dto.branchId
+                    )
+                })
+            }
+
+            val localInventory = localDb.getInventory()
+            if (localInventory.isNotEmpty()) {
+                inventoryItems.clear()
+                inventoryItems.addAll(localInventory.map { dto ->
+                    InventoryItem(
+                        id = dto.id ?: dto.name,
+                        name = dto.name,
+                        category = dto.category.uppercase(),
+                        subcategory = dto.subcategory,
+                        currentStock = dto.stock_quantity,
+                        capacity = (dto.min_threshold * 5).coerceAtLeast(10.0),
+                        lowStockThreshold = dto.min_threshold,
+                        unit = dto.unit,
+                        unitCost = dto.cost_price,
+                        retailPrice = dto.sellingPrice,
+                        isPortionTracked = dto.isPortionTracked,
+                        portionsPerUnit = dto.portionsPerUnit,
+                        linkedMenuItemName = dto.linkedMenuItemName,
+                        soldByShot = dto.soldByShot,
+                        bottleVolumeMl = dto.bottleVolumeMl,
+                        shotSizeMl = dto.shotSizeMl,
+                        status = dto.status,
+                        branchId = dto.branchId
+                    )
+                })
+            }
+
+            val localCredits = localDb.getRecentCredits(90)
+            credits.clear(); credits.addAll(localCredits.sortedByDescending { it.created_at })
+
+            val localSales = localDb.getRecentSales(90)
+            saleHistory.clear(); saleHistory.addAll(localSales.map { dto ->
+                SaleRecord(
                     id = dto.orderId,
                     branchId = dto.branchId,
                     items = emptyList(),
@@ -431,41 +408,37 @@ fun DashboardScreen(
                     soldBy = dto.soldBy,
                     timestamp = try { java.time.OffsetDateTime.parse(dto.timestamp).toInstant().toEpochMilli() } catch (e: Exception) { System.currentTimeMillis() }
                 )
-            }
-            saleHistory.clear()
-            saleHistory.addAll(mappedSales)
-            
-            // Refresh detailed data
-            refreshSalesHistory()
-            refreshExpenses()
-            
-            isOffline = false
-            errorLoading = null
+            })
 
-        } catch (e: Exception) {
-            com.example.barandgrillownerpanel.utils.Logger.error("DASHBOARD", "Failed to refresh from SyncEngine", e)
-            
-            val errorMessage = e.message ?: e.toString()
-            val friendlyMessage = if (errorMessage.contains("supabase.co") && !errorMessage.contains(" ")) {
-                "Unable to reach database ($errorMessage). Your Supabase project might be paused. Please check your Supabase dashboard to restore it."
-            } else {
-                errorMessage
-            }
-
-            if (inventoryItems.isEmpty() && branches.isEmpty()) {
-                errorLoading = friendlyMessage
-            } else {
-                isOffline = true
-            }
+            isOffline = true
+        } catch (t: Throwable) {
+            Logger.error("DASHBOARD", "Failed loading local dashboard state", t)
+            errorLoading = t.message
+            isOffline = true
         } finally {
             isLoadingData = false
         }
+    }
+
+    LaunchedEffect(Unit) {
+        try {
+            CacheManager.initialize(".")
+        } catch (e: Exception) {
+            Logger.error("DASHBOARD", "Cache initialization failed", e)
+        }
+        launch { loadLocalDashboardState() }
+        com.example.barandgrillownerpanel.data.sync.SyncEngine.startSyncCycle(scope)
+    }
+
+    LaunchedEffect(retryCount) {
+        loadLocalDashboardState()
     }
 
     // Keep dashboard sales live while owner panel is open.
     LaunchedEffect(Unit) {
         try {
             val client = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
+            if (client == null) return@LaunchedEffect
             val salesChannel = client.realtime.channel("dashboard_sales_changes")
             val salesFlow = salesChannel.postgresChangeFlow<io.github.jan.supabase.realtime.PostgresAction>(schema = "public") {
                 table = "sales"
@@ -511,8 +484,8 @@ fun DashboardScreen(
                     }
                 }
             }
-        } catch (e: Exception) {
-            Logger.error("DASHBOARD", "Realtime subscription setup failed", e)
+        } catch (t: Throwable) {
+            Logger.error("DASHBOARD", "Realtime subscription setup failed", t)
         }
     }
 
@@ -572,15 +545,11 @@ fun DashboardScreen(
         else {
             val childIds = branches.filter { it.parentId == b.id }.mapNotNull { it.id }
             val relevantIds = setOfNotNull(b.id) + childIds
-            val filtered = inventoryItems.filter { item -> 
-                val isKitchen = item.category.equals("KITCHEN", ignoreCase = true) || 
-                               item.category.equals("FOOD", ignoreCase = true) || 
+            val filtered = inventoryItems.filter { item ->
+                val isKitchen = item.category.equals("KITCHEN", ignoreCase = true) ||
+                               item.category.equals("FOOD", ignoreCase = true) ||
                                item.isPortionTracked
-                
-                // If it's a kitchen item AND we are looking at a leaf branch (has parent), hide it.
                 if (isKitchen && b.parentId != null) return@filter false
-                
-                // Show if it belongs to this branch, its children, or is global (null) and we are at parent root.
                 item.branchId in relevantIds || (item.branchId == null && b.parentId == null)
             }
             if (childIds.isNotEmpty()) aggregateInventory(filtered) else filtered
@@ -678,10 +647,8 @@ fun DashboardScreen(
                             onRefresh = {
                                 scope.launch {
                                     try {
-                                        val fetchedMenu = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                            .postgrest["menu_items"]
-                                            .select { filter { eq("is_active", true) } }
-                                            .decodeAs<List<com.example.barandgrillownerpanel.models.MenuItemDto>>()
+                                        val fetchedMenu = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("menu_items")?.select { filter { eq("is_active", true) } }
+                                            ?.decodeAs<List<com.example.barandgrillownerpanel.models.MenuItemDto>>() ?: emptyList()
                                         menuItems.clear()
                                         menuItems.addAll(fetchedMenu.mapIndexed { index, dto ->
                                             DesktopMenuItem(
@@ -699,10 +666,8 @@ fun DashboardScreen(
                             onSaveItem = { dto: com.example.barandgrillownerpanel.models.MenuItemDto ->
                                 scope.launch {
                                     try {
-                                        val inserted = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                            .postgrest["menu_items"]
-                                            .insert(dto) { select() }
-                                            .decodeSingle<com.example.barandgrillownerpanel.models.MenuItemDto>()
+                                        val inserted = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("menu_items")?.insert(dto) { select() }
+                                            ?.decodeSingle<com.example.barandgrillownerpanel.models.MenuItemDto>() ?: return@launch
                                         
                                         // If there are ingredients, save them to ingredient_menu_portions
                                         dto.ingredients?.let { ingredients ->
@@ -712,13 +677,12 @@ fun DashboardScreen(
                                                 // but ingredient_menu_portions requires an inventory_id (UUID).
                                                 // Let's find IDs matching these names for this branch.
                                                 val names = ingredients.map { it.inventory_name }
-                                                val matchingInventory = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                                    .postgrest["inventory"].select {
+                                                val matchingInventory = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("inventory")?.select {
                                                         filter {
                                                             isIn("name", names)
                                                             if (dto.branchId != null) eq("branch_id", dto.branchId)
                                                         }
-                                                    }.decodeAs<List<com.example.barandgrillownerpanel.models.InventoryItemDto>>()
+                                                    }?.decodeAs<List<com.example.barandgrillownerpanel.models.InventoryItemDto>>() ?: emptyList()
                                                 
                                                 val portionRows = ingredients.mapNotNull { ing ->
                                                     val inv = matchingInventory.find { it.name == ing.inventory_name }
@@ -733,9 +697,7 @@ fun DashboardScreen(
                                                 }
                                                 
                                                 if (portionRows.isNotEmpty()) {
-                                                    com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                                        .postgrest["ingredient_menu_portions"]
-                                                        .insert(portionRows)
+                                                    com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("ingredient_menu_portions")?.insert(portionRows)
                                                 }
                                             }
                                         }
@@ -756,9 +718,7 @@ fun DashboardScreen(
                             onUpdateItem = { updated: DesktopMenuItem, previousName: String ->
                                 scope.launch {
                                     try {
-                                        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                            .postgrest["menu_items"]
-                                            .update({
+                                        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("menu_items")?.update({
                                                 set("price", updated.price)
                                                 set("name", updated.name)
                                             }) {
@@ -777,9 +737,7 @@ fun DashboardScreen(
                             onAdjustMenuPrice = { item: DesktopMenuItem, newPrice: Double ->
                                 scope.launch {
                                     try {
-                                        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                            .postgrest["menu_items"]
-                                            .update({ set("price", newPrice) }) {
+                                        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("menu_items")?.update({ set("price", newPrice) }) {
                                                 filter { eq("id", item.id) }
                                             }
                                         patchInventorySellingPriceFromMenu(
@@ -797,9 +755,7 @@ fun DashboardScreen(
                             onDeleteItem = { item: DesktopMenuItem ->
                                 scope.launch {
                                     try {
-                                        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                            .postgrest["menu_items"]
-                                            .update({ set("is_active", false) }) {
+                                        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("menu_items")?.update({ set("is_active", false) }) {
                                                 filter { eq("id", item.id) }
                                             }
                                     } catch (e: Exception) {
@@ -825,10 +781,8 @@ fun DashboardScreen(
                             onSaveCredit = { dto: CreditDto ->
                                 scope.launch {
                                     try {
-                                        val newRecord = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                            .postgrest["credits"]
-                                            .insert(dto)
-                                            .decodeSingle<CreditDto>()
+                                        val newRecord = com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("credits")?.insert(dto)
+                                            ?.decodeSingle<CreditDto>() ?: return@launch
                                         val isCurrentBranch = selectedBranch == null || newRecord.branchId == selectedBranch?.id
                                         if (isCurrentBranch) credits.add(0, newRecord)
                                     } catch (e: Exception) {
@@ -850,9 +804,8 @@ fun DashboardScreen(
                                                     syncMenu = true,
                                                     allBranches = branches
                                                 )
-                                                val creditInserted = client.postgrest["credits"]
-                                                    .insert(submission.credit) { select() }
-                                                    .decodeSingle<CreditDto>()
+                                                val creditInserted = client?.postgrest?.get("credits")?.insert(submission.credit) { select() }
+                                                    ?.decodeSingle<CreditDto>() ?: return@launch
                                                 val isCurrentBranch = selectedBranch == null || creditInserted.branchId == selectedBranch?.id
                                                 if (isCurrentBranch) credits.add(0, creditInserted)
                                             }
@@ -860,7 +813,7 @@ fun DashboardScreen(
                                                 val rowId = submission.existingInventoryId ?: return@launch
                                                 val remote = fetchInventoryDtoById(rowId) ?: return@launch
                                                 val newQty = remote.stock_quantity + submission.quantityDelta
-                                                client.postgrest["inventory"].update({
+                                                client?.postgrest?.get("inventory")?.update({
                                                     set("stock_quantity", newQty)
                                                     set("cost_price", submission.inventoryItem.cost_price)
                                                 }) {
@@ -896,9 +849,8 @@ fun DashboardScreen(
                                                         )
                                                     )
                                                 }
-                                                val creditInserted = client.postgrest["credits"]
-                                                    .insert(submission.credit) { select() }
-                                                    .decodeSingle<CreditDto>()
+                                                val creditInserted = client?.postgrest?.get("credits")?.insert(submission.credit) { select() }
+                                                    ?.decodeSingle<CreditDto>() ?: return@launch
                                                 val isCurrentBranch = selectedBranch == null || creditInserted.branchId == selectedBranch?.id
                                                 if (isCurrentBranch) credits.add(0, creditInserted)
                                             }
@@ -906,7 +858,7 @@ fun DashboardScreen(
                                                 val rowId = submission.existingInventoryId ?: return@launch
                                                 val remote = fetchInventoryDtoById(rowId) ?: return@launch
                                                 val newQty = (remote.stock_quantity - submission.quantityDelta).coerceAtLeast(0.0)
-                                                client.postgrest["inventory"].update({
+                                                client?.postgrest?.get("inventory")?.update({
                                                     set("stock_quantity", newQty)
                                                 }) {
                                                     filter { eq("id", rowId) }
@@ -937,9 +889,8 @@ fun DashboardScreen(
                                                         )
                                                     )
                                                 }
-                                                val creditInserted = client.postgrest["credits"]
-                                                    .insert(submission.credit) { select() }
-                                                    .decodeSingle<CreditDto>()
+                                                val creditInserted = client?.postgrest?.get("credits")?.insert(submission.credit) { select() }
+                                                    ?.decodeSingle<CreditDto>() ?: return@launch
                                                 val isCurrentBranch = selectedBranch == null || creditInserted.branchId == selectedBranch?.id
                                                 if (isCurrentBranch) credits.add(0, creditInserted)
                                             }
@@ -952,9 +903,7 @@ fun DashboardScreen(
                             onSettleCredit = { dto: CreditDto ->
                                 scope.launch {
                                     try {
-                                        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                            .postgrest["credits"]
-                                            .update({ 
+                                        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("credits")?.update({ 
                                                 set("is_settled", true)
                                                 set("settled_at", java.time.OffsetDateTime.now().toString())
                                             }) {
@@ -993,12 +942,28 @@ fun DashboardScreen(
                     )
                     DashboardTab.SETTINGS -> SettingsTab(
                         settings = appSettings,
-                        onSettingsChange = { appSettings = it },
+                        onSettingsChange = {
+                            appSettings = it
+                            LocalDatabase.saveAppSettings(
+                                settings = it,
+                                phone = it.phoneNumber,
+                                country = it.country,
+                                currencyCode = it.currencyCode,
+                                isOnboarded = true
+                            )
+                        },
                         branches = branches,
                         onBranchesChange = { updated ->
                             branches.clear()
                             branches.addAll(updated)
                             appSettings = appSettings.copy(branches = updated)
+                            LocalDatabase.saveAppSettings(
+                                settings = appSettings,
+                                phone = appSettings.phoneNumber,
+                                country = appSettings.country,
+                                currencyCode = appSettings.currencyCode,
+                                isOnboarded = true
+                            )
                         },
                         inventoryItems = inventoryItems,
                         saleHistory = saleHistory,
@@ -1012,7 +977,7 @@ fun DashboardScreen(
     // ── UPGRADE DIALOG ────────────────────────────────────────────
     if (showUpgradeDialog) {
         CheckoutDialog(
-            tenantId = (com.example.barandgrillownerpanel.data.remote.SupabaseManager.client.auth.sessionStatus as? SessionStatus.Authenticated)?.session?.user?.id ?: "",
+            tenantId = (com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.auth?.sessionStatus as? SessionStatus.Authenticated)?.session?.user?.id ?: "",
             email = userEmail,
             phone = userPhone,
             businessName = userBusinessName,
@@ -1218,7 +1183,7 @@ fun Sidebar(
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text(
-                    settings.businessName.split(" ").firstOrNull() ?: "KLIX",
+                    settings.businessName.split(" ")?.firstOrNull() ?: "KLIX",
                     fontWeight = FontWeight.ExtraBold,
                     color = TextPrimary,
                     fontSize = 20.sp
@@ -1419,3 +1384,7 @@ fun SidebarItem(
         }
     }
 }
+
+
+
+

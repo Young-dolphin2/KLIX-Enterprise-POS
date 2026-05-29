@@ -36,7 +36,7 @@ fun MenuControlTab(
     onSaveItem: (com.example.barandgrillownerpanel.models.MenuItemDto) -> Unit = {},
     /** Second arg is the item name before this edit (for inventory sync). */
     onUpdateItem: (DesktopMenuItem, String) -> Unit = { _, _ -> },
-    /** Quick price change only; syncs matching inventory [selling_price]. */
+    /** Quick price change only; syncs matching inventory [selling_price)?. */
     onAdjustMenuPrice: (DesktopMenuItem, newPrice: Double) -> Unit = { _, _ -> },
     onDeleteItem: (DesktopMenuItem) -> Unit = {},
     onRefresh: () -> Unit = {},
@@ -525,10 +525,12 @@ fun MenuControlTab(
                         val nameStr = newNameValue.trim().takeIf { it.isNotEmpty() } ?: editingItem?.name ?: ""
                         val index = menuItems.indexOfFirst { it.id == editingItem?.id }
                         if (index != -1) {
-                            val previousName = menuItems[index].name
-                            val updated = menuItems[index].copy(price = price, name = nameStr)
-                            menuItems[index] = updated
-                            onUpdateItem(updated, previousName)
+                            val previousName = menuItems[index]?.name ?: ""
+                            val updated = menuItems[index]?.copy(price = price, name = nameStr)
+                            if (updated != null) {
+                                menuItems[index] = updated
+                                onUpdateItem(updated, previousName)
+                            }
                         }
                         editingItem = null
                     },
@@ -606,9 +608,7 @@ fun MenuControlTab(
                     onClick = {
                         scope.launch {
                             try {
-                                com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                    .postgrest["categories"]
-                                    .delete { filter { com.example.barandgrillownerpanel.models.CategoryDto::name eq catToDelete } }
+                                com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("categories")?.delete { filter { com.example.barandgrillownerpanel.models.CategoryDto::name eq catToDelete } }
                                 @Suppress("UNCHECKED_CAST")
                                 (customCategories as? MutableList<String>)?.remove(catToDelete)
                                 @Suppress("UNCHECKED_CAST")
@@ -642,9 +642,7 @@ fun MenuControlTab(
                     onClick = {
                         scope.launch {
                             try {
-                                com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                    .postgrest["categories"]
-                                    .delete {
+                                    com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("categories")?.delete {
                                         filter {
                                             com.example.barandgrillownerpanel.models.CategoryDto::name eq subToDelete
                                             com.example.barandgrillownerpanel.models.CategoryDto::parentName eq selectedCategory
@@ -697,9 +695,7 @@ fun MenuControlTab(
                             }
                             scope.launch {
                                 try {
-                                    com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                        .postgrest["categories"]
-                                        .insert(com.example.barandgrillownerpanel.models.CategoryInsertDto(name = cat))
+                                    com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("categories")?.insert(com.example.barandgrillownerpanel.models.CategoryInsertDto(name = cat))
                                 } catch (e: Exception) { com.example.barandgrillownerpanel.utils.Logger.error("MENU_CTRL", "Menu delete failed", e) }
                             }
                             selectedCategory = cat
@@ -747,9 +743,7 @@ fun MenuControlTab(
                                 existing.add(sub)
                                 scope.launch {
                                     try {
-                                        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client
-                                            .postgrest["categories"]
-                                            .insert(com.example.barandgrillownerpanel.models.CategoryInsertDto(name = sub, parentName = selectedCategory))
+                                        com.example.barandgrillownerpanel.data.remote.SupabaseManager.client?.postgrest?.get("categories")?.insert(com.example.barandgrillownerpanel.models.CategoryInsertDto(name = sub, parentName = selectedCategory))
                                     } catch (e: Exception) {
                                         com.example.barandgrillownerpanel.utils.Logger.error("MENU_CONTROL", "Failed creating new subcategory", e)
                                     }
@@ -974,3 +968,7 @@ fun SubCategorySelector(
 // The actual dialog invocations are at the bottom of MenuControlTab.
 // (defined here for reuse if needed)
 // ---------------------------------------------------------------------------
+
+
+
+

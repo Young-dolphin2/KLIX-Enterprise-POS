@@ -122,6 +122,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AppLogger.initialize(this)
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            AppLogger.e("CRASH", "Uncaught exception on thread ${thread.name}", throwable)
+        }
         enableEdgeToEdge()
 
         checkPermissionsAndEnableBluetooth()
@@ -140,6 +144,7 @@ class MainActivity : ComponentActivity() {
 
         val prefs: SharedPreferences = getSharedPreferences("employee_prefs", Context.MODE_PRIVATE)
         val employeeName = mutableStateOf(prefs.getString("employee_name", "") ?: "")
+        val employeeId = mutableStateOf(prefs.getString("employee_id", "") ?: "")
         val employeeRole = mutableStateOf(prefs.getString("employee_role", "") ?: "")
 
         SyncManager.schedulePeriodicSync(this)
@@ -208,17 +213,24 @@ class MainActivity : ComponentActivity() {
                             Screen.ONBOARDING
                         } else if (sessionStatus !is SessionStatus.Authenticated) {
                             Screen.LOGIN
+                        } else if (employeeName.value.isBlank() && employeeId.value.isBlank()) {
+                            Screen.EMPLOYEE_LOGIN
                         } else {
                             Screen.POS
                         }
                     } else if (sessionStatus is SessionStatus.Authenticated && (currentScreen == Screen.LOGIN || currentScreen == Screen.SIGN_UP)) {
-                        currentScreen = Screen.POS
+                        currentScreen = if (employeeName.value.isBlank() && employeeId.value.isBlank()) {
+                            Screen.EMPLOYEE_LOGIN
+                        } else {
+                            Screen.POS
+                        }
                     } else if (sessionStatus !is SessionStatus.Authenticated && currentScreen == Screen.POS) {
                         currentScreen = Screen.LOGIN
                     }
                 }
 
                 var currentEmployeeName by remember { employeeName }
+                var currentEmployeeId by remember { employeeId }
                 var currentEmployeeRole by remember { mutableStateOf(prefs.getString("employee_role", "Staff") ?: "Staff") }
                 var isUnlocked by remember { mutableStateOf(false) }
 
@@ -237,16 +249,33 @@ class MainActivity : ComponentActivity() {
                     } catch (_: Exception) { }
                 }
 
-                LaunchedEffect(currentEmployeeName, registeredEmployees.size) {
-                    isEmployeeRegistered = registeredEmployees.any { it.name == currentEmployeeName }
+                LaunchedEffect(currentEmployeeName, currentEmployeeId, registeredEmployees.size) {
+                    val registered = registeredEmployees.find {
+                        if (currentEmployeeId.isNotBlank()) it.id.equals(currentEmployeeId, ignoreCase = true)
+                        else it.name.equals(currentEmployeeName, ignoreCase = true)
+                    }
+                    isEmployeeRegistered = registered != null
+                    if (registered != null) {
+                        currentEmployeeName = registered.name
+                        currentEmployeeRole = registered.role
+                    }
                 }
 
-                val currentEmployee = remember(currentEmployeeName, registeredEmployees) {
-                    registeredEmployees.find { it.name == currentEmployeeName }
+                val currentEmployee = remember(currentEmployeeId, currentEmployeeName, registeredEmployees) {
+                    registeredEmployees.find {
+                        if (currentEmployeeId.isNotBlank()) it.id.equals(currentEmployeeId, ignoreCase = true)
+                        else it.name.equals(currentEmployeeName, ignoreCase = true)
+                    }
                 }
 
                 LaunchedEffect(currentEmployeeName) {
                     isUnlocked = false
+                }
+
+                LaunchedEffect(isEmployeeRegistered, currentScreen, sessionStatus) {
+                    if (sessionStatus is SessionStatus.Authenticated && currentScreen == Screen.POS && !isEmployeeRegistered) {
+                        currentScreen = Screen.EMPLOYEE_LOGIN
+                    }
                 }
 
                 val allBranches = remember { mutableStateListOf<BranchRef>() }
@@ -349,6 +378,7 @@ class MainActivity : ComponentActivity() {
                             onLogout = {
                                 lifecycleScope.launch {
                                     SupabaseManager.client.auth.signOut()
+                                    currentEmployeeId = ""
                                     currentEmployeeName = ""
                                     currentEmployeeRole = "Staff"
                                     prefs.edit().clear().apply()
@@ -378,12 +408,26 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                         Screen.LOGIN -> LoginScreen(
-                            onLoginSuccess = { currentScreen = Screen.POS },
+                            onLoginSuccess = { currentScreen = Screen.EMPLOYEE_LOGIN },
                             onNavigateToSignUp = { currentScreen = Screen.SIGN_UP }
                         )
                         Screen.SIGN_UP -> SignUpScreen(
-                            onSignUpSuccess = { currentScreen = Screen.POS },
+                            onSignUpSuccess = { currentScreen = Screen.EMPLOYEE_LOGIN },
                             onNavigateToLogin = { currentScreen = Screen.LOGIN }
+                        )
+                        Screen.EMPLOYEE_LOGIN -> EmployeeLoginScreen(
+                            employees = registeredEmployees,
+                            onEmployeeLoggedIn = { employee ->
+                                currentEmployeeId = employee.id
+                                currentEmployeeName = employee.name
+                                currentEmployeeRole = employee.role
+                                prefs.edit()
+                                    .putString("employee_id", employee.id)
+                                    .putString("employee_name", employee.name)
+                                    .putString("employee_role", employee.role)
+                                    .apply()
+                                currentScreen = Screen.POS
+                            }
                         )
                         Screen.POS -> {
                             if (subscriptionInfo != null && subscriptionInfo!!.status != SubscriptionStatus.ACTIVE) {
@@ -453,6 +497,7 @@ class MainActivity : ComponentActivity() {
                             onLogout = {
                                 lifecycleScope.launch {
                                     SupabaseManager.client.auth.signOut()
+                                    currentEmployeeId = ""
                                     currentEmployeeName = ""
                                     currentEmployeeRole = "Staff"
                                     prefs.edit().clear().apply()
@@ -955,13 +1000,13 @@ fun CartItemRow(orderItem: OrderItem, currencySymbol: String = "MK", onUpdate: (
 
 @Composable
 fun PaymentMethodDialog(
-    total: Double, 
+    total: Double,
     currencySymbol: String = "MK",
     customMethods: List<PaymentMethod> = emptyList(),
-    onDismiss: () -> Unit, 
+    onDismiss: () -> Unit,
     onPaymentComplete: (String) -> Unit
 ) {
-    val methods = if (customMethods.isNotEmpty()) customMethods.map { it.toString() } else listOf("Cash", "Airtel Money", "TNM Mpamba", "Bank")
+    val methods = customMethods.map { it.toString() }
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = SurfaceColor,
@@ -973,19 +1018,36 @@ fun PaymentMethodDialog(
             }
         },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                methods.forEach { method ->
-                    Button(
-                        onClick = { onPaymentComplete(method) },
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = CharcoalGray),
-                        shape = RoundedCornerShape(12.dp)
-                    ) { Text(method, color = TextPrimary, fontWeight = FontWeight.Bold) }
+            if (methods.isNotEmpty()) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    methods.forEach { method ->
+                        Button(
+                            onClick = { onPaymentComplete(method) },
+                            modifier = Modifier.fillMaxWidth().height(52.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = CharcoalGray),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(method, color = TextPrimary, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        "No payment methods are configured by the owner. Employees can only use the options defined in the owner panel.",
+                        color = TextSecondary,
+                        fontSize = 14.sp
+                    )
+                    Text(
+                        "Please ask the owner to set up payment methods in the owner panel before processing transactions.",
+                        color = Color(0xFFEF4444),
+                        fontSize = 13.sp
+                    )
                 }
             }
         },
         confirmButton = {},
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel", color = TextSecondary) } }
+        dismissButton = { TextButton(onClick = onDismiss) { Text("Close", color = TextSecondary) } }
     )
 }
 

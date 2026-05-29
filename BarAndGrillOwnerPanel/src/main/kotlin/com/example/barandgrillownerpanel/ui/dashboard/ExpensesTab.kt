@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -112,7 +113,7 @@ fun ExpensesTab(
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            if (isBreakEven) Icons.Default.TrendingUp else Icons.Default.TrendingDown,
+                            if (isBreakEven) Icons.AutoMirrored.Filled.TrendingUp else Icons.AutoMirrored.Filled.TrendingDown,
                             contentDescription = null,
                             tint = if (isBreakEven) SuccessGreen else ErrorRed,
                             modifier = Modifier.size(20.dp)
@@ -338,7 +339,7 @@ fun ExpensesTab(
                                     description = expDescription.trim(),
                                     amount = amount
                                 )
-                                SupabaseManager.client.postgrest["expenses"].insert(dto)
+                                SupabaseManager.client?.postgrest?.get("expenses")?.insert(dto)
                                 onRefresh()
                                 showAddDialog = false
                             } catch (e: Exception) {
@@ -441,3 +442,5 @@ private fun expenseCategoryIcon(category: String): androidx.compose.ui.graphics.
     "Supplies" -> Icons.Default.ShoppingCart
     else -> Icons.Default.Receipt
 }
+
+

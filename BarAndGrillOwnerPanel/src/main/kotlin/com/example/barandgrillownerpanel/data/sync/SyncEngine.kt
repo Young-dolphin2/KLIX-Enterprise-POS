@@ -9,6 +9,10 @@ import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 
 /**
  * Background sync engine that keeps the local SQLite database
@@ -76,6 +80,22 @@ object SyncEngine {
     // PUSH: Local → Supabase
     // ================================================================
 
+    private fun parseSyncTimestamp(timestamp: String): Long {
+        return try {
+            Instant.parse(timestamp).toEpochMilli()
+        } catch (firstError: DateTimeParseException) {
+            try {
+                val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                LocalDateTime.parse(timestamp, formatter)
+                    .toInstant(ZoneOffset.UTC)
+                    .toEpochMilli()
+            } catch (secondError: Exception) {
+                Logger.warn(TAG, "Unable to parse sync timestamp '$timestamp'; defaulting to now")
+                System.currentTimeMillis()
+            }
+        }
+    }
+
     private suspend fun pushLocalChanges() {
         val pendingSyncs = LocalDatabase.getPendingSyncs()
         if (pendingSyncs.isEmpty()) return
@@ -89,12 +109,12 @@ object SyncEngine {
         for (sync in pendingSyncs.take(PUSH_BATCH_SIZE)) {
             // Exponential backoff check: retry_count * 5 minutes
             val waitTime = sync.retryCount * 300_000L 
-            val createdAt = Instant.parse(sync.createdAt).toEpochMilli()
+            val createdAt = parseSyncTimestamp(sync.createdAt)
             if (System.currentTimeMillis() - createdAt < waitTime) continue
 
             try {
                 if (sync.operation == "DELETE") {
-                    SupabaseManager.client.postgrest[sync.tableName].delete {
+                    SupabaseManager.client?.postgrest?.get(sync.tableName)?.delete {
                         filter { eq("id", sync.recordId) }
                     }
                 } else {
@@ -121,42 +141,42 @@ object SyncEngine {
         val items = LocalDatabase.getSaleItems(sync.recordId)
         
         // Push sale first
-        SupabaseManager.client.postgrest["sales"].upsert(sale)
+        SupabaseManager.client?.postgrest?.get("sales")?.upsert(sale)
         
         // Push items
         if (items.isNotEmpty()) {
-            SupabaseManager.client.postgrest["sale_items"].upsert(items)
+            SupabaseManager.client?.postgrest?.get("sale_items")?.upsert(items)
         }
     }
 
     private suspend fun pushExpense(sync: SyncQueueItem) {
         val expense = LocalDatabase.getExpense(sync.recordId) ?: return
-        SupabaseManager.client.postgrest["expenses"].upsert(expense)
+        SupabaseManager.client?.postgrest?.get("expenses")?.upsert(expense)
     }
 
     private suspend fun pushCredit(sync: SyncQueueItem) {
         val credit = LocalDatabase.getCredit(sync.recordId) ?: return
-        SupabaseManager.client.postgrest["credits"].upsert(credit)
+        SupabaseManager.client?.postgrest?.get("credits")?.upsert(credit)
     }
 
     private suspend fun pushInventory(sync: SyncQueueItem) {
         val item = LocalDatabase.getInventoryItem(sync.recordId) ?: return
-        SupabaseManager.client.postgrest["inventory"].upsert(item)
+        SupabaseManager.client?.postgrest?.get("inventory")?.upsert(item)
     }
 
     private suspend fun pushMenuItem(sync: SyncQueueItem) {
         val item = LocalDatabase.getMenuItem(sync.recordId) ?: return
-        SupabaseManager.client.postgrest["menu_items"].upsert(item)
+        SupabaseManager.client?.postgrest?.get("menu_items")?.upsert(item)
     }
 
     private suspend fun pushBranch(sync: SyncQueueItem) {
         // Branches are usually read-only from the POS, but if we need to push:
-        // SupabaseManager.client.postgrest["branches"].upsert(...)
+        // SupabaseManager.client?.postgrest?.get("branches")?.upsert(...)
     }
 
     private suspend fun pushCustomer(sync: SyncQueueItem) {
         val customer = LocalDatabase.getCustomer(sync.recordId) ?: return
-        SupabaseManager.client.postgrest["customers"].upsert(customer)
+        SupabaseManager.client?.postgrest?.get("customers")?.upsert(customer)
     }
 
     // ================================================================
@@ -196,12 +216,11 @@ object SyncEngine {
 
     private suspend fun pullBranches(lastSync: String) {
         try {
-            val branches = SupabaseManager.client.postgrest["branches"]
-                .select { 
+            val branches = SupabaseManager.client?.postgrest?.get("branches")?.select { 
                     filter { gte("updated_at", lastSync) }
                     limit(PULL_LIMIT)
                 }
-                .decodeAs<List<BranchDto>>()
+                ?.decodeAs<List<BranchDto>>() ?: emptyList()
             
             branches.forEach { LocalDatabase.upsertBranch(it, fromSync = true) }
             if (branches.isNotEmpty()) Logger.info(TAG, "Pulled ${branches.size} branches")
@@ -212,12 +231,11 @@ object SyncEngine {
 
     private suspend fun pullMenuItems(lastSync: String) {
         try {
-            val items = SupabaseManager.client.postgrest["menu_items"]
-                .select { 
+            val items = SupabaseManager.client?.postgrest?.get("menu_items")?.select { 
                     filter { gte("updated_at", lastSync) }
                     limit(PULL_LIMIT)
                 }
-                .decodeAs<List<MenuItemDto>>()
+                ?.decodeAs<List<MenuItemDto>>() ?: emptyList()
             
             items.forEach { LocalDatabase.saveMenuItem(it, fromSync = true) }
             if (items.isNotEmpty()) Logger.info(TAG, "Pulled ${items.size} menu items")
@@ -228,12 +246,11 @@ object SyncEngine {
 
     private suspend fun pullInventory(lastSync: String) {
         try {
-            val items = SupabaseManager.client.postgrest["inventory"]
-                .select { 
+            val items = SupabaseManager.client?.postgrest?.get("inventory")?.select { 
                     filter { gte("updated_at", lastSync) }
                     limit(PULL_LIMIT)
                 }
-                .decodeAs<List<InventoryItemDto>>()
+                ?.decodeAs<List<InventoryItemDto>>() ?: emptyList()
             
             items.forEach { LocalDatabase.saveInventoryItem(it, fromSync = true) }
             if (items.isNotEmpty()) Logger.info(TAG, "Pulled ${items.size} inventory items")
@@ -244,12 +261,11 @@ object SyncEngine {
 
     private suspend fun pullSales(lastSync: String) {
         try {
-            val sales = SupabaseManager.client.postgrest["sales"]
-                .select { 
+            val sales = SupabaseManager.client?.postgrest?.get("sales")?.select { 
                     filter { gte("updated_at", lastSync) }
                     limit(PULL_LIMIT)
                 }
-                .decodeAs<List<SaleDto>>()
+                ?.decodeAs<List<SaleDto>>() ?: emptyList()
             
             sales.forEach { LocalDatabase.saveSale(it, fromSync = true) }
             if (sales.isNotEmpty()) Logger.info(TAG, "Pulled ${sales.size} sales")
@@ -260,12 +276,11 @@ object SyncEngine {
 
     private suspend fun pullExpenses(lastSync: String) {
         try {
-            val expenses = SupabaseManager.client.postgrest["expenses"]
-                .select { 
+            val expenses = SupabaseManager.client?.postgrest?.get("expenses")?.select { 
                     filter { gte("updated_at", lastSync) }
                     limit(PULL_LIMIT)
                 }
-                .decodeAs<List<ExpenseDto>>()
+                ?.decodeAs<List<ExpenseDto>>() ?: emptyList()
             
             expenses.forEach { LocalDatabase.saveExpense(it, fromSync = true) }
             if (expenses.isNotEmpty()) Logger.info(TAG, "Pulled ${expenses.size} expenses")
@@ -276,12 +291,11 @@ object SyncEngine {
 
     private suspend fun pullCredits(lastSync: String) {
         try {
-            val credits = SupabaseManager.client.postgrest["credits"]
-                .select { 
+            val credits = SupabaseManager.client?.postgrest?.get("credits")?.select { 
                     filter { gte("updated_at", lastSync) }
                     limit(PULL_LIMIT)
                 }
-                .decodeAs<List<CreditDto>>()
+                ?.decodeAs<List<CreditDto>>() ?: emptyList()
             
             credits.forEach { LocalDatabase.saveCredit(it, fromSync = true) }
             if (credits.isNotEmpty()) Logger.info(TAG, "Pulled ${credits.size} credits")
@@ -292,12 +306,11 @@ object SyncEngine {
 
     private suspend fun pullCategories(lastSync: String) {
         try {
-            val categories = SupabaseManager.client.postgrest["categories"]
-                .select { 
+            val categories = SupabaseManager.client?.postgrest?.get("categories")?.select { 
                     filter { gte("updated_at", lastSync) }
                     limit(PULL_LIMIT)
                 }
-                .decodeAs<List<CategoryDto>>()
+                ?.decodeAs<List<CategoryDto>>() ?: emptyList()
             
             categories.forEach { LocalDatabase.saveCategory(it, fromSync = true) }
             if (categories.isNotEmpty()) Logger.info(TAG, "Pulled ${categories.size} categories")
@@ -308,12 +321,11 @@ object SyncEngine {
 
     private suspend fun pullCustomers(lastSync: String) {
         try {
-            val customers = SupabaseManager.client.postgrest["customers"]
-                .select { 
+            val customers = SupabaseManager.client?.postgrest?.get("customers")?.select { 
                     filter { gte("updated_at", lastSync) }
                     limit(PULL_LIMIT)
                 }
-                .decodeAs<List<CustomerDto>>()
+                ?.decodeAs<List<CustomerDto>>() ?: emptyList()
             
             customers.forEach { LocalDatabase.saveCustomer(it, fromSync = true) }
             if (customers.isNotEmpty()) Logger.info(TAG, "Pulled ${customers.size} customers")
@@ -354,3 +366,6 @@ object SyncEngine {
         }
     }
 }
+
+
+

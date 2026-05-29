@@ -40,7 +40,7 @@ data class DesktopMenuItem(
 )
 
 enum class InventoryCreditKind {
-    /** New row inserted; stock is on [InventoryItemDto.stock_quantity]. */
+    /** New row inserted; stock is on [InventoryItemDto.stock_quantity)?. */
     NEW_INBOUND,
     /** Existing row: add [quantityDelta] to stock, update cost only. */
     EXISTING_INBOUND,
@@ -61,3 +61,5 @@ sealed interface CreditFormSubmission {
     data class Other(val credit: CreditDto) : CreditFormSubmission
     data class Inventory(val payload: CreditInventorySubmission) : CreditFormSubmission
 }
+
+

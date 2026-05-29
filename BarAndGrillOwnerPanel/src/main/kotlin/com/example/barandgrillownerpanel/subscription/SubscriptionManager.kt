@@ -95,13 +95,12 @@ object SubscriptionManager {
      */
     suspend fun checkStatus(tenantId: String): SubscriptionInfo {
         return try {
-            val response = SupabaseManager.client.postgrest["subscriptions"]
-                .select {
+            val response = SupabaseManager.client?.postgrest?.get("subscriptions")?.select {
                     filter { eq("tenant_id", tenantId) }
                     filter { eq("status", "active") }
                     limit(1)
                 }
-                .decodeAs<List<SubscriptionDto>>()
+                ?.decodeAs<List<SubscriptionDto>>() ?: emptyList()
 
             if (response.isEmpty()) {
                 Logger.info(TAG, "No subscription found for tenant: $tenantId")
@@ -232,3 +231,7 @@ object SubscriptionManager {
         return "$symbol ${String.format("%,.0f", amount.toDouble())}"
     }
 }
+
+
+
+
